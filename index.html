@@ -6,827 +6,2848 @@
   <title>COMMITTEE // Sector 09</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Space+Grotesk:wght@400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Hind+Siliguri:wght@500;600;700&family=Space+Grotesk:wght@400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
   <style>
     /* ==========================================================================
-       MINI-GAME 1: HARDCORE ALL-9 RUI MACH SLAP & CATCH
+       1. DESIGN TOKENS & ATMOSPHERIC PALETTE
        ========================================================================== */
-    function initRuiMachGame() {
-      const arena = document.getElementById("fish-arena");
-      const scoreEl = document.getElementById("fish-score");
-      const comboEl = document.getElementById("fish-combo");
-      const timeEl = document.getElementById("fish-time");
-      const bestEl = document.getElementById("fish-best");
-      const comboBar = document.getElementById("fish-combo-bar");
-      const windBanner = document.getElementById("fish-wind-banner");
-      const castStrip = document.getElementById("arena-cast-strip");
-      const startBtn = document.getElementById("btn-start-fish");
+    :root {
+      --bg-void: #0f110e;
+      --bg-charcoal: #171a16;
+      --bg-panel: #1f231d;
+      --bg-elevated: #282e25;
+      --forest-dark: #1b281d;
+      --olive-muted: #4b573c;
+      --olive-bright: #73855c;
+      --brown-faded: #483526;
+      --brown-dark: #2d2118;
+      --rust-orange: #c95127;
+      --rust-glow: #e46639;
+      --amber-sulfur: #d4a437;
+      --cream-dirty: #e3ddc8;
+      --cream-muted: #a69f88;
+      --ink-dark: #111310;
+      --border-grime: #343b30;
+      --danger-red: #b82929;
 
-      // Render all 9 members along the bottom of the arena as active cast
-      castStrip.innerHTML = "";
-      COMMITTEE_CONFIG.members.forEach((m) => {
-        const slot = document.createElement("div");
-        slot.className = "arena-mini-actor";
-        slot.id = `arena-cast-${m.id}`;
-        slot.appendChild(createAvatarVisual(m));
-        const lbl = document.createElement("div");
-        lbl.className = "arena-mini-label";
-        lbl.textContent = m.name;
-        slot.appendChild(lbl);
-        castStrip.appendChild(slot);
-      });
+      --font-display: 'Syne', 'Impact', sans-serif;
+      --font-body: 'Space Grotesk', 'Hind Siliguri', sans-serif;
+      --font-mono: 'Courier Prime', 'Hind Siliguri', monospace;
 
-      let score = 0;
-      let combo = 1;
-      let comboDecay = 0; // 0..100 (100 = full combo bar, decays over time)
-      let best = parseInt(localStorage.getItem("committee_ruimach_best") || "0", 10);
-      bestEl.textContent = best;
+      --shadow-hard: 4px 4px 0px #090a08;
+      --shadow-deep: 0 18px 40px rgba(0, 0, 0, 0.65);
+      --radius-sm: 4px;
+      --transition-fast: 150ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
 
-      let timeLeft = 30;
-      let running = false;
-      let windForceX = 0;
-      let spawnTimer = null;
-      let countdownTimer = null;
-      let windTimer = null;
-      let decayTimer = null;
+    body.phosphor-mode {
+      --bg-void: #070d08;
+      --bg-charcoal: #0b160d;
+      --bg-panel: #102113;
+      --bg-elevated: #162e1a;
+      --olive-muted: #2d6b38;
+      --olive-bright: #5ce675;
+      --rust-orange: #d9ff43;
+      --rust-glow: #ecff8c;
+      --amber-sulfur: #5ce675;
+      --cream-dirty: #d2f7d6;
+      --cream-muted: #7ab382;
+      --border-grime: #244d2b;
+    }
 
-      function highlightMemberInArena(memberId, shoutText) {
-        document.querySelectorAll(".arena-mini-actor.is-active-caller").forEach((el) => {
-          el.classList.remove("is-active-caller");
-        });
-        const slot = document.getElementById(`arena-cast-${memberId}`);
-        if (slot) {
-          slot.classList.add("is-active-caller");
-          setTimeout(() => slot.classList.remove("is-active-caller"), 900);
+    body.protocol-nine {
+      filter: hue-rotate(155deg) contrast(1.15);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      background-color: var(--bg-void);
+      color: var(--cream-dirty);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.45;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9000;
+      opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--rust-glow);
+      outline-offset: 3px;
+    }
+
+    button, select {
+      font-family: inherit;
+      cursor: pointer;
+      color: inherit;
+      background: none;
+      border: none;
+    }
+
+    /* ==========================================================================
+       2. ENTRY GATE
+       ========================================================================== */
+    #entry-gate {
+      position: fixed;
+      inset: 0;
+      z-index: 9500;
+      background:
+        radial-gradient(circle at 50% 35%, rgba(201, 81, 39, 0.18), transparent 60%),
+        var(--bg-void);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      transition: opacity 0.35s ease, visibility 0.35s ease;
+    }
+
+    #entry-gate.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .gate-box {
+      max-width: 520px;
+      width: 100%;
+      background: var(--bg-charcoal);
+      border: 2px solid var(--border-grime);
+      box-shadow: 8px 8px 0px #060706;
+      padding: 2rem;
+    }
+
+    .gate-stamp {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--amber-sulfur);
+      border: 1px solid var(--amber-sulfur);
+      padding: 0.2rem 0.5rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .gate-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 6vw, 3.2rem);
+      font-weight: 800;
+      line-height: 0.95;
+      margin-bottom: 0.85rem;
+    }
+
+    .gate-desc {
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      color: var(--cream-muted);
+      margin-bottom: 1.5rem;
+      border-left: 3px solid var(--rust-orange);
+      padding-left: 0.8rem;
+    }
+
+    .gate-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+    }
+
+    .btn-primary {
+      background: var(--rust-orange);
+      color: #100d0a;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.8rem 1.3rem;
+      border: 2px solid #090a08;
+      box-shadow: var(--shadow-hard);
+      flex: 1 1 auto;
+    }
+
+    .btn-primary:hover {
+      background: var(--rust-glow);
+    }
+
+    .btn-secondary {
+      background: var(--bg-elevated);
+      color: var(--cream-dirty);
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      text-transform: uppercase;
+      padding: 0.8rem 1.05rem;
+      border: 1px solid var(--border-grime);
+    }
+
+    /* ==========================================================================
+       3. TOP BAR & AUDIO DECK
+       ========================================================================== */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 500;
+      background: rgba(18, 20, 17, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 2px solid var(--border-grime);
+      padding: 0.65rem 1.2rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.7rem;
+    }
+
+    #brand-title {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      user-select: none;
+    }
+
+    .brand-tag {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      background: var(--forest-dark);
+      color: var(--olive-bright);
+      border: 1px solid var(--olive-muted);
+      padding: 0.15rem 0.45rem;
+      border-radius: 3px;
+    }
+
+    .nav-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+
+    .nav-tab {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      padding: 0.45rem 0.75rem;
+      border: 1px solid var(--border-grime);
+      border-radius: var(--radius-sm);
+      color: var(--cream-muted);
+      background: var(--bg-panel);
+    }
+
+    .nav-tab:hover {
+      color: var(--cream-dirty);
+    }
+
+    .nav-tab.active {
+      color: var(--ink-dark);
+      background: var(--cream-dirty);
+      font-weight: 700;
+      border-color: var(--cream-dirty);
+    }
+
+    .audio-deck {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-grime);
+      padding: 0.3rem 0.6rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .audio-btn {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      padding: 0.28rem 0.5rem;
+      border: 1px solid var(--border-grime);
+      border-radius: 3px;
+      background: var(--bg-charcoal);
+    }
+
+    .audio-btn.is-muted,
+    .audio-btn.is-stopped {
+      border-color: var(--danger-red);
+      color: #f08080;
+    }
+
+    .volume-slider {
+      width: 68px;
+      accent-color: var(--rust-orange);
+      cursor: pointer;
+    }
+
+    /* ==========================================================================
+       4. LAYOUT & SECTIONS
+       ========================================================================== */
+    .app-shell {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 1rem 1.2rem 3rem;
+    }
+
+    .view-section {
+      display: none;
+      animation: sectionEnter 0.28s ease;
+    }
+
+    .view-section.active {
+      display: block;
+    }
+
+    @keyframes sectionEnter {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .scene-status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.7rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--cream-muted);
+    }
+
+    .live-ticker {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-grime);
+      padding: 0.35rem 0.75rem;
+      border-radius: var(--radius-sm);
+      color: var(--amber-sulfur);
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--rust-orange);
+      box-shadow: 0 0 8px var(--rust-orange);
+      animation: pulseDot 1.6s infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.35; transform: scale(0.75); }
+    }
+
+    .compound-viewport {
+      position: relative;
+      width: 100%;
+      height: clamp(540px, 70vh, 720px);
+      background: linear-gradient(180deg, #131815 0%, #1c241b 46%, #242319 47%, #171813 100%);
+      border: 2px solid var(--border-grime);
+      box-shadow: var(--shadow-deep);
+      overflow: hidden;
+      border-radius: var(--radius-sm);
+      user-select: none;
+    }
+
+    .compound-stage-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .compound-viewport.event-blackout .compound-environment,
+    .compound-viewport.event-blackout .character-actor {
+      filter: brightness(0.28) contrast(1.4);
+    }
+
+    .compound-viewport.event-quake {
+      animation: sceneShake 0.42s ease-in-out 3;
+    }
+
+    .compound-viewport.event-drizzle::after {
+      content: "";
+      position: absolute;
+      inset: -20%;
+      pointer-events: none;
+      z-index: 45;
+      background-image: repeating-linear-gradient(
+        105deg,
+        transparent 0px,
+        transparent 14px,
+        rgba(173, 214, 140, 0.16) 15px,
+        transparent 16px
+      );
+      animation: acidRain 0.55s linear infinite;
+    }
+
+    @keyframes acidRain {
+      from { transform: translate(0, -30px); }
+      to { transform: translate(-18px, 30px); }
+    }
+
+    @keyframes sceneShake {
+      0%, 100% { transform: translate(0, 0); }
+      20% { transform: translate(-7px, 4px); }
+      40% { transform: translate(6px, -5px); }
+      60% { transform: translate(-5px, -3px); }
+      80% { transform: translate(5px, 3px); }
+    }
+
+    .brawl-banner {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-160%);
+      z-index: 80;
+      background: var(--rust-orange);
+      color: var(--ink-dark);
+      border: 2px solid #090a08;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.85);
+      padding: 0.55rem 1.3rem;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: clamp(0.9rem, 2vw, 1.2rem);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transition: transform 0.3s cubic-bezier(0.2, 1.3, 0.3, 1);
+      pointer-events: none;
+    }
+
+    .brawl-banner.active {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .compound-environment {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .cloud-drift-1 { animation: driftSlow 55s linear infinite; }
+    .cloud-drift-2 { animation: driftSlow 78s linear infinite reverse; }
+
+    @keyframes driftSlow {
+      from { transform: translateX(-80px); }
+      to { transform: translateX(120px); }
+    }
+
+    .streetlamp-cone { animation: lampFlicker 7s infinite; }
+
+    @keyframes lampFlicker {
+      0%, 92%, 96%, 100% { opacity: 0.42; }
+      93%, 95% { opacity: 0.12; }
+      94% { opacity: 0.55; }
+    }
+
+    .scene-prop {
+      cursor: pointer;
+      transition: filter 0.2s ease;
+    }
+
+    .scene-prop:hover {
+      filter: drop-shadow(0 0 8px rgba(212, 164, 55, 0.6));
+    }
+
+    .scene-prop.prop-triggered {
+      animation: propBounce 0.45s ease;
+    }
+
+    @keyframes propBounce {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      30% { transform: translateY(-8px) rotate(-5deg); }
+      65% { transform: translateY(2px) rotate(4deg); }
+    }
+
+    /* ==========================================================================
+       5. UNHINGED CHARACTER ACTORS & FIGHT / BRAWL ANIMATIONS
+       ========================================================================== */
+    .characters-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+    }
+
+    .character-actor {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      width: clamp(104px, 10.5vw, 142px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transition: left 0.42s cubic-bezier(0.22, 1.35, 0.36, 1), top 0.42s cubic-bezier(0.22, 1.35, 0.36, 1), filter 0.2s ease;
+      touch-action: manipulation;
+    }
+
+    .character-actor:hover,
+    .character-actor:focus-visible {
+      z-index: 45 !important;
+      filter: drop-shadow(0 6px 14px rgba(228, 102, 57, 0.55));
+    }
+
+    .character-actor.is-highlighted {
+      z-index: 50 !important;
+      filter: drop-shadow(0 0 18px var(--amber-sulfur));
+    }
+
+    .avatar-stage {
+      width: 100%;
+      aspect-ratio: 1 / 1.22;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      transform-origin: bottom center;
+      animation: unhingedRubberIdle 2.3s ease-in-out infinite;
+    }
+
+    @keyframes unhingedRubberIdle {
+      0%, 100% { transform: scale(1, 1) rotate(0deg); }
+      25% { transform: scale(1.07, 0.93) rotate(-3.5deg); }
+      50% { transform: scale(0.94, 1.08) rotate(4deg); }
+      75% { transform: scale(1.05, 0.95) rotate(-2.5deg); }
+    }
+
+    .avatar-stage img.custom-char-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
+    .avatar-stage svg.char-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    .char-shadow {
+      width: 72%;
+      height: 12px;
+      background: rgba(5, 6, 5, 0.58);
+      border-radius: 50%;
+      margin-top: -6px;
+    }
+
+    .char-tag-bar {
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      background: rgba(17, 19, 16, 0.92);
+      border: 1px solid var(--border-grime);
+      padding: 2px 6px;
+      border-radius: 3px;
+      box-shadow: 2px 2px 0 #070807;
+    }
+
+    .char-name-label {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .char-info-btn {
+      font-family: var(--font-mono);
+      font-size: 0.64rem;
+      background: var(--olive-muted);
+      padding: 1px 4px;
+      border-radius: 2px;
+    }
+
+    .char-info-btn:hover {
+      background: var(--rust-orange);
+      color: var(--ink-dark);
+    }
+
+    .speech-bubble {
+      position: absolute;
+      bottom: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%) scale(0.85);
+      min-width: 165px;
+      max-width: 245px;
+      width: max-content;
+      background: var(--cream-dirty);
+      color: var(--ink-dark);
+      border: 2px solid #090a08;
+      box-shadow: 4px 4px 0 #090a08;
+      padding: 0.5rem 0.7rem;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      line-height: 1.3;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 75;
+      transition: opacity 0.16s ease, transform 0.2s cubic-bezier(0.2, 1.3, 0.3, 1);
+    }
+
+    .speech-bubble::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 8px 7px 0 7px;
+      border-style: solid;
+      border-color: #090a08 transparent transparent transparent;
+    }
+
+    .speech-bubble.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(-50%) scale(1);
+    }
+
+    .character-actor.edge-left .speech-bubble {
+      left: 0;
+      transform: translateX(0) scale(0.85);
+    }
+    .character-actor.edge-left .speech-bubble.visible { transform: translateX(0) scale(1); }
+    .character-actor.edge-left .speech-bubble::after { left: 26px; }
+
+    .character-actor.edge-right .speech-bubble {
+      left: auto;
+      right: 0;
+      transform: translateX(0) scale(0.85);
+    }
+    .character-actor.edge-right .speech-bubble.visible { transform: translateX(0) scale(1); }
+    .character-actor.edge-right .speech-bubble::after { left: auto; right: 26px; }
+
+    .char-eyelids {
+      transform-origin: center;
+      transform: scaleY(0);
+      transition: transform 0.07s ease;
+    }
+
+    .character-actor.is-blinking .char-eyelids {
+      transform: scaleY(1);
+    }
+
+    .char-torso {
+      transform-origin: 50% 85%;
+      animation: breatheIdle 2.8s ease-in-out infinite;
+    }
+
+    @keyframes breatheIdle {
+      0%, 100% { transform: scaleY(1) scaleX(1); }
+      50% { transform: scaleY(1.04) scaleX(0.97); }
+    }
+
+    /* Unhinged Individual Click Reactions */
+    .react-laugh-float .avatar-stage { animation: reactLaughFloat 0.9s cubic-bezier(0.25, 1.6, 0.35, 1); }
+    .react-laugh-float .char-mouth-closed { opacity: 0; }
+    .react-laugh-float .char-mouth-laugh { opacity: 1 !important; animation: jawChatter 0.12s infinite alternate; }
+    @keyframes reactLaughFloat {
+      0% { transform: scale(1, 1) translateY(0) rotate(0deg); }
+      25% { transform: scale(1.32, 0.72) translateY(-16px) rotate(-14deg); }
+      55% { transform: scale(0.76, 1.34) translateY(-22px) rotate(16deg); }
+      80% { transform: scale(1.2, 0.85) translateY(-6px) rotate(-10deg); }
+      100% { transform: scale(1, 1) translateY(0) rotate(0deg); }
+    }
+
+    .react-shady-lean .avatar-stage { animation: reactShadyLean 0.9s cubic-bezier(0.2, 1.5, 0.3, 1); }
+    .react-shady-lean .char-arm-l { transform: rotate(-55deg) translate(6px, -6px); }
+    .react-shady-lean .char-arm-r { transform: rotate(55deg) translate(-6px, -6px); }
+    @keyframes reactShadyLean {
+      0%, 100% { transform: scale(1) skewX(0deg); }
+      35% { transform: scale(1.22, 0.86) skewX(-18deg) translateY(-8px); }
+      70% { transform: scale(0.88, 1.18) skewX(15deg); }
+    }
+
+    .react-barrel-swell .avatar-stage { animation: reactBarrelSwell 0.95s cubic-bezier(0.25, 1.5, 0.35, 1); }
+    .react-barrel-swell .char-mouth-closed { opacity: 0; }
+    .react-barrel-swell .char-mouth-laugh { opacity: 1 !important; animation: jawChatter 0.14s infinite alternate; }
+    @keyframes reactBarrelSwell {
+      0%, 100% { transform: scale(1, 1); }
+      30% { transform: scale(1.48, 0.74) translateY(5px) rotate(-6deg); }
+      65% { transform: scale(1.26, 0.88) rotate(8deg); }
+    }
+
+    .react-lunge .avatar-stage { animation: reactLunge 0.85s cubic-bezier(0.2, 1.5, 0.3, 1); }
+    .react-lunge .char-arm-r { transform: rotate(-95deg) translate(-4px, -10px); }
+    @keyframes reactLunge {
+      0%, 100% { transform: scale(1) translateY(0); }
+      30% { transform: scale(1.32, 0.84) translateY(-16px) rotate(14deg); }
+      65% { transform: scale(0.86, 1.2) translateY(-8px) rotate(-12deg); }
+    }
+
+    .react-tilt .avatar-stage { animation: reactTilt 0.9s cubic-bezier(0.25, 1.5, 0.35, 1); }
+    @keyframes reactTilt {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      30% { transform: rotate(-36deg) scale(1.18, 0.86) translateX(-8px); }
+      65% { transform: rotate(32deg) scale(0.86, 1.2) translateX(8px); }
+    }
+
+    .react-hawker-jump .avatar-stage { animation: reactHawkerJump 0.85s cubic-bezier(0.25, 1.5, 0.35, 1); }
+    .react-hawker-jump .char-arm-l { transform: rotate(-145deg); }
+    .react-hawker-jump .char-mouth-closed { opacity: 0; }
+    .react-hawker-jump .char-mouth-laugh { opacity: 1 !important; }
+    @keyframes reactHawkerJump {
+      0%, 100% { transform: translateY(0) scale(1); }
+      30% { transform: translateY(-28px) scale(0.8, 1.32) rotate(-14deg); }
+      65% { transform: translateY(-10px) scale(1.28, 0.78) rotate(14deg); }
+    }
+
+    .react-cackle .avatar-stage { animation: reactCackle 0.9s ease-in-out; }
+    .react-cackle .char-head { transform: rotate(-20deg) translateY(-4px); }
+    .react-cackle .char-mouth-closed { opacity: 0; }
+    .react-cackle .char-mouth-laugh { opacity: 1 !important; animation: jawChatter 0.1s infinite alternate; }
+    @keyframes reactCackle {
+      0%, 100% { transform: translateX(0) rotate(0deg); }
+      20%, 60% { transform: translateX(-9px) rotate(-9deg) scale(1.15, 0.88); }
+      40%, 80% { transform: translateX(9px) rotate(9deg) scale(0.88, 1.15); }
+    }
+
+    .react-bristle .avatar-stage { animation: reactBristle 0.8s steps(4, end); }
+    .react-bristle .char-arm-l { transform: rotate(-75deg); }
+    .react-bristle .char-arm-r { transform: rotate(75deg); }
+    @keyframes reactBristle {
+      0%, 100% { transform: scale(1) translateY(0) rotate(0deg); }
+      25% { transform: scale(1.3, 0.78) translateY(-16px) rotate(-12deg); }
+      50% { transform: scale(0.82, 1.28) translateY(-8px) rotate(12deg); }
+      75% { transform: scale(1.22, 0.85) translateY(-12px) rotate(-8deg); }
+    }
+
+    .react-wheeze .avatar-stage { animation: reactWheeze 0.9s cubic-bezier(0.25, 1.5, 0.35, 1); }
+    .react-wheeze .char-mouth-closed { opacity: 0; }
+    .react-wheeze .char-mouth-laugh { opacity: 1 !important; animation: jawChatter 0.1s infinite alternate; }
+    @keyframes reactWheeze {
+      0%, 100% { transform: scale(1) skewX(0deg); }
+      25% { transform: scale(1.28, 0.72) skewX(18deg) translateY(6px); }
+      55% { transform: scale(0.8, 1.26) skewX(-18deg) translateY(-10px); }
+    }
+
+    /* Fight / Brawl State Animations */
+    .is-brawling-attacker .avatar-stage {
+      animation: brawlPunchCycle 0.36s infinite alternate !important;
+    }
+    .is-brawling-attacker .char-arm-r {
+      transform: rotate(-110deg) translateY(-8px);
+    }
+
+    .is-brawling-victim .avatar-stage {
+      animation: brawlHitRecoil 0.32s infinite alternate !important;
+    }
+
+    @keyframes brawlPunchCycle {
+      0% { transform: scale(1.15, 0.88) rotate(-14deg) translateX(-6px); }
+      100% { transform: scale(0.86, 1.22) rotate(18deg) translateX(12px); }
+    }
+
+    @keyframes brawlHitRecoil {
+      0% { transform: scale(1.25, 0.78) rotate(16deg) translateX(8px); }
+      100% { transform: scale(0.82, 1.25) rotate(-18deg) translateX(-8px); }
+    }
+
+    .react-overload .avatar-stage {
+      animation: reactOverload 0.75s cubic-bezier(0.3, 1.4, 0.4, 1);
+    }
+
+    @keyframes reactOverload {
+      0% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.35) rotate(180deg); }
+      100% { transform: scale(1) rotate(360deg); }
+    }
+
+    @keyframes jawChatter {
+      from { transform: translateY(0); }
+      to { transform: translateY(3px); }
+    }
+
+    /* ==========================================================================
+       6. CHAOS & FIGHT CONTROL DECK
+       ========================================================================== */
+    .chaos-deck {
+      margin-top: 0.85rem;
+      background: var(--bg-charcoal);
+      border: 2px solid var(--border-grime);
+      padding: 0.8rem 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.7rem;
+      box-shadow: var(--shadow-hard);
+    }
+
+    .chaos-label {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--amber-sulfur);
+    }
+
+    .chaos-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      flex: 1 1 auto;
+      justify-content: flex-end;
+    }
+
+    .chaos-btn {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 0.58rem 0.9rem;
+      border: 2px solid #090a08;
+      box-shadow: 3px 3px 0 #090a08;
+    }
+
+    .chaos-btn:hover { filter: brightness(1.12); transform: translate(-1px, -1px); }
+    .chaos-btn--chaos { background: var(--rust-orange); color: var(--ink-dark); }
+    .chaos-btn--fight { background: var(--danger-red); color: var(--cream-dirty); }
+    .chaos-btn--random { background: var(--amber-sulfur); color: var(--ink-dark); }
+    .chaos-btn--event { background: var(--olive-muted); color: var(--cream-dirty); }
+
+    /* ==========================================================================
+       7. GAMES TAB (HARD RUI GAME + 3 BANGLA DARK HUMOR GAMES + FIGHT ARENA)
+       ========================================================================== */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 1.15rem;
+    }
+
+    .game-card {
+      background: var(--bg-charcoal);
+      border: 2px solid var(--border-grime);
+      box-shadow: var(--shadow-hard);
+      padding: 1.15rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .game-card h2 {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      color: var(--amber-sulfur);
+    }
+
+    .game-desc {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--cream-muted);
+    }
+
+    .rui-arena {
+      position: relative;
+      height: 300px;
+      background: #101410;
+      border: 2px solid var(--border-grime);
+      overflow: hidden;
+    }
+
+    .rui-hud {
+      position: relative;
+      z-index: 25;
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      padding: 0.4rem 0.65rem;
+      background: rgba(23, 26, 21, 0.92);
+      border-bottom: 1px solid var(--border-grime);
+    }
+
+    .rui-member-runner {
+      position: absolute;
+      bottom: 6px;
+      width: 56px;
+      height: 68px;
+      pointer-events: none;
+      opacity: 0.85;
+      transition: left 0.35s linear;
+      z-index: 5;
+    }
+
+    .rui-target {
+      position: absolute;
+      z-index: 15;
+      padding: 0.38rem 0.62rem;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 700;
+      border: 2px solid #080907;
+      box-shadow: 2px 2px 0 #080907;
+      user-select: none;
+    }
+
+    .rui-target.fish { background: var(--amber-sulfur); color: var(--ink-dark); }
+    .rui-target.golden { background: #6df28c; color: var(--ink-dark); }
+    .rui-target.trap { background: var(--danger-red); color: var(--cream-dirty); }
+
+    .choice-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .choice-btn {
+      text-align: left;
+      padding: 0.6rem 0.75rem;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-grime);
+      font-size: 0.92rem;
+      transition: all var(--transition-fast);
+    }
+
+    .choice-btn:hover {
+      border-color: var(--amber-sulfur);
+      background: var(--bg-elevated);
+    }
+
+    .outcome-box {
+      background: var(--bg-panel);
+      border-left: 3px solid var(--rust-orange);
+      padding: 0.7rem 0.8rem;
+      font-size: 0.92rem;
+      min-height: 70px;
+    }
+
+    .chat-box {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      max-height: 220px;
+      overflow-y: auto;
+      background: #10130f;
+      border: 1px solid var(--border-grime);
+      padding: 0.65rem;
+    }
+
+    .chat-line {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-grime);
+      padding: 0.45rem 0.65rem;
+      font-size: 0.88rem;
+    }
+
+    .chat-line strong {
+      color: var(--amber-sulfur);
+      margin-right: 0.35rem;
+    }
+
+    /* ==========================================================================
+       8. ROSTER, MEMORY WALL, SOUND ROOM, ABOUT & DOSSIER MODAL
+       ========================================================================== */
+    .section-header {
+      border-bottom: 2px solid var(--border-grime);
+      padding-bottom: 0.8rem;
+      margin-bottom: 1.35rem;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.5rem, 3.2vw, 2.2rem);
+      font-weight: 800;
+    }
+
+    .section-subtitle {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--cream-muted);
+    }
+
+    .roster-grid, .soundboard-grid, .memory-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+
+    .roster-card, .sound-pad, .memory-card {
+      background: var(--bg-charcoal);
+      border: 2px solid var(--border-grime);
+      box-shadow: var(--shadow-hard);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .roster-top {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .roster-avatar {
+      width: 68px;
+      height: 82px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-grime);
+      padding: 4px;
+      flex-shrink: 0;
+    }
+
+    .roster-dialogue {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      background: var(--bg-panel);
+      border-left: 3px solid var(--rust-orange);
+      padding: 0.5rem 0.65rem;
+    }
+
+    .roster-actions {
+      display: flex;
+      gap: 0.45rem;
+      margin-top: auto;
+    }
+
+    .roster-actions button {
+      flex: 1;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      padding: 0.48rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-grime);
+    }
+
+    .roster-actions button:hover {
+      background: var(--rust-orange);
+      color: var(--ink-dark);
+      font-weight: 700;
+    }
+
+    .sound-pad { text-align: left; }
+    .sound-pad.is-playing {
+      border-color: var(--rust-glow);
+      background: #2b211a;
+    }
+
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1rem;
+    }
+
+    .filter-chip {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      padding: 0.35rem 0.7rem;
+      border: 1px solid var(--border-grime);
+      background: var(--bg-panel);
+      color: var(--cream-muted);
+    }
+
+    .filter-chip.active {
+      background: var(--amber-sulfur);
+      color: var(--ink-dark);
+      font-weight: 700;
+    }
+
+    .memory-media {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      background: repeating-linear-gradient(45deg, #171a16 0, #171a16 10px, #1f231d 10px, #1f231d 20px);
+      border: 1px solid var(--border-grime);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .memory-media img, .memory-media video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .memory-placeholder {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--cream-muted);
+      border: 1px dashed var(--olive-muted);
+      padding: 0.45rem 0.65rem;
+      background: rgba(15, 17, 14, 0.85);
+    }
+
+    .about-dossier {
+      background: var(--bg-charcoal);
+      border: 2px solid var(--border-grime);
+      box-shadow: var(--shadow-hard);
+      padding: 1.5rem;
+      max-width: 820px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 8000;
+      background: rgba(7, 8, 7, 0.84);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .dossier-modal {
+      width: 100%;
+      max-width: 640px;
+      max-height: 90vh;
+      overflow-y: auto;
+      background: var(--bg-charcoal);
+      border: 2px solid var(--cream-dirty);
+      box-shadow: 10px 10px 0 #050605;
+      padding: 1.4rem;
+    }
+
+    .dossier-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid var(--border-grime);
+      padding-bottom: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .dossier-close {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-grime);
+      padding: 0.35rem 0.7rem;
+    }
+
+    .dossier-grid {
+      display: grid;
+      grid-template-columns: 165px 1fr;
+      gap: 1.1rem;
+    }
+
+    .stat-row { margin-bottom: 0.45rem; }
+    .stat-row-head {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      margin-bottom: 0.2rem;
+    }
+    .stat-track {
+      height: 8px;
+      background: var(--bg-void);
+      border: 1px solid var(--border-grime);
+    }
+    .stat-fill {
+      height: 100%;
+      background: var(--rust-orange);
+    }
+
+    @media (max-width: 860px) {
+      .compound-viewport {
+        height: 520px;
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
+      .compound-stage-inner {
+        width: 1020px;
+      }
+      .dossier-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- INITIAL ENTRY GATE -->
+  <div id="entry-gate" role="dialog" aria-modal="true" aria-labelledby="gate-heading">
+    <div class="gate-box">
+      <div class="gate-stamp">SECTOR 09 // UNHINGED EDITION</div>
+      <h1 id="gate-heading" class="gate-title">COMMITTEE</h1>
+      <p class="gate-desc">
+        Nine unhinged members, street brawls, a brutal 9-person Rui Mach run, and Bangla dark-humor games.
+      </p>
+      <div class="gate-actions">
+        <button id="enter-with-sound" class="btn-primary" type="button">Enter With Audio</button>
+        <button id="enter-muted" class="btn-secondary" type="button">Enter Muted</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP NAVIGATION -->
+  <header class="topbar">
+    <div id="brand-title" tabindex="0" role="button" title="COMMITTEE">
+      COMMITTEE <span class="brand-tag">09</span>
+    </div>
+
+    <nav class="nav-tabs" aria-label="Main Sections">
+      <button class="nav-tab active" data-target="scene-view" type="button">Main Scene</button>
+      <button class="nav-tab" data-target="games-view" type="button">Games &amp; Bangla Dark</button>
+      <button class="nav-tab" data-target="members-view" type="button">Members</button>
+      <button class="nav-tab" data-target="memory-view" type="button">Memory Wall</button>
+      <button class="nav-tab" data-target="sound-view" type="button">Sound Room</button>
+      <button class="nav-tab" data-target="about-view" type="button">About</button>
+    </nav>
+
+    <div class="audio-deck">
+      <button id="toggle-mute-btn" class="audio-btn" type="button">SFX: ON</button>
+      <button id="toggle-music-btn" class="audio-btn" type="button">BGM: ON</button>
+      <input id="volume-control" class="volume-slider" type="range" min="0" max="1" step="0.05" value="0.75" aria-label="Master Volume" />
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <!-- 1. MAIN SCENE -->
+    <section id="scene-view" class="view-section active">
+      <div class="scene-status-bar">
+        <div class="live-ticker">
+          <span class="pulse-dot" aria-hidden="true"></span>
+          <span id="activity-feed">COMPOUND READY — CLICK ANY MEMBER TO UNHINGE OR PICK FIGHT BRAWL</span>
+        </div>
+        <div>[CLICK: UNHINGE &amp; SPEAK] &bull; [ID: DOSSIER]</div>
+      </div>
+
+      <div id="compound-viewport" class="compound-viewport">
+        <div id="brawl-banner" class="brawl-banner" role="alert">COMPOUND BRAWL IN PROGRESS</div>
+
+        <div class="compound-stage-inner" id="compound-stage">
+          <svg class="compound-environment" viewBox="0 0 1400 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs>
+              <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#0d100e" />
+                <stop offset="55%" stop-color="#1b241c" />
+                <stop offset="100%" stop-color="#2c3324" />
+              </linearGradient>
+              <linearGradient id="lampGlow" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#d4a437" stop-opacity="0.55" />
+                <stop offset="100%" stop-color="#d4a437" stop-opacity="0" />
+              </linearGradient>
+              <linearGradient id="groundGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#25281e" />
+                <stop offset="35%" stop-color="#1b1d16" />
+                <stop offset="100%" stop-color="#10120e" />
+              </linearGradient>
+            </defs>
+
+            <rect width="1400" height="440" fill="url(#skyGrad)" />
+            <circle cx="1140" cy="115" r="46" fill="#d8d0b5" opacity="0.82" />
+            <circle cx="1125" cy="105" r="42" fill="#131914" />
+
+            <g class="cloud-drift-1" opacity="0.28" fill="#4b573c">
+              <ellipse cx="260" cy="110" rx="130" ry="24" />
+              <ellipse cx="330" cy="122" rx="95" ry="18" />
+            </g>
+            <g class="cloud-drift-2" opacity="0.22" fill="#5e6850">
+              <ellipse cx="860" cy="90" rx="150" ry="22" />
+              <ellipse cx="940" cy="104" rx="100" ry="16" />
+            </g>
+
+            <rect x="85" y="190" width="54" height="230" fill="#151915" />
+            <path d="M85 190 Q112 162 139 190 Z" fill="#1a201a" />
+            <rect x="1230" y="170" width="12" height="260" fill="#121512" />
+            <line x1="1205" y1="190" x2="1265" y2="190" stroke="#121512" stroke-width="5" />
+            <line x1="1210" y1="212" x2="1260" y2="212" stroke="#121512" stroke-width="4" />
+
+            <path d="M0 155 Q420 225 820 175 T1400 190" fill="none" stroke="#0c0e0c" stroke-width="2.5" />
+            <path d="M0 172 Q450 245 840 192 T1400 212" fill="none" stroke="#0c0e0c" stroke-width="1.8" />
+
+            <g id="hq-building">
+              <rect x="330" y="185" width="520" height="255" fill="#23261f" stroke="#10120f" stroke-width="4" />
+              <polygon points="305,190 875,165 885,195 300,212" fill="#483526" stroke="#10120f" stroke-width="4" />
+              <g id="prop-antenna" class="scene-prop" transform="translate(790, 92)">
+                <line x1="20" y1="76" x2="20" y2="8" stroke="#8d8774" stroke-width="4" />
+                <line x1="4" y1="22" x2="36" y2="14" stroke="#8d8774" stroke-width="3" />
+                <line x1="8" y1="38" x2="32" y2="32" stroke="#8d8774" stroke-width="3" />
+                <circle cx="20" cy="6" r="5" fill="#c95127" />
+              </g>
+
+              <rect x="445" y="218" width="290" height="44" fill="#131512" stroke="#4b573c" stroke-width="2" transform="rotate(-1.2 590 240)" />
+              <text x="590" y="246" text-anchor="middle" fill="#e3ddc8" font-family="monospace" font-weight="bold" font-size="20" letter-spacing="4" transform="rotate(-1.2 590 240)">SECTOR // 09</text>
+
+              <rect x="375" y="280" width="76" height="64" fill="#141813" stroke="#0f110e" stroke-width="3" />
+              <rect x="383" y="288" width="28" height="22" fill="#3a452e" opacity="0.55" />
+              <rect x="725" y="275" width="84" height="64" fill="#141813" stroke="#0f110e" stroke-width="3" />
+              <rect x="765" y="283" width="36" height="48" fill="#5e4722" opacity="0.45" />
+
+              <rect x="545" y="295" width="88" height="145" fill="#2d2118" stroke="#0f110e" stroke-width="4" />
+              <circle cx="618" cy="370" r="5" fill="#d4a437" />
+            </g>
+
+            <g fill="#162117">
+              <circle cx="175" cy="355" r="78" />
+              <circle cx="235" cy="380" r="62" />
+              <circle cx="1275" cy="365" r="85" />
+              <circle cx="1210" cy="395" r="58" />
+            </g>
+
+            <rect x="0" y="432" width="1400" height="288" fill="url(#groundGrad)" />
+            <line x1="0" y1="432" x2="1400" y2="432" stroke="#363d30" stroke-width="3" />
+            <path d="M220 520 L310 538 L360 525 M890 560 L980 545 L1060 572 M490 640 L610 628" stroke="#0e100d" stroke-width="3" fill="none" />
+
+            <g id="prop-lamp" class="scene-prop" transform="translate(945, 195)">
+              <polygon class="streetlamp-cone" points="32,38 -85,335 155,335" fill="url(#lampGlow)" />
+              <rect x="26" y="34" width="10" height="260" fill="#151814" />
+              <path d="M12 34 L52 34 L44 20 L20 20 Z" fill="#2b3028" />
+              <ellipse cx="32" cy="38" rx="12" ry="6" fill="#e6be53" />
+            </g>
+
+            <g id="prop-barrel" class="scene-prop" transform="translate(235, 448)">
+              <ellipse cx="34" cy="86" rx="34" ry="9" fill="#090a08" opacity="0.65" />
+              <rect x="6" y="10" width="56" height="76" rx="6" fill="#4d573c" stroke="#10120e" stroke-width="3" />
+              <line x1="6" y1="32" x2="62" y2="32" stroke="#22271c" stroke-width="4" />
+              <line x1="6" y1="62" x2="62" y2="62" stroke="#22271c" stroke-width="4" />
+              <polygon points="34,39 42,53 26,53" fill="#d4a437" />
+            </g>
+
+            <g id="prop-crate" class="scene-prop" transform="translate(1075, 495)">
+              <rect x="0" y="12" width="92" height="54" fill="#483526" stroke="#10120e" stroke-width="3" />
+              <line x1="0" y1="30" x2="92" y2="30" stroke="#261b13" stroke-width="3" />
+              <line x1="0" y1="48" x2="92" y2="48" stroke="#261b13" stroke-width="3" />
+              <path d="M62 12 Q78 -4 94 10 Q78 16 62 12 Z" fill="#8fa199" stroke="#10120e" stroke-width="2" />
+            </g>
+
+            <g stroke="#34422b" stroke-width="3" fill="none" stroke-linecap="round">
+              <path d="M65 680 Q58 650 45 642 M65 680 Q72 648 84 638" />
+              <path d="M1310 670 Q1300 638 1288 630 M1310 670 Q1322 642 1335 634" />
+            </g>
+          </svg>
+
+          <div id="characters-layer" class="characters-layer"></div>
+        </div>
+      </div>
+
+      <div class="chaos-deck" aria-label="Chaos and Brawl Controls">
+        <div class="chaos-label">SECTOR 09 CONTROLS //</div>
+        <div class="chaos-buttons">
+          <button id="btn-unleash-chaos" class="chaos-btn chaos-btn--chaos" type="button">Unleash Chaos</button>
+          <button id="btn-brawl-pair" class="chaos-btn chaos-btn--fight" type="button">Start Street Fight</button>
+          <button id="btn-random-member" class="chaos-btn chaos-btn--random" type="button">Random Member</button>
+          <button id="btn-random-event" class="chaos-btn chaos-btn--event" type="button">Random Event</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. GAMES & BANGLA DARK HUMOR TAB -->
+    <section id="games-view" class="view-section" aria-label="Games and Bangla Dark Humor">
+      <div class="section-header">
+        <h2 class="section-title">GAMES // HARD RUI &amp; BANGLA DARK HUMOR</h2>
+        <p class="section-subtitle">All 9 members in Rui Mach + 3 playable Bangla dark-humor games + 1v1 member brawl trigger.</p>
+      </div>
+
+      <div class="games-grid">
+        <!-- GAME 1: HARDCORE 9-MEMBER RUI MACH SLAP & CATCH -->
+        <article class="game-card">
+          <h2>Rui Mach Slap &amp; Catch (Hardcore 9-Member)</h2>
+          <p class="game-desc">
+            All 9 members dash across the bottom lane while Rui Mach (+10), Golden Rui (+25), and Red Traps (-15) dart around fast. Hit fast to build combo.
+          </p>
+          <div id="rui-arena" class="rui-arena">
+            <div class="rui-hud">
+              <span>SCORE: <strong id="rui-score">0</strong></span>
+              <span>COMBO: <strong id="rui-combo">1x</strong></span>
+              <span>TIME: <strong id="rui-time">25s</strong></span>
+            </div>
+          </div>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+            <button id="rui-start-btn" class="btn-primary" type="button">Start Hard Run</button>
+            <button id="rui-brawl-btn" class="btn-secondary" type="button">Trigger Member Brawl</button>
+          </div>
+        </article>
+
+        <!-- BANGLA GAME 1: লাশের মালিক কে? -->
+        <article class="game-card">
+          <h2>লাশের মালিক কে? (Dark Case)</h2>
+          <p id="corpse-prompt" style="font-size:0.95rem;"></p>
+          <div id="corpse-choices" class="choice-list"></div>
+          <div id="corpse-result" class="outcome-box">একটা কেস বেছে নাও—কে লুকিয়ে লাশের দায় অন্যের ঘাড়ে চাপাচ্ছে দেখো।</div>
+          <button id="corpse-next-btn" class="btn-secondary" type="button">পরের কেস</button>
+        </article>
+
+        <!-- BANGLA GAME 2: মৃত্যুর পর গ্রুপ চ্যাট -->
+        <article class="game-card">
+          <h2>মৃত্যুর পর গ্রুপ চ্যাট (Afterlife Chat)</h2>
+          <p class="game-desc">কবরের ওপার থেকে ৯ জনের গ্রুপ চ্যাটে একটা টপিক ছাড়ো।</p>
+          <div id="afterlife-chat" class="chat-box"></div>
+          <div id="afterlife-buttons" class="choice-list"></div>
+        </article>
+
+        <!-- BANGLA GAME 3: নরকের চাকরির ইন্টারভিউ -->
+        <article class="game-card">
+          <h2>নরকের চাকরির ইন্টারভিউ (Hell HR)</h2>
+          <p id="hell-question" style="font-size:0.95rem;"></p>
+          <div id="hell-choices" class="choice-list"></div>
+          <div id="hell-verdict" class="outcome-box">নরকের HR বোর্ডে উত্তর দাও—তুমি কি স্থায়ী কর্মী নাকি কড়াইয়ের তেল?</div>
+          <button id="hell-next-btn" class="btn-secondary" type="button">নতুন ইন্টারভিউ প্রশ্ন</button>
+        </article>
+      </div>
+    </section>
+
+    <!-- 3. MEMBERS ROSTER -->
+    <section id="members-view" class="view-section" aria-label="All Nine Members">
+      <div class="section-header">
+        <h2 class="section-title">THE NINE MEMBERS</h2>
+        <p class="section-subtitle">Click to hear signature lines, open dossiers, or start a street fight with a member.</p>
+      </div>
+      <div id="roster-grid" class="roster-grid"></div>
+    </section>
+
+    <!-- 4. MEMORY WALL -->
+    <section id="memory-view" class="view-section" aria-label="Memory Wall">
+      <div class="section-header">
+        <h2 class="section-title">MEMORY WALL</h2>
+        <p class="section-subtitle">Edit COMMITTEE_CONFIG.memories in the script to plug in real photos and videos.</p>
+      </div>
+      <div id="memory-filters" class="filter-bar"></div>
+      <div id="memory-grid" class="memory-grid"></div>
+    </section>
+
+    <!-- 5. SOUND ROOM -->
+    <section id="sound-view" class="view-section" aria-label="Sound Room">
+      <div class="section-header">
+        <h2 class="section-title">SOUND ROOM</h2>
+        <p class="section-subtitle">9-channel audio board with MP3 support + Web Audio synth fallbacks.</p>
+      </div>
+      <div id="soundboard-grid" class="soundboard-grid"></div>
+    </section>
+
+    <!-- 6. ABOUT -->
+    <section id="about-view" class="view-section" aria-label="About Committee">
+      <div class="section-header">
+        <h2 class="section-title">ABOUT // COMMITTEE</h2>
+        <p class="section-subtitle">Editable universe file.</p>
+      </div>
+      <div id="about-content" class="about-dossier"></div>
+    </section>
+  </main>
+
+  <!-- DOSSIER MODAL -->
+  <div id="dossier-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="dossier-name">
+    <div class="dossier-modal">
+      <div class="dossier-top">
+        <div>
+          <div id="dossier-code" style="font-family:var(--font-mono);font-size:0.74rem;color:var(--amber-sulfur);">FILE // 00</div>
+          <h2 id="dossier-name" class="section-title">MEMBER NAME</h2>
+        </div>
+        <button id="dossier-close-btn" class="dossier-close" type="button">ESC / CLOSE</button>
+      </div>
+      <div class="dossier-grid">
+        <div style="display:flex;flex-direction:column;gap:0.65rem;">
+          <div id="dossier-avatar-slot" style="width:140px;height:165px;background:var(--bg-panel);border:1px solid var(--border-grime);padding:6px;"></div>
+          <button id="dossier-sound-btn" class="btn-primary" type="button">Play Audio</button>
+          <button id="dossier-fight-btn" class="btn-secondary" type="button">Pick For Brawl</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.75rem;">
+          <div id="dossier-dialogue" style="background:var(--bg-panel);border-left:3px solid var(--rust-orange);padding:0.55rem 0.75rem;font-family:var(--font-mono);font-weight:700;"></div>
+          <div><strong>Nickname:</strong> <span id="dossier-nickname"></span></div>
+          <div><strong>Description:</strong> <span id="dossier-desc"></span></div>
+          <div><strong>Personality:</strong> <span id="dossier-personality"></span></div>
+          <div><strong>Special Ability:</strong> <span id="dossier-ability"></span></div>
+          <div id="dossier-stats"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       CENTRALIZED CONFIGURATION
+       ========================================================================== */
+    const COMMITTEE_CONFIG = {
+      settings: {
+        backgroundMusicPath: "assets/music/background.mp3",
+        defaultVolume: 0.75,
+        autonomousIntervalMs: 14000,
+        dialogueDurationMs: 4200
+      },
+
+      about: {
+        paragraphs: [
+          "COMMITTEE is a closed-circuit digital compound built for nine specific people and nobody else.",
+          "[EDITABLE PLACEHOLDER] Replace this text in COMMITTEE_CONFIG.about with your own dry summary of this group."
+        ],
+        placeholderNotice: "ASSET & TEXT GUIDE: Drop transparent PNGs into assets/characters/<id>.png and MP3s into assets/sounds/<id>.mp3. Edit profiles, stats, and memories in COMMITTEE_CONFIG."
+      },
+
+      members: [
+        {
+          id: "ragib",
+          name: "Ragib",
+          dialogue: "I love Mamuni",
+          imagePath: "assets/characters/ragib.png",
+          soundPath: "assets/sounds/ragib.mp3",
+          position: { x: 16, y: 82 },
+          zIndex: 24,
+          clickAnim: "react-laugh-float",
+          synthType: "dreamyTremolo",
+          nickname: "[EDITABLE PLACEHOLDER] Nickname",
+          description: "[EDITABLE PLACEHOLDER] Add Ragib's short dossier note here.",
+          personality: "[EDITABLE PLACEHOLDER] Unfazed, locked onto a single fixation.",
+          ability: "[EDITABLE PLACEHOLDER] Immune to distraction once Mamuni is mentioned.",
+          stats: [
+            { label: "[EDITABLE] Focus Lock", value: 99 },
+            { label: "[EDITABLE] Situational Awareness", value: 18 },
+            { label: "[EDITABLE] Brawl Chaos", value: 76 }
+          ]
+        },
+        {
+          id: "ali",
+          name: "Ali",
+          dialogue: "kanta thake poshchim para, amar shobhab dalali kora",
+          imagePath: "assets/characters/ali.png",
+          soundPath: "assets/sounds/ali.mp3",
+          position: { x: 28, y: 76 },
+          zIndex: 22,
+          clickAnim: "react-shady-lean",
+          synthType: "shadySlide",
+          nickname: "[EDITABLE PLACEHOLDER] Nickname",
+          description: "[EDITABLE PLACEHOLDER] Add Ali's short dossier note here.",
+          personality: "[EDITABLE PLACEHOLDER] Always negotiating an angle nobody asked for.",
+          ability: "[EDITABLE PLACEHOLDER] Brokers unnecessary deals in record time.",
+          stats: [
+            { label: "[EDITABLE] Dalali Instinct", value: 96 },
+            { label: "[EDITABLE] Eye Contact Stability", value: 24 },
+            { label: "[EDITABLE] Brawl Chaos", value: 85 }
+          ]
+        },
+        {
+          id: "bipu",
+          name: "Bipu",
+          dialogue: "Ganja khamu, barrel homu",
+          imagePath: "assets/characters/bipu.png",
+          soundPath: "assets/sounds/bipu.mp3",
+          position: { x: 38, y: 89 },
+          zIndex: 28,
+          clickAnim: "react-barrel-swell",
+          synthType: "barrelBass",
+          nickname: "[EDITABLE PLACEHOLDER] Nickname",
+          description: "[EDITABLE PLACEHOLDER] Add Bipu's short dossier note here.",
+          personality: "[EDITABLE PLACEHOLDER] Heavy gravity, zero urgency, barrel-shaped ambition.",
+          ability: "[EDITABLE PLACEHOLDER] Expands volume to occupy any available seating.",
+          stats: [
+            { label: "[EDITABLE] Barrel Density", value: 98 },
+            { label: "[EDITABLE] Rush Factor", value: 5 },
+            { label: "[EDITABLE] Brawl Chaos", value: 92 }
+          ]
+        },
+        {
+          id: "nafi",
+          name: "Nafi",
+          dialogue: "Prem korsu tuk biye korai lagbi boxod.",
+          imagePath: "assets/characters/nafi.png",
+          soundPath: "assets/sounds/nafi.mp3",
+          position: { x: 48, y: 78 },
+          zIndex: 23,
+          clickAnim: "react-lunge",
+          synthType: "verdictHorn",
+          nickname: "[EDITABLE PLACEHOLDER] Nickname",
+          description: "[EDITABLE PLACEHOLDER] Add Nafi's short dossier note here.",
+          personality: "[EDITABLE PLACEHOLDER] Self-appointed magistrate of everyone else's bad choices.",
+          ability: "[EDITABLE PLACEHOLDER] Instant unsolicited marriage sentencing.",
+          stats: [
+            { label: "[EDITABLE] Verdict Speed", value: 94 },
+            { label: "[EDITABLE] Mercy", value: 7 },
+            { label: "[EDITABLE] Brawl Chaos", value: 89 }
+          ]
+        },
+        {
+          id: "vaste",
+          name: "Vaste",
+          dialogue: "16 inchi hol, prem korai vul.",
+          imagePath: "assets/characters/vaste.png",
+          soundPath: "assets/sounds/vaste.mp3",
+          position: { x: 58, y: 91 },
+          zIndex: 29,
+          clickAnim: "react-tilt",
+          synthType: "deadpanBlip",
+          nickname: "[EDITABLE PLACEHOLDER] Nickname",
+          description: "[EDITABLE PLACEHOLDER] Add Vaste's short dossier note here.",
+          personality: "[EDITABLE PLACEHOLDER] Cold arithmetic, zero romance, severe posture.",
+          ability: "[EDITABLE PLACEHOLDER] Reduces any emotional crisis to raw measurements.",
+          stats: [
+            { label: "[EDITABLE] Cold Logic", value: 95 },
+            { label: "[EDITABLE] Romance Tolerance", value: 2 },
+            { label: "[EDITABLE] Brawl Chaos", value: 80 }
+          ]
+        },
+        {
+          id: "sayzid",
+          name: "Sayzid",
+          dialogue: "Dada rui mach hobe rui mach?",
+          imagePath: "assets/characters/sayzid.png",
+          soundPath: "assets/sounds/sayzid.mp3",
+          position: { x: 68, y: 77 },
+          zIndex: 22,
+          clickAnim: "react-hawker-jump",
+          synthType: "marketChirp",
+          nickname: "[EDITABLE PLACEHOLDER] Nickname",
+          description: "[EDITABLE PLACEHOLDER] Add Sayzid's short dossier note here.",
+          personality: "[EDITABLE PLACEHOLDER] Treats every quiet room like a wet-market auction.",
+          ability: "[EDITABLE PLACEHOLDER] Materializes rui mach inquiries out of thin air.",
+          stats: [
+            { label: "[EDITABLE] Fish Pitch", value: 97 },
+            { label: "[EDITABLE] Indoor Voice", value: 12 },
+            { label: "[EDITABLE] Brawl Chaos", value: 88 }
+          ]
+        },
+        {
+          id: "jahid",
+          name: "Jahid",
+          dialogue: "kire! Hatir hol hoya gesu tui?",
+          imagePath: "assets/characters/jahid.png",
+          soundPath: "assets/sounds/jahid.mp3",
+          position: { x: 78, y: 88 },
+          zIndex: 27,
+          clickAnim: "react-cackle",
+          synthType: "cackleStaccato",
+          nickname: "[EDITABLE PLACEHOLDER] Nickname",
+          description: "[EDITABLE PLACEHOLDER] Add Jahid's short dossier note here.",
+          personality: "[EDITABLE PLACEHOLDER] Observational menace with zero filter.",
+          ability: "[EDITABLE PLACEHOLDER] Spots structural mutations from fifty paces.",
+          stats: [
+            { label: "[EDITABLE] Roasting Accuracy", value: 93 },
+            { label: "[EDITABLE] Filter", value: 4 },
+            { label: "[EDITABLE] Brawl Chaos", value: 91 }
+          ]
+        },
+        {
+          id: "billal",
+          name: "Billal",
+          dialogue: "kire shuworer bacchara.",
+          imagePath: "assets/characters/billal.png",
+          soundPath: "assets/sounds/billal.mp3",
+          position: { x: 87, y: 79 },
+          zIndex: 24,
+          clickAnim: "react-bristle",
+          synthType: "grumpGrowl",
+          nickname: "[EDITABLE PLACEHOLDER] Nickname",
+          description: "[EDITABLE PLACEHOLDER] Add Billal's short dossier note here.",
+          personality: "[EDITABLE PLACEHOLDER] Perpetually unimpressed by the other eight.",
+          ability: "[EDITABLE PLACEHOLDER] Instant room-wide hostility greeting.",
+          stats: [
+            { label: "[EDITABLE] Hostility Greeting", value: 99 },
+            { label: "[EDITABLE] Patience", value: 9 },
+            { label: "[EDITABLE] Brawl Chaos", value: 97 }
+          ]
+        },
+        {
+          id: "anam",
+          name: "Anam",
+          dialogue: "eeeee vaiii. Ekdom kochi mal re.",
+          imagePath: "assets/characters/anam.png",
+          soundPath: "assets/sounds/anam.mp3",
+          position: { x: 93, y: 92 },
+          zIndex: 30,
+          clickAnim: "react-wheeze",
+          synthType: "wheezeHigh",
+          nickname: "[EDITABLE PLACEHOLDER] Nickname",
+          description: "[EDITABLE PLACEHOLDER] Add Anam's short dossier note here.",
+          personality: "[EDITABLE PLACEHOLDER] High-pitched chaos commentary from the corner.",
+          ability: "[EDITABLE PLACEHOLDER] Ultrasonic wheeze-laugh that destabilizes meetings.",
+          stats: [
+            { label: "[EDITABLE] Pitch Frequency", value: 98 },
+            { label: "[EDITABLE] Restraint", value: 6 },
+            { label: "[EDITABLE] Brawl Chaos", value: 90 }
+          ]
         }
-        if (shoutText) {
-          windBanner.textContent = `${memberId.toUpperCase()}: ${shoutText}`;
+      ],
+
+      memories: [
+        {
+          id: "mem-01",
+          title: "[EDITABLE PLACEHOLDER] Archive Entry 01",
+          date: "[EDITABLE DATE]",
+          category: "INCIDENTS",
+          mediaType: "placeholder",
+          mediaPath: "assets/memories/sample1.jpg",
+          caption: "[EDITABLE PLACEHOLDER] Add real photo/video path in COMMITTEE_CONFIG.memories."
+        },
+        {
+          id: "mem-02",
+          title: "[EDITABLE PLACEHOLDER] Archive Entry 02",
+          date: "[EDITABLE DATE]",
+          category: "GATHERINGS",
+          mediaType: "placeholder",
+          mediaPath: "assets/memories/sample2.jpg",
+          caption: "[EDITABLE PLACEHOLDER] Replace with your actual group photo and date."
+        },
+        {
+          id: "mem-03",
+          title: "[EDITABLE PLACEHOLDER] Archive Entry 03",
+          date: "[EDITABLE DATE]",
+          category: "EVIDENCE",
+          mediaType: "placeholder",
+          mediaPath: "assets/memories/sample3.mp4",
+          caption: "[EDITABLE PLACEHOLDER] Supports .jpg, .png, .webp, or .mp4 files."
+        }
+      ]
+    };
+
+    /* ==========================================================================
+       SVG AVATAR RIGS FOR ALL 9 MEMBERS
+       ========================================================================== */
+    function buildCharacterSVG(memberId) {
+      const rigs = {
+        ragib: `
+          <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
+            <g class="char-torso">
+              <path d="M36 96 Q70 84 104 96 L112 162 L28 162 Z" fill="#4b573c" stroke="#0d0f0c" stroke-width="3"/>
+              <path d="M54 96 L70 116 L86 96" fill="none" stroke="#1b2217" stroke-width="3"/>
+            </g>
+            <g class="char-arm-l" style="transform-origin:36px 102px">
+              <path d="M36 100 Q20 126 32 150" fill="none" stroke="#4b573c" stroke-width="13" stroke-linecap="round"/>
+              <path d="M36 100 Q20 126 32 150" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-arm-r" style="transform-origin:104px 102px">
+              <path d="M104 100 Q120 126 108 150" fill="none" stroke="#4b573c" stroke-width="13" stroke-linecap="round"/>
+              <path d="M104 100 Q120 126 108 150" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-head">
+              <rect x="44" y="34" width="52" height="58" rx="22" fill="#cfa684" stroke="#0d0f0c" stroke-width="3"/>
+              <path d="M40 52 Q42 20 72 22 Q102 22 100 52 Q92 38 78 42 Q64 34 50 43 Z" fill="#171614" stroke="#0d0f0c" stroke-width="2.5"/>
+              <g class="char-eyes">
+                <ellipse cx="58" cy="58" rx="6.5" ry="5.5" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <ellipse cx="82" cy="58" rx="6.5" ry="5.5" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <circle cx="58" cy="59" r="2.6" fill="#0d0f0c"/>
+                <circle cx="82" cy="59" r="2.6" fill="#0d0f0c"/>
+                <g class="char-eyelids">
+                  <rect x="50" y="51" width="16" height="14" rx="4" fill="#cfa684" stroke="#0d0f0c" stroke-width="2"/>
+                  <rect x="74" y="51" width="16" height="14" rx="4" fill="#cfa684" stroke="#0d0f0c" stroke-width="2"/>
+                </g>
+              </g>
+              <path class="char-mouth-closed" d="M60 76 Q71 82 81 74" fill="none" stroke="#0d0f0c" stroke-width="2.8" stroke-linecap="round"/>
+              <path class="char-mouth-laugh" opacity="0" d="M58 72 Q70 72 82 72 Q80 87 70 87 Q60 87 58 72 Z" fill="#2b1212" stroke="#0d0f0c" stroke-width="2.2"/>
+            </g>
+          </svg>`,
+
+        ali: `
+          <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
+            <g class="char-torso">
+              <path d="M38 94 L70 88 L102 94 L108 162 L32 162 Z" fill="#c95127" stroke="#0d0f0c" stroke-width="3"/>
+              <polygon points="52,90 70,114 88,90 82,82 58,82" fill="#1e221c" stroke="#0d0f0c" stroke-width="2.5"/>
+            </g>
+            <g class="char-arm-l" style="transform-origin:38px 100px">
+              <path d="M38 100 L28 134 L54 138" fill="none" stroke="#c95127" stroke-width="12" stroke-linecap="round"/>
+              <path d="M38 100 L28 134 L54 138" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-arm-r" style="transform-origin:102px 100px">
+              <path d="M102 100 L112 134 L86 138" fill="none" stroke="#c95127" stroke-width="12" stroke-linecap="round"/>
+              <path d="M102 100 L112 134 L86 138" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-head">
+              <polygon points="46,34 94,34 90,82 70,92 50,82" fill="#c49773" stroke="#0d0f0c" stroke-width="3"/>
+              <path d="M44 44 L48 22 L92 26 L96 44 L76 34 Z" fill="#141413" stroke="#0d0f0c" stroke-width="2.5"/>
+              <g class="char-eyes">
+                <rect x="52" y="52" width="13" height="8" rx="2" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <rect x="75" y="52" width="13" height="8" rx="2" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <circle cx="59" cy="56" r="2.5" fill="#0d0f0c"/>
+                <circle cx="82" cy="56" r="2.5" fill="#0d0f0c"/>
+                <g class="char-eyelids">
+                  <rect x="50" y="50" width="16" height="12" fill="#c49773" stroke="#0d0f0c" stroke-width="2"/>
+                  <rect x="74" y="50" width="16" height="12" fill="#c49773" stroke="#0d0f0c" stroke-width="2"/>
+                </g>
+              </g>
+              <path class="char-mouth-closed" d="M56 76 L84 74" stroke="#0d0f0c" stroke-width="2.6" stroke-linecap="round"/>
+              <path class="char-mouth-laugh" opacity="0" d="M56 73 L84 73 L80 84 L60 84 Z" fill="#2b1212" stroke="#0d0f0c" stroke-width="2"/>
+            </g>
+          </svg>`,
+
+        bipu: `
+          <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
+            <g class="char-torso">
+              <ellipse cx="70" cy="128" rx="48" ry="38" fill="#2d3827" stroke="#0d0f0c" stroke-width="3.5"/>
+              <path d="M25 118 Q70 126 115 118" fill="none" stroke="#171d14" stroke-width="3"/>
+            </g>
+            <g class="char-arm-l" style="transform-origin:26px 112px">
+              <path d="M26 112 Q10 132 22 152" fill="none" stroke="#2d3827" stroke-width="14" stroke-linecap="round"/>
+              <path d="M26 112 Q10 132 22 152" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-arm-r" style="transform-origin:114px 112px">
+              <path d="M114 112 Q130 132 118 152" fill="none" stroke="#2d3827" stroke-width="14" stroke-linecap="round"/>
+              <path d="M114 112 Q130 132 118 152" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-head">
+              <circle cx="70" cy="64" r="30" fill="#be916e" stroke="#0d0f0c" stroke-width="3"/>
+              <path d="M40 56 Q42 26 70 26 Q98 26 100 56 Z" fill="#483526" stroke="#0d0f0c" stroke-width="3"/>
+              <g class="char-eyes">
+                <circle cx="58" cy="65" r="6" fill="#e6dcc8" stroke="#0d0f0c" stroke-width="2"/>
+                <circle cx="82" cy="65" r="6" fill="#e6dcc8" stroke="#0d0f0c" stroke-width="2"/>
+                <circle cx="58" cy="66" r="2.5" fill="#0d0f0c"/>
+                <circle cx="82" cy="66" r="2.5" fill="#0d0f0c"/>
+                <g class="char-eyelids">
+                  <circle cx="58" cy="65" r="6.5" fill="#be916e" stroke="#0d0f0c" stroke-width="2"/>
+                  <circle cx="82" cy="65" r="6.5" fill="#be916e" stroke="#0d0f0c" stroke-width="2"/>
+                </g>
+              </g>
+              <path class="char-mouth-closed" d="M61 81 Q70 78 79 81" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+              <ellipse class="char-mouth-laugh" opacity="0" cx="70" cy="82" rx="11" ry="8" fill="#2b1212" stroke="#0d0f0c" stroke-width="2.5"/>
+            </g>
+          </svg>`,
+
+        nafi: `
+          <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
+            <g class="char-torso">
+              <path d="M40 94 L100 94 L106 162 L34 162 Z" fill="#232620" stroke="#0d0f0c" stroke-width="3"/>
+              <polygon points="62,94 70,118 78,94" fill="#e3ddc8" stroke="#0d0f0c" stroke-width="2"/>
+            </g>
+            <g class="char-arm-l" style="transform-origin:40px 100px">
+              <path d="M40 100 L26 138" fill="none" stroke="#232620" stroke-width="12" stroke-linecap="round"/>
+              <path d="M40 100 L26 138" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-arm-r" style="transform-origin:100px 100px">
+              <path d="M100 100 L118 128" fill="none" stroke="#232620" stroke-width="12" stroke-linecap="round"/>
+              <path d="M100 100 L118 128" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-head">
+              <rect x="46" y="32" width="48" height="58" rx="16" fill="#cca07c" stroke="#0d0f0c" stroke-width="3"/>
+              <polygon points="44,44 48,22 58,32 68,18 78,31 90,20 96,44" fill="#141413" stroke="#0d0f0c" stroke-width="2.5"/>
+              <g class="char-eyes">
+                <circle cx="58" cy="56" r="6" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <circle cx="82" cy="56" r="6" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <circle cx="58" cy="56" r="2.7" fill="#0d0f0c"/>
+                <circle cx="82" cy="56" r="2.7" fill="#0d0f0c"/>
+                <path d="M50 46 L65 52 M90 46 L75 52" stroke="#0d0f0c" stroke-width="3.2" stroke-linecap="round"/>
+                <g class="char-eyelids">
+                  <rect x="50" y="49" width="16" height="14" fill="#cca07c" stroke="#0d0f0c" stroke-width="2"/>
+                  <rect x="74" y="49" width="16" height="14" fill="#cca07c" stroke="#0d0f0c" stroke-width="2"/>
+                </g>
+              </g>
+              <path class="char-mouth-closed" d="M58 77 Q70 71 82 77" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+              <path class="char-mouth-laugh" opacity="0" d="M57 73 L83 73 L79 85 L61 85 Z" fill="#2b1212" stroke="#0d0f0c" stroke-width="2.2"/>
+            </g>
+          </svg>`,
+
+        vaste: `
+          <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
+            <g class="char-torso">
+              <rect x="44" y="92" width="52" height="70" rx="6" fill="#3a452e" stroke="#0d0f0c" stroke-width="3"/>
+              <line x1="44" y1="112" x2="96" y2="112" stroke="#d4a437" stroke-width="4"/>
+            </g>
+            <g class="char-arm-l" style="transform-origin:44px 98px">
+              <path d="M44 98 L34 150" fill="none" stroke="#3a452e" stroke-width="11" stroke-linecap="round"/>
+              <path d="M44 98 L34 150" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-arm-r" style="transform-origin:96px 98px">
+              <path d="M96 98 L106 150" fill="none" stroke="#3a452e" stroke-width="11" stroke-linecap="round"/>
+              <path d="M96 98 L106 150" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-head">
+              <rect x="48" y="26" width="44" height="64" rx="18" fill="#c79b78" stroke="#0d0f0c" stroke-width="3"/>
+              <path d="M46 44 Q46 20 70 20 Q94 20 94 44 L46 44 Z" fill="#181715" stroke="#0d0f0c" stroke-width="2.5"/>
+              <g class="char-eyes">
+                <circle cx="59" cy="56" r="6.5" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <circle cx="81" cy="56" r="6.5" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <circle cx="59" cy="56" r="2" fill="#0d0f0c"/>
+                <circle cx="81" cy="56" r="2" fill="#0d0f0c"/>
+                <g class="char-eyelids">
+                  <rect x="51" y="49" width="16" height="14" fill="#c79b78" stroke="#0d0f0c" stroke-width="2"/>
+                  <rect x="73" y="49" width="16" height="14" fill="#c79b78" stroke="#0d0f0c" stroke-width="2"/>
+                </g>
+              </g>
+              <line class="char-mouth-closed" x1="59" y1="77" x2="81" y2="77" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+              <rect class="char-mouth-laugh" opacity="0" x="60" y="73" width="20" height="9" rx="2" fill="#2b1212" stroke="#0d0f0c" stroke-width="2"/>
+            </g>
+          </svg>`,
+
+        sayzid: `
+          <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
+            <g class="char-torso">
+              <path d="M38 94 L102 94 L106 162 L34 162 Z" fill="#d8d1bc" stroke="#0d0f0c" stroke-width="3"/>
+              <path d="M38 94 L56 94 L56 162 L34 162 Z" fill="#483526" stroke="#0d0f0c" stroke-width="2.5"/>
+              <path d="M84 94 L102 94 L106 162 L84 162 Z" fill="#483526" stroke="#0d0f0c" stroke-width="2.5"/>
+            </g>
+            <g class="char-arm-l" style="transform-origin:38px 100px">
+              <path d="M38 100 L18 118" fill="none" stroke="#d8d1bc" stroke-width="11" stroke-linecap="round"/>
+              <path d="M38 100 L18 118" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-arm-r" style="transform-origin:102px 100px">
+              <path d="M102 100 L118 134" fill="none" stroke="#d8d1bc" stroke-width="11" stroke-linecap="round"/>
+              <path d="M102 100 L118 134" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-head">
+              <circle cx="70" cy="60" r="27" fill="#cfa37e" stroke="#0d0f0c" stroke-width="3"/>
+              <path d="M42 52 Q40 24 70 24 Q100 24 98 52 Q88 38 70 40 Q52 38 42 52 Z" fill="#171614" stroke="#0d0f0c" stroke-width="2.5"/>
+              <g class="char-eyes">
+                <circle cx="59" cy="58" r="7" fill="#f7f4ea" stroke="#0d0f0c" stroke-width="2.2"/>
+                <circle cx="81" cy="58" r="7" fill="#f7f4ea" stroke="#0d0f0c" stroke-width="2.2"/>
+                <circle cx="60" cy="58" r="2.8" fill="#0d0f0c"/>
+                <circle cx="82" cy="58" r="2.8" fill="#0d0f0c"/>
+                <g class="char-eyelids">
+                  <circle cx="59" cy="58" r="7.5" fill="#cfa37e" stroke="#0d0f0c" stroke-width="2"/>
+                  <circle cx="81" cy="58" r="7.5" fill="#cfa37e" stroke="#0d0f0c" stroke-width="2"/>
+                </g>
+              </g>
+              <path class="char-mouth-closed" d="M58 74 Q70 83 82 74" fill="none" stroke="#0d0f0c" stroke-width="2.8" stroke-linecap="round"/>
+              <path class="char-mouth-laugh" opacity="0" d="M56 71 Q70 71 84 71 Q82 86 70 86 Q58 86 56 71 Z" fill="#2b1212" stroke="#0d0f0c" stroke-width="2.2"/>
+            </g>
+          </svg>`,
+
+        jahid: `
+          <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
+            <g class="char-torso">
+              <path d="M32 94 L108 94 L112 162 L28 162 Z" fill="#4f543b" stroke="#0d0f0c" stroke-width="3.2"/>
+              <path d="M54 94 L70 124 L86 94" fill="#1b1e18" stroke="#0d0f0c" stroke-width="2.5"/>
+            </g>
+            <g class="char-arm-l" style="transform-origin:34px 102px">
+              <path d="M34 102 L58 128" fill="none" stroke="#4f543b" stroke-width="13" stroke-linecap="round"/>
+              <path d="M34 102 L58 128" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-arm-r" style="transform-origin:106px 102px">
+              <path d="M106 102 L82 128" fill="none" stroke="#4f543b" stroke-width="13" stroke-linecap="round"/>
+              <path d="M106 102 L82 128" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-head">
+              <rect x="44" y="30" width="52" height="60" rx="20" fill="#c59774" stroke="#0d0f0c" stroke-width="3"/>
+              <path d="M42 48 Q44 20 74 20 Q98 22 98 46 Q82 32 56 36 Z" fill="#151412" stroke="#0d0f0c" stroke-width="2.5"/>
+              <g class="char-eyes">
+                <ellipse cx="58" cy="56" rx="6.5" ry="5" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <ellipse cx="82" cy="56" rx="6.5" ry="5" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <circle cx="58" cy="56" r="2.6" fill="#0d0f0c"/>
+                <circle cx="82" cy="56" r="2.6" fill="#0d0f0c"/>
+                <g class="char-eyelids">
+                  <rect x="50" y="50" width="16" height="12" fill="#c59774" stroke="#0d0f0c" stroke-width="2"/>
+                  <rect x="74" y="50" width="16" height="12" fill="#c59774" stroke="#0d0f0c" stroke-width="2"/>
+                </g>
+              </g>
+              <path class="char-mouth-closed" d="M55 74 Q70 84 85 72" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+              <path class="char-mouth-laugh" opacity="0" d="M53 70 Q70 72 87 69 Q84 88 70 88 Q56 88 53 70 Z" fill="#2b1212" stroke="#0d0f0c" stroke-width="2.4"/>
+            </g>
+          </svg>`,
+
+        billal: `
+          <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
+            <g class="char-torso">
+              <path d="M34 94 L106 94 L110 162 L30 162 Z" fill="#1e211d" stroke="#0d0f0c" stroke-width="3.2"/>
+              <line x1="36" y1="106" x2="104" y2="106" stroke="#c95127" stroke-width="4"/>
+            </g>
+            <g class="char-arm-l" style="transform-origin:34px 100px">
+              <path d="M34 100 L22 142" fill="none" stroke="#1e211d" stroke-width="13" stroke-linecap="round"/>
+              <path d="M34 100 L22 142" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-arm-r" style="transform-origin:106px 100px">
+              <path d="M106 100 L118 142" fill="none" stroke="#1e211d" stroke-width="13" stroke-linecap="round"/>
+              <path d="M106 100 L118 142" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-head">
+              <rect x="44" y="34" width="52" height="56" rx="12" fill="#c2936f" stroke="#0d0f0c" stroke-width="3"/>
+              <path d="M44 44 Q44 26 70 26 Q96 26 96 44 L92 38 L48 38 Z" fill="#141413" stroke="#0d0f0c" stroke-width="2.5"/>
+              <g class="char-eyes">
+                <circle cx="58" cy="57" r="5.8" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <circle cx="82" cy="57" r="5.8" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <circle cx="57" cy="57" r="2.6" fill="#0d0f0c"/>
+                <circle cx="81" cy="57" r="2.6" fill="#0d0f0c"/>
+                <path d="M49 48 L66 53 M91 48 L74 53" stroke="#0d0f0c" stroke-width="3.5" stroke-linecap="round"/>
+                <g class="char-eyelids">
+                  <rect x="50" y="50" width="16" height="14" fill="#c2936f" stroke="#0d0f0c" stroke-width="2"/>
+                  <rect x="74" y="50" width="16" height="14" fill="#c2936f" stroke="#0d0f0c" stroke-width="2"/>
+                </g>
+              </g>
+              <path class="char-mouth-closed" d="M56 79 L65 75 L75 78 L84 74" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+              <path class="char-mouth-laugh" opacity="0" d="M55 73 L85 73 L82 86 L58 86 Z" fill="#2b1212" stroke="#0d0f0c" stroke-width="2.4"/>
+            </g>
+          </svg>`,
+
+        anam: `
+          <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
+            <g class="char-torso">
+              <path d="M38 96 L102 96 L108 162 L32 162 Z" fill="#b88c28" stroke="#0d0f0c" stroke-width="3"/>
+              <path d="M56 96 Q70 108 84 96" fill="none" stroke="#0d0f0c" stroke-width="2.5"/>
+            </g>
+            <g class="char-arm-l" style="transform-origin:38px 102px">
+              <path d="M38 102 L24 136" fill="none" stroke="#b88c28" stroke-width="11" stroke-linecap="round"/>
+              <path d="M38 102 L24 136" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-arm-r" style="transform-origin:102px 102px">
+              <path d="M102 102 L116 136" fill="none" stroke="#b88c28" stroke-width="11" stroke-linecap="round"/>
+              <path d="M102 102 L116 136" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-head">
+              <ellipse cx="70" cy="60" rx="25" ry="29" fill="#d1a682" stroke="#0d0f0c" stroke-width="3"/>
+              <path d="M44 50 Q46 22 72 22 Q96 24 96 50 L84 38 L70 44 L56 37 Z" fill="#171614" stroke="#0d0f0c" stroke-width="2.5"/>
+              <g class="char-eyes">
+                <ellipse cx="59" cy="57" rx="6" ry="5.5" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <ellipse cx="81" cy="57" rx="6" ry="5.5" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <circle cx="60" cy="57" r="2.5" fill="#0d0f0c"/>
+                <circle cx="82" cy="57" r="2.5" fill="#0d0f0c"/>
+                <g class="char-eyelids">
+                  <rect x="51" y="50" width="16" height="14" fill="#d1a682" stroke="#0d0f0c" stroke-width="2"/>
+                  <rect x="73" y="50" width="16" height="14" fill="#d1a682" stroke="#0d0f0c" stroke-width="2"/>
+                </g>
+              </g>
+              <path class="char-mouth-closed" d="M58 75 Q70 84 82 73" fill="none" stroke="#0d0f0c" stroke-width="2.8" stroke-linecap="round"/>
+              <path class="char-mouth-laugh" opacity="0" d="M56 71 Q70 74 84 70 Q80 87 70 87 Q60 87 56 71 Z" fill="#2b1212" stroke="#0d0f0c" stroke-width="2.2"/>
+            </g>
+          </svg>`
+      };
+      return rigs[memberId] || rigs.ragib;
+    }
+
+    /* ==========================================================================
+       AUDIO MANAGER
+       ========================================================================== */
+    class CommitteeAudioManager {
+      constructor() {
+        this.ctx = null;
+        this.masterGain = null;
+        this.isMuted = false;
+        this.musicEnabled = true;
+        this.volume = COMMITTEE_CONFIG.settings.defaultVolume;
+        this.activeSfxAudio = null;
+        this.bgmAudio = null;
+        this.droneNodes = null;
+        this.unlocked = false;
+      }
+
+      unlock(startWithSound = true) {
+        this.isMuted = !startWithSound;
+        this.musicEnabled = startWithSound;
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) {
+            this.ctx = new AudioCtx();
+            this.masterGain = this.ctx.createGain();
+            this.masterGain.gain.value = this.isMuted ? 0 : this.volume;
+            this.masterGain.connect(this.ctx.destination);
+          }
+        }
+        if (this.ctx && this.ctx.state === "suspended") this.ctx.resume();
+        this.unlocked = true;
+        this.updateControlsUI();
+        if (this.musicEnabled && !this.isMuted) this.startMusic();
+      }
+
+      setVolume(val) {
+        this.volume = Math.max(0, Math.min(1, parseFloat(val)));
+        if (this.masterGain && this.ctx) {
+          this.masterGain.gain.setTargetAtTime(this.isMuted ? 0 : this.volume, this.ctx.currentTime, 0.03);
+        }
+        if (this.bgmAudio) this.bgmAudio.volume = this.isMuted ? 0 : this.volume * 0.35;
+        if (this.activeSfxAudio) this.activeSfxAudio.volume = this.isMuted ? 0 : this.volume;
+      }
+
+      toggleMute() {
+        this.isMuted = !this.isMuted;
+        this.setVolume(this.volume);
+        if (this.isMuted) this.stopAllSfx();
+        this.updateControlsUI();
+      }
+
+      toggleMusic() {
+        this.musicEnabled = !this.musicEnabled;
+        if (this.musicEnabled && !this.isMuted) this.startMusic();
+        else this.stopMusic();
+        this.updateControlsUI();
+      }
+
+      updateControlsUI() {
+        const muteBtn = document.getElementById("toggle-mute-btn");
+        const musicBtn = document.getElementById("toggle-music-btn");
+        if (muteBtn) {
+          muteBtn.textContent = this.isMuted ? "SFX: MUTED" : "SFX: ON";
+          muteBtn.classList.toggle("is-muted", this.isMuted);
+        }
+        if (musicBtn) {
+          musicBtn.textContent = this.musicEnabled ? "BGM: ON" : "BGM: OFF";
+          musicBtn.classList.toggle("is-stopped", !this.musicEnabled);
         }
       }
 
-      function spawnPopText(x, y, text, color) {
-        const pop = document.createElement("div");
-        pop.className = "floating-score-pop";
-        pop.style.left = `${x}px`;
-        pop.style.top = `${y}px`;
-        pop.style.color = color;
-        pop.textContent = text;
-        arena.appendChild(pop);
-        setTimeout(() => pop.remove(), 660);
-      }
-
-      function spawnTarget() {
-        if (!running) return;
-        const roll = Math.random();
-        let kind = "rui";
-        if (roll > 0.86) kind = "gold";
-        else if (roll > 0.68) kind = "decoy";
-        else if (roll > 0.48) kind = "barrel";
-        else if (roll > 0.30) kind = "scowl";
-
-        const el = document.createElement("div");
-        el.className = "flying-target";
-
-        if (kind === "rui") {
-          el.innerHTML = `<svg width="64" height="34" viewBox="0 0 68 36"><path d="M6 18 Q24 2 50 14 L64 6 L60 18 L64 30 L50 22 Q24 34 6 18 Z" fill="#8fa199" stroke="#090a08" stroke-width="2.5"/><circle cx="17" cy="15" r="2.5" fill="#090a08"/></svg>`;
-        } else if (kind === "gold") {
-          el.innerHTML = `<svg width="66" height="36" viewBox="0 0 68 36"><path d="M6 18 Q24 2 50 14 L64 6 L60 18 L64 30 L50 22 Q24 34 6 18 Z" fill="#d4a437" stroke="#090a08" stroke-width="2.5"/><circle cx="17" cy="15" r="2.5" fill="#090a08"/></svg>`;
-        } else if (kind === "decoy") {
-          // Slippery fake decoy fish (looks like Rui, costs points & combo!)
-          el.innerHTML = `<svg width="62" height="32" viewBox="0 0 68 36"><path d="M6 18 Q24 2 50 14 L64 6 L60 18 L64 30 L50 22 Q24 34 6 18 Z" fill="#6b7566" stroke="#e46639" stroke-width="2.5" stroke-dasharray="4 2"/><text x="22" y="21" font-size="11" fill="#090a08" font-weight="bold">FAKE</text></svg>`;
-        } else if (kind === "barrel") {
-          el.innerHTML = `<svg width="46" height="56" viewBox="0 0 46 56"><rect x="5" y="4" width="36" height="48" rx="5" fill="#4b573c" stroke="#090a08" stroke-width="2.5"/><line x1="5" y1="18" x2="41" y2="18" stroke="#1b2217" stroke-width="3"/><line x1="5" y1="38" x2="41" y2="38" stroke="#1b2217" stroke-width="3"/></svg>`;
+      startMusic() {
+        if (this.isMuted || !this.musicEnabled) return;
+        if (!this.bgmAudio) {
+          const audio = new Audio(COMMITTEE_CONFIG.settings.backgroundMusicPath);
+          audio.loop = true;
+          audio.volume = this.volume * 0.35;
+          audio.addEventListener("error", () => {
+            this.bgmAudio = null;
+            this.startAmbientDrone();
+          }, { once: true });
+          audio.play().then(() => { this.bgmAudio = audio; }).catch(() => {
+            this.bgmAudio = null;
+            this.startAmbientDrone();
+          });
         } else {
-          el.innerHTML = `<svg width="48" height="48" viewBox="0 0 48 48"><circle cx="24" cy="24" r="20" fill="#b82929" stroke="#090a08" stroke-width="2.5"/><path d="M14 17 L21 20 M34 17 L27 20 M16 32 L24 28 L32 32" stroke="#090a08" stroke-width="3" fill="none"/></svg>`;
+          this.bgmAudio.play().catch(() => {});
         }
-
-        const fromLeft = Math.random() > 0.5;
-        let x = fromLeft ? -35 : arena.clientWidth + 35;
-        let y = 60 + Math.random() * (arena.clientHeight - 180);
-        let vx = (fromLeft ? 1 : -1) * (4.4 + Math.random() * 4.2);
-        let vy = -4.2 - Math.random() * 3.2;
-        const phase = Math.random() * Math.PI * 2;
-        let age = 0;
-        const gravity = 0.14;
-
-        el.style.left = `${x}px`;
-        el.style.top = `${y}px`;
-        arena.appendChild(el);
-
-        let hit = false;
-        const onHit = (e) => {
-          e.stopPropagation();
-          if (!running || hit) return;
-          hit = true;
-          el.remove();
-
-          if (kind === "rui" || kind === "gold") {
-            const pts = (kind === "gold" ? 35 : 15) * combo;
-            score += pts;
-            combo = Math.min(10, combo + 1);
-            comboDecay = 100;
-            audioManager.playSynthSignature("marketChirp");
-            const callers = ["sayzid", "ragib", "jahid", "anam"];
-            const picked = callers[Math.floor(Math.random() * callers.length)];
-            const mObj = COMMITTEE_CONFIG.members.find((m) => m.id === picked);
-            highlightMemberInArena(picked, mObj ? mObj.dialogue : "RUI MACH!");
-            spawnPopText(x, y, `+${pts}`, "#d4a437");
-          } else if (kind === "decoy") {
-            score = Math.max(0, score - 20);
-            combo = 1;
-            comboDecay = 0;
-            audioManager.playSynthSignature("shadySlide");
-            highlightMemberInArena("ali", "dalali slip! Fake Rui!");
-            spawnPopText(x, y, "-20 FAKE!", "#e46639");
-          } else if (kind === "barrel") {
-            score = Math.max(0, score - 25);
-            combo = 1;
-            comboDecay = 0;
-            audioManager.playSynthSignature("barrelBass");
-            highlightMemberInArena("bipu", "barrel homu! (-25)");
-            spawnPopText(x, y, "-25 BARREL!", "#e46639");
-          } else {
-            score = Math.max(0, score - 30);
-            combo = 1;
-            comboDecay = 0;
-            audioManager.playSynthSignature("grumpGrowl");
-            highlightMemberInArena("billal", "kire shuworer bacchara! (-30)");
-            spawnPopText(x, y, "-30 BILLAL!", "#b82929");
-          }
-
-          scoreEl.textContent = score;
-          comboEl.textContent = `x${combo}`;
-          if (score > best) {
-            best = score;
-            bestEl.textContent = best;
-            localStorage.setItem("committee_ruimach_best", String(best));
-          }
-        };
-
-        el.addEventListener("pointerdown", onHit);
-
-        const step = () => {
-          if (hit || !running) {
-            el.remove();
-            return;
-          }
-          age += 1;
-          // Erratic zig-zag + wind gust + shrinking scale over lifetime
-          const zig = Math.sin(age * 0.22 + phase) * 3.4;
-          x += vx + windForceX;
-          y += vy + zig * 0.35;
-          vy += gravity;
-
-          const shrink = Math.max(0.55, 1.05 - age * 0.0045);
-          el.style.left = `${x}px`;
-          el.style.top = `${y}px`;
-          el.style.transform = `translate(-50%, -50%) scale(${shrink.toFixed(2)})`;
-
-          if (y > arena.clientHeight - 40 || x < -90 || x > arena.clientWidth + 90) {
-            el.remove();
-            return;
-          }
-          requestAnimationFrame(step);
-        };
-        requestAnimationFrame(step);
       }
 
-      function cycleWindGust() {
-        if (!running) return;
-        const gusts = [
-          { force: -2.4, cls: "wind-gust-left", label: "WIND GUST LEFT // VASTE & NAFI WATCHING", member: "nafi" },
-          { force: 2.5, cls: "wind-gust-right", label: "WIND GUST RIGHT // RAGIB & ANAM WATCHING", member: "anam" },
-          { force: 0, cls: "", label: "CALM AIR // ALL 9 OPERATIVES ACTIVE", member: "vaste" }
-        ];
-        const g = gusts[Math.floor(Math.random() * gusts.length)];
-        windForceX = g.force;
-        arena.classList.remove("wind-gust-left", "wind-gust-right");
-        if (g.cls) arena.classList.add(g.cls);
-        highlightMemberInArena(g.member, g.label);
+      stopMusic() {
+        if (this.bgmAudio) this.bgmAudio.pause();
+        this.stopAmbientDrone();
       }
 
-      startBtn.addEventListener("click", () => {
-        clearInterval(spawnTimer);
-        clearInterval(countdownTimer);
-        clearInterval(windTimer);
-        clearInterval(decayTimer);
-        arena.querySelectorAll(".flying-target").forEach((n) => n.remove());
-
-        score = 0;
-        combo = 1;
-        comboDecay = 0;
-        timeLeft = 30;
-        windForceX = 0;
-        running = true;
-
-        scoreEl.textContent = "0";
-        comboEl.textContent = "x1";
-        timeEl.textContent = "30s";
-        comboBar.style.width = "0%";
-        startBtn.textContent = "Restart Hardcore Rush";
-
-        const sayzid = COMMITTEE_CONFIG.members.find((m) => m.id === "sayzid");
-        if (sayzid) audioManager.playMemberSound(sayzid);
-        highlightMemberInArena("sayzid", "Dada rui mach hobe rui mach?");
-
-        // Fast hardcore spawn interval
-        spawnTimer = setInterval(spawnTarget, 390);
-        spawnTarget();
-
-        windTimer = setInterval(cycleWindGust, 4200);
-
-        // Combo decay loop
-        decayTimer = setInterval(() => {
-          if (!running) return;
-          if (combo > 1) {
-            comboDecay -= 4.5;
-            if (comboDecay <= 0) {
-              combo = Math.max(1, combo - 1);
-              comboDecay = combo > 1 ? 65 : 0;
-              comboEl.textContent = `x${combo}`;
-            }
-          }
-          comboBar.style.width = `${Math.max(0, Math.min(100, comboDecay))}%`;
-        }, 120);
-
-        countdownTimer = setInterval(() => {
-          timeLeft -= 1;
-          timeEl.textContent = `${timeLeft}s`;
-          if (timeLeft <= 0) {
-            running = false;
-            clearInterval(spawnTimer);
-            clearInterval(countdownTimer);
-            clearInterval(windTimer);
-            clearInterval(decayTimer);
-            windForceX = 0;
-            arena.classList.remove("wind-gust-left", "wind-gust-right");
-            arena.querySelectorAll(".flying-target").forEach((n) => n.remove());
-            comboBar.style.width = "0%";
-            windBanner.textContent = `RUSH OVER! FINAL SCORE: ${score}`;
-            audioManager.playEventAlert("chaos");
-          }
-        }, 1000);
-      });
-    }
-
-    /* ==========================================================================
-       BANGLA DARK GAME 2: লাশের মালিক কে? (WHO OWNS THE CORPSE?)
-       ========================================================================== */
-    function initCorpseGame() {
-      const cases = [
-        {
-          code: "CASE #01 // অজ্ঞাত লাশ",
-          title: "সেক্টর ০৯-এর ব্যারেলের পাশে পড়ে থাকা লাশ",
-          clue: "লাশের পকেটে পাওয়া গেছে এক টুকরো কাগজ যেখানে লেখা ‘I love Mamuni’ এবং হাতে লেগে আছে কাদার দাগ।",
-          culpritId: "ragib",
-          joke: "রাগিব বলছে: ‘মামুনির কথা ভাবতে ভাবতে আমিই কি ভুল করে কারও আত্মা উড়িয়ে দিলাম? ডার্ক কিন্তু সত্যি!’"
-        },
-        {
-          code: "CASE #02 // দালালি ও কফিন",
-          title: "পশ্চিম পাড়ার গলিতে ডাবল-বুকড কফিন",
-          clue: "একই কফিনে দুটি লাশের কাগজপত্র আর মাঝখানে ১০% দালালির রসিদ পাওয়া গেছে।",
-          culpritId: "ali",
-          joke: "আলী: ‘কাঁটা থাকে পশ্চিম পাড়া, আমার স্বভাব দালালি করা—মৃতদেহ নিয়েও কমিশন ছাড়ব না ভাই!’"
-        },
-        {
-          code: "CASE #03 // ব্যারেল বিস্ফোরণ",
-          title: "জ্বালানি ব্যারেলের ভেতর থেকে উদ্ধার হওয়া আস্ত কঙ্কাল",
-          clue: "ঘটনাস্থলে ধোঁয়ার গন্ধ আর ব্যারেলের গায়ে খড়ি দিয়ে লেখা: ‘Ganja khamu, barrel homu’।",
-          culpritId: "bipu",
-          joke: "বিপু: ‘ব্যারেল হতে চেয়েছিলাম, ভুল করে পাশে দাঁড়ানো লোকটাকে কয়লা বানিয়ে ফেলেছি!’"
-        },
-        {
-          code: "CASE #04 // বিয়ের বাধ্যতামূলক সার্টিফিকেট",
-          title: "কবরের ফলকে বিয়ের কাবিননামা ঝোলানো লাশ",
-          clue: "মৃতের কানে ফিসফিস করে বলা হয়েছে: ‘Prem korsu tuk biye korai lagbi boxod।’",
-          culpritId: "nafi",
-          joke: "নাফি: ‘প্রেম করলে তো মরার আগেই বিয়ে পড়ানো উচিত ছিল! আমি শুধু নিয়ম মানিয়েছি।’"
-        },
-        {
-          code: "CASE #05 // ১৬ ইঞ্চির হিসাব",
-          title: "অদ্ভুত ভাঁজ করা অবস্থায় পাওয়া লাশ",
-          clue: "লাশের উচ্চতা মেপে দেখা গেল ঠিক ১৬ ইঞ্চি কম, পাশে পড়ে আছে ভাঙা স্কেল।",
-          culpritId: "vaste",
-          joke: "ভাস্তে: ‘১৬ ইঞ্চি হলো, প্রেম করাই ভুল—হিসাব না মিললে শরীরও ঠিক থাকে না!’"
-        },
-        {
-          code: "CASE #06 // রুই মাছের বাজার",
-          title: "মাছের ঝুড়ির নিচে চাপা পড়া রহস্যময় দেহ",
-          clue: "চারদিকে তাজা আঁশ আর কানে বাজছে: ‘Dada rui mach hobe rui mach?’",
-          culpritId: "sayzid",
-          joke: "সায়জিদ: ‘লাশটা একটু নড়ল মনে হয়—দাদা রুই মাছ হবে রুই মাছ?’"
-        },
-        {
-          code: "CASE #07 // হাতির হোল রহস্য",
-          title: "বিস্ময়ে চোখ কপালে ওঠা লাশ",
-          clue: "দেহটা দেখে মনে হচ্ছে শেষ মুহূর্তে কেউ চিৎকার করেছিল: ‘kire! Hatir hol hoya gesu tui?’",
-          culpritId: "jahid",
-          joke: "জাহিদ: ‘ভাই আমি তো শুধু সত্যি কথা বলেছিলাম, হাসতে হাসতে নিজেই আধমরা হয়ে গেছি!’"
-        },
-        {
-          code: "CASE #08 // অভিশপ্ত সম্ভাষণ",
-          title: "রাগে কুঁকড়ে থাকা দেহ",
-          clue: "সিসিটিভিতে শোনা গেছে একটাই গালি: ‘kire shuworer bacchara।’",
-          culpritId: "billal",
-          joke: "বিল্লাল: ‘সালাম না দিয়ে গালি দিয়েছিলাম, বেচারা সহ্য করতে পারেনি!’"
-        },
-        {
-          code: "CASE #09 // কচি মালের চিৎকার",
-          title: "কান ফাটানো শব্দে ভেঙে পড়া কফিন",
-          clue: "কাছেই শোনা গেছে তীক্ষ্ণ গলায়: ‘eeeee vaiii. Ekdom kochi mal re।’",
-          culpritId: "anam",
-          joke: "আনাম: ‘eeeee vaiii—কবর থেকেও কচি মাল দেখে হাসি থামাতে পারলাম না!’"
-        }
-      ];
-
-      let score = 0;
-      let streak = 0;
-      let currentIdx = 0;
-      let answered = false;
-
-      const codeEl = document.getElementById("corpse-case-code");
-      const titleEl = document.getElementById("corpse-scene-title");
-      const clueEl = document.getElementById("corpse-clue-text");
-      const scoreEl = document.getElementById("corpse-score");
-      const streakEl = document.getElementById("corpse-streak");
-      const verdictEl = document.getElementById("corpse-verdict");
-      const gridEl = document.getElementById("corpse-suspect-grid");
-
-      function loadCase(idx) {
-        currentIdx = ((idx % cases.length) + cases.length) % cases.length;
-        answered = false;
-        const c = cases[currentIdx];
-        codeEl.textContent = c.code;
-        titleEl.textContent = c.title;
-        clueEl.textContent = c.clue;
-        verdictEl.textContent = "ক্লু পড়ে দেখো—কে এমন অদ্ভুত কাণ্ড ঘটিয়ে লাশ বা ঝামেলা বাঁধাতে পারে?";
+      startAmbientDrone() {
+        if (!this.ctx || this.droneNodes || this.isMuted || !this.musicEnabled) return;
+        const now = this.ctx.currentTime;
+        const osc1 = this.ctx.createOscillator();
+        const osc2 = this.ctx.createOscillator();
+        const filter = this.ctx.createBiquadFilter();
+        const droneGain = this.ctx.createGain();
+        osc1.type = "sawtooth";
+        osc1.frequency.setValueAtTime(55, now);
+        osc2.type = "triangle";
+        osc2.frequency.setValueAtTime(82.41, now);
+        filter.type = "lowpass";
+        filter.frequency.setValueAtTime(165, now);
+        droneGain.gain.setValueAtTime(0.05, now);
+        osc1.connect(filter);
+        osc2.connect(filter);
+        filter.connect(droneGain);
+        droneGain.connect(this.masterGain);
+        osc1.start();
+        osc2.start();
+        this.droneNodes = { osc1, osc2, droneGain };
       }
 
-      gridEl.innerHTML = "";
-      COMMITTEE_CONFIG.members.forEach((m) => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "suspect-pick-btn";
-        const miniAv = document.createElement("div");
-        miniAv.style.width = "40px";
-        miniAv.style.height = "48px";
-        miniAv.style.flexShrink = "0";
-        miniAv.appendChild(createAvatarVisual(m));
-
-        const span = document.createElement("span");
-        span.style.fontFamily = "var(--font-mono)";
-        span.style.fontWeight = "700";
-        span.textContent = m.name;
-
-        btn.appendChild(miniAv);
-        btn.appendChild(span);
-
-        btn.addEventListener("click", () => {
-          const c = cases[currentIdx];
-          audioManager.playMemberSound(m);
-          if (m.id === c.culpritId) {
-            if (!answered) {
-              score += 20;
-              streak += 1;
-              answered = true;
-            }
-            verdictEl.innerHTML = `<strong style="color:var(--amber-sulfur);">সঠিক ধরা পড়েছে! (${m.name})</strong> — ${c.joke}`;
-          } else {
-            streak = 0;
-            verdictEl.innerHTML = `<strong style="color:#f08080;">ভুল অনুমান!</strong> ${m.name} বলছে: “${m.dialogue}” — আসল কেস লুকিয়ে আছে অন্য কারও কীর্তিতে!`;
-          }
-          scoreEl.textContent = score;
-          streakEl.textContent = streak;
-        });
-
-        gridEl.appendChild(btn);
-      });
-
-      document.getElementById("btn-next-corpse").addEventListener("click", () => {
-        audioManager.playEventAlert("chaos");
-        loadCase(currentIdx + 1);
-      });
-
-      loadCase(0);
-    }
-
-    /* ==========================================================================
-       BANGLA DARK GAME 3: মৃত্যুর পর গ্রুপ চ্যাট (AFTERLIFE GROUP CHAT)
-       ========================================================================== */
-    function initAfterlifeChatGame() {
-      const logEl = document.getElementById("afterlife-chat-log");
-      const choicesEl = document.getElementById("afterlife-choices");
-      const chaosEl = document.getElementById("afterlife-chaos");
-      let chaos = 15;
-
-      function appendChat(sender, text, isPlayer = false) {
-        const msg = document.createElement("div");
-        msg.className = `chat-msg ${isPlayer ? "player-msg" : ""}`;
-        msg.innerHTML = `
-          <div class="chat-msg-head">${sender} // কবরের ওপার থেকে</div>
-          <div>${text}</div>
-        `;
-        logEl.appendChild(msg);
-        logEl.scrollTop = logEl.scrollHeight;
+      stopAmbientDrone() {
+        if (this.droneNodes) {
+          try { this.droneNodes.osc1.stop(); this.droneNodes.osc2.stop(); } catch (_) {}
+          this.droneNodes = null;
+        }
       }
 
-      const seedMessages = [
-        { who: "Billal", text: "kire shuworer bacchara. কবরে এসেও শান্তি নাই?" },
-        { who: "Sayzid", text: "Dada rui mach hobe rui mach? এখানের নদীতে কি ভূতুড়ে রুই আছে?" },
-        { who: "Ragib", text: "I love Mamuni — মরার পরেও এই লাইন ভুলব না।" }
-      ];
-
-      seedMessages.forEach((s) => appendChat(s.who, s.text));
-
-      const replyOptions = [
-        {
-          label: "“কাফনের কাপড়েও দালালি চলবে?”",
-          reply: "কাফনের কাপড়েও দালালি চলবে? আলীর হিসাব কি কবর পর্যন্ত এসেছে?",
-          followWho: "Ali",
-          followText: "kanta thake poshchim para, amar shobhab dalali kora — কবরের জায়গাও লিজ নেওয়ার ধান্ধায় আছি!"
-        },
-        {
-          label: "“বিয়ের দাওয়াত কি জাহান্নামে হবে?”",
-          reply: "প্রেম করলেই তো বিয়ে—মৃত্যুর পরও কি কাজি ডাকতে হবে?",
-          followWho: "Nafi",
-          followText: "Prem korsu tuk biye korai lagbi boxod. ভূতের বিয়েও বাদ যাবে না!"
-        },
-        {
-          label: "“ব্যারেলের ভেতর কী অবস্থা?”",
-          reply: "কবরের মাটি আর ব্যারেলের ধোঁয়া—পার্থক্য কী?",
-          followWho: "Bipu",
-          followText: "Ganja khamu, barrel homu — মাটির নিচেও ব্যারেল মোড অন!"
-        },
-        {
-          label: "“১৬ ইঞ্চির ফর্মুলা কাজ করে?”",
-          reply: "কবরের গভীরতা মেপে ১৬ ইঞ্চি মিলছে কি না দেখো।",
-          followWho: "Vaste",
-          followText: "16 inchi hol, prem korai vul. হিসাব সবসময় নির্ভুল, লাশ হোক বা জীবিত।"
-        },
-        {
-          label: "“কেউ কি হাসতে হাসতে মরল?”",
-          reply: "জাহিদ আর আনামের হাসিতে কি কবর কেঁপে উঠল?",
-          followWho: "Anam",
-          followText: "eeeee vaiii. Ekdom kochi mal re. — আর জাহিদ বলছে: kire! Hatir hol hoya gesu tui?"
+      stopAllSfx() {
+        if (this.activeSfxAudio) {
+          try { this.activeSfxAudio.pause(); this.activeSfxAudio.currentTime = 0; } catch (_) {}
+          this.activeSfxAudio = null;
         }
-      ];
+      }
 
-      replyOptions.forEach((opt) => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "chat-choice-btn";
-        btn.textContent = opt.label;
-        btn.addEventListener("click", () => {
-          chaos = Math.min(100, chaos + 12);
-          chaosEl.textContent = `${chaos}%`;
-          appendChat("YOU (ADMIN)", opt.reply, true);
-          audioManager.playEventAlert("chaos");
-
-          const targetMember = COMMITTEE_CONFIG.members.find((m) => m.name.toLowerCase() === opt.followWho.toLowerCase());
-          if (targetMember) audioManager.playMemberSound(targetMember);
-
-          setTimeout(() => {
-            appendChat(opt.followWho, opt.followText, false);
-          }, 320);
-        });
-        choicesEl.appendChild(btn);
-      });
-    }
-
-    /* ==========================================================================
-       BANGLA DARK GAME 4: নরকের চাকরির ইন্টারভিউ (HELL JOB INTERVIEW)
-       ========================================================================== */
-    function initHellJobGame() {
-      const questions = [
-        {
-          interviewerId: "nafi",
-          role: "পদ: জাহান্নামের চিফ কাজি ও শাস্তি সমন্বয়ক",
-          q: "একজন আত্মা বলছে সে জীবনে শুধু ‘একটুখানি’ প্রেম করেছে। তোমার রায় কী?",
-          options: [
-            { text: "Prem korsu tuk biye korai lagbi boxod — সরাসরি বিয়ে পড়িয়ে আগুনে পাঠাও।", pts: 25, fb: "বোর্ড খুশি! ডার্ক লজিক ১০/১০।" },
-            { text: "তাকে এক কাপ চা দিয়ে মাফ করে দিন।", pts: 5, fb: "নরকের HR বোর্ড হাই তুলছে—এটা খুব নরম হয়ে গেল।" },
-            { text: "আগে তার পকেটে টাকা আছে কি না চেক করো।", pts: 15, fb: "আলী পিছন থেকে তালি দিচ্ছে!" }
-          ]
-        },
-        {
-          interviewerId: "sayzid",
-          role: "পদ: পাতাল বাজারের প্রধান মাছ ও আত্মা বিক্রেতা",
-          q: "নরকের নদীতে কোনো মাছ নেই, কিন্তু কাস্টমার চিৎকার করছে। তুমি কী বলবে?",
-          options: [
-            { text: "Dada rui mach hobe rui mach? — নদী শুকিয়ে গেলেও প্রশ্ন থামবে না!", pts: 25, fb: "সায়েজিদ মুগ্ধ! বাজারের আসল স্পিরিট ধরেছ।" },
-            { text: "আজকে ছুটি, কাল আসবেন।", pts: 5, fb: "কাস্টমার আরও রেগে গেল!" },
-            { text: "পচা মাছকে তাজা রুই বলে চালিয়ে দাও।", pts: 20, fb: "খাঁটি ডার্ক ব্যবসা!" }
-          ]
-        },
-        {
-          interviewerId: "vaste",
-          role: "পদ: নরকের কড়াই ও মাপজোখ পরিদর্শক",
-          q: "কড়াইয়ের মাপ ১৬ ইঞ্চি কম হলে কী করবে?",
-          options: [
-            { text: "16 inchi hol, prem korai vul — মাপ ঠিক না হলে কাউকে সেদ্ধ করা যাবে না।", pts: 25, fb: "ভাস্তে স্যালুট দিচ্ছে! নিয়মই সব।" },
-            { text: "চোখ বন্ধ করে অনুমান করে নেব।", pts: 10, fb: "অনির্ভুল হিসাব নয়।" },
-            { text: "কড়াইয়ের বদলে ব্যারেল নামিয়ে দাও।", pts: 20, fb: "বিপু খুশি হলো!" }
-          ]
-        },
-        {
-          interviewerId: "billal",
-          role: "পদ: নরকের গেটকিপার (ওয়েলকাম অফিসার)",
-          q: "নতুন আসা কোনো অতিথিকে প্রথম দেখায় কীভাবে স্বাগত জানাবে?",
-          options: [
-            { text: "kire shuworer bacchara — কোনো ভণিতা ছাড়া সরাসরি গালি দিয়ে।", pts: 25, fb: "বিল্লাল বলল: ‘এই তো চাই!’" },
-            { text: "ফুল দিয়ে স্বাগত জানাব।", pts: 0, fb: "তুমি কি ভুল ঠিকানায় এসেছ?" },
-            { text: "তার দিকে তাকিয়ে বিরক্তিকর হাসি দেব।", pts: 15, fb: "মোটামুটি চলবে।" }
-          ]
-        },
-        {
-          interviewerId: "anam",
-          role: "পদ: পাতাল হাসি ও আতঙ্ক সাউন্ড ইঞ্জিনিয়ার",
-          q: "একদম নিস্তব্ধ অন্ধকার করিডোরে কীভাবে আতঙ্ক ছড়াবে?",
-          options: [
-            { text: "eeeee vaiii. Ekdom kochi mal re. — হঠাৎ তীক্ষ্ণ গলায় চিৎকার করে।", pts: 25, fb: "জাহিদ ও আনাম দুজনেই হেসে লুটোপুটি!" },
-            { text: "ধীরে ধীরে পা টিপে হেঁটে যাব।", pts: 10, fb: "খুব শান্ত হয়ে গেল।" },
-            { text: "পুরো সেক্টরের আলো নিভিয়ে দেব।", pts: 20, fb: "ব্ল্যাকআউট ডার্ক ভাইব!" }
-          ]
-        }
-      ];
-
-      let qIdx = 0;
-      let hellScore = 0;
-
-      const avSlot = document.getElementById("hell-interviewer-avatar");
-      const roleBadge = document.getElementById("hell-role-badge");
-      const qTitle = document.getElementById("hell-question-title");
-      const optsBox = document.getElementById("hell-options");
-      const fbBox = document.getElementById("hell-feedback");
-      const scoreEl = document.getElementById("hell-score");
-      const qNumEl = document.getElementById("hell-q-num");
-
-      function renderQuestion() {
-        if (qIdx >= questions.length) {
-          const verdict = hellScore >= 90
-            ? "চূড়ান্ত রায়: তোমাকে নরকের সিনিয়র ডার্ক ম্যানেজার নিয়োগ দেওয়া হলো!"
-            : hellScore >= 50
-            ? "চূড়ান্ত রায়: প্রোবেশনে রাখা হলো—আরও ডার্ক জোক্স শিখে এসো।"
-            : "চূড়ান্ত রায়: নরক থেকেও রিজেক্টেড! সেক্টর ০৯-এ ফিরে যাও।";
-
-          roleBadge.textContent = "ইন্টারভিউ সমাপ্ত";
-          qTitle.textContent = verdict;
-          optsBox.innerHTML = "";
-          fbBox.textContent = `মোট স্কোর: ${hellScore} / ${questions.length * 25}`;
+      playMemberSound(member, onEnded) {
+        if (this.isMuted) {
+          if (onEnded) setTimeout(onEnded, 450);
           return;
         }
+        if (!this.unlocked) this.unlock(true);
+        this.stopAllSfx();
 
-        const item = questions[qIdx];
-        const interviewer = COMMITTEE_CONFIG.members.find((m) => m.id === item.interviewerId);
-        avSlot.innerHTML = "";
-        if (interviewer) avSlot.appendChild(createAvatarVisual(interviewer));
+        const audio = new Audio(member.soundPath);
+        audio.volume = this.volume;
+        this.activeSfxAudio = audio;
 
-        roleBadge.textContent = item.role;
-        qTitle.textContent = item.q;
-        qNumEl.textContent = `${qIdx + 1}/${questions.length}`;
-        optsBox.innerHTML = "";
+        let done = false;
+        const finish = () => {
+          if (done) return;
+          done = true;
+          if (this.activeSfxAudio === audio) this.activeSfxAudio = null;
+          if (onEnded) onEnded();
+        };
 
-        item.options.forEach((op) => {
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "interview-opt-btn";
-          btn.textContent = op.text;
-          btn.addEventListener("click", () => {
-            hellScore += op.pts;
-            scoreEl.textContent = hellScore;
-            fbBox.textContent = `${op.fb} (+${op.pts} pts)`;
-            if (interviewer) audioManager.playMemberSound(interviewer);
-            qIdx += 1;
-            setTimeout(renderQuestion, 950);
-          });
-          optsBox.appendChild(btn);
+        audio.addEventListener("ended", finish, { once: true });
+        audio.addEventListener("error", () => {
+          this.activeSfxAudio = null;
+          this.playSynth(member.synthType);
+          setTimeout(finish, 450);
+        }, { once: true });
+
+        audio.play().catch(() => {
+          this.activeSfxAudio = null;
+          this.playSynth(member.synthType);
+          setTimeout(finish, 450);
         });
       }
 
-      document.getElementById("btn-restart-helljob").addEventListener("click", () => {
-        qIdx = 0;
-        hellScore = 0;
-        scoreEl.textContent = "0";
-        fbBox.textContent = "ইন্টারভিউ বোর্ড তোমার নির্মম বা ডার্ক উত্তরের অপেক্ষায় আছে...";
-        renderQuestion();
-      });
+      playSynth(type = "deadpanBlip") {
+        if (!this.ctx || this.isMuted) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.masterGain);
 
-      renderQuestion();
+        const map = {
+          dreamyTremolo: ["sine", 340, 520, 0.45],
+          shadySlide: ["triangle", 220, 490, 0.4],
+          barrelBass: ["sine", 145, 48, 0.5],
+          verdictHorn: ["sawtooth", 196, 150, 0.45],
+          deadpanBlip: ["square", 260, 260, 0.3],
+          marketChirp: ["triangle", 390, 660, 0.38],
+          cackleStaccato: ["sawtooth", 330, 230, 0.42],
+          grumpGrowl: ["sawtooth", 120, 78, 0.45],
+          wheezeHigh: ["sine", 620, 900, 0.42]
+        };
+        const [wave, f1, f2, dur] = map[type] || map.deadpanBlip;
+        osc.type = wave;
+        osc.frequency.setValueAtTime(f1, now);
+        osc.frequency.exponentialRampToValueAtTime(f2, now + dur);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+        osc.start(now);
+        osc.stop(now + dur + 0.02);
+      }
     }
 
+    const audioManager = new CommitteeAudioManager();
+
     /* ==========================================================================
-       BAZAAR BEATBOX 8-STEP SEQUENCER (IN SOUND ROOM)
+       APP STATE & SCENE INTERACTIONS (INCLUDING FIGHTS)
        ========================================================================== */
-    function initBeatboxSequencer() {
-      const grid = document.getElementById("seq-grid");
-      const playBtn = document.getElementById("btn-seq-play");
-      const randomBtn = document.getElementById("btn-seq-random");
-      const clearBtn = document.getElementById("btn-seq-clear");
+    const state = {
+      clickStreak: { id: null, count: 0, lastTime: 0 },
+      cooldowns: {},
+      dialogueTimers: {},
+      titleClicks: 0,
+      secretBuffer: "",
+      activeModalMember: null,
+      memoryCategory: "ALL",
+      brawlTimer: null
+    };
 
-      const steps = 8;
-      const pattern = COMMITTEE_CONFIG.members.map(() => Array(steps).fill(false));
-      let isPlaying = false;
-      let currentStep = 0;
-      let timer = null;
+    function logActivity(text) {
+      const el = document.getElementById("activity-feed");
+      if (el) el.textContent = text;
+    }
 
-      function renderGrid() {
-        grid.innerHTML = "";
-        COMMITTEE_CONFIG.members.forEach((member, rIdx) => {
-          const row = document.createElement("div");
-          row.className = "seq-row";
+    function createAvatarVisual(member) {
+      const wrap = document.createElement("div");
+      wrap.style.width = "100%";
+      wrap.style.height = "100%";
+      wrap.innerHTML = buildCharacterSVG(member.id);
 
-          const label = document.createElement("div");
-          label.className = "seq-member-label";
-          label.textContent = member.name;
-          row.appendChild(label);
+      const img = new Image();
+      img.src = member.imagePath;
+      img.alt = member.name;
+      img.className = "custom-char-img";
+      img.onload = () => {
+        wrap.innerHTML = "";
+        wrap.appendChild(img);
+      };
+      return wrap;
+    }
 
-          for (let c = 0; c < steps; c++) {
-            const cell = document.createElement("button");
-            cell.type = "button";
-            cell.className = `seq-step ${pattern[rIdx][c] ? "active" : ""}`;
-            cell.dataset.col = c;
-            cell.ariaLabel = `${member.name} step ${c + 1}`;
-            cell.addEventListener("click", () => {
-              pattern[rIdx][c] = !pattern[rIdx][c];
-              cell.classList.toggle("active", pattern[rIdx][c]);
-              if (pattern[rIdx][c]) {
-                audioManager.playMemberSound(member, null, true);
-              }
-            });
-            row.appendChild(cell);
+    function renderMainScene() {
+      const layer = document.getElementById("characters-layer");
+      layer.innerHTML = "";
+
+      COMMITTEE_CONFIG.members.forEach((member) => {
+        const actor = document.createElement("div");
+        actor.className = "character-actor";
+        actor.id = `actor-${member.id}`;
+        actor.style.left = `${member.position.x}%`;
+        actor.style.top = `${member.position.y}%`;
+        actor.style.zIndex = member.zIndex;
+        actor.setAttribute("role", "button");
+        actor.setAttribute("tabindex", "0");
+        actor.setAttribute("aria-label", `${member.name}: ${member.dialogue}`);
+
+        if (member.position.x <= 20) actor.classList.add("edge-left");
+        if (member.position.x >= 82) actor.classList.add("edge-right");
+
+        const bubble = document.createElement("div");
+        bubble.className = "speech-bubble";
+        bubble.id = `bubble-${member.id}`;
+        bubble.textContent = member.dialogue;
+
+        const stage = document.createElement("div");
+        stage.className = "avatar-stage";
+        stage.appendChild(createAvatarVisual(member));
+
+        const shadow = document.createElement("div");
+        shadow.className = "char-shadow";
+
+        const tagBar = document.createElement("div");
+        tagBar.className = "char-tag-bar";
+
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "char-name-label";
+        nameSpan.textContent = member.name;
+
+        const infoBtn = document.createElement("button");
+        infoBtn.type = "button";
+        infoBtn.className = "char-info-btn";
+        infoBtn.textContent = "ID";
+        infoBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          openDossier(member.id);
+        });
+
+        tagBar.appendChild(nameSpan);
+        tagBar.appendChild(infoBtn);
+
+        actor.appendChild(bubble);
+        actor.appendChild(stage);
+        actor.appendChild(shadow);
+        actor.appendChild(tagBar);
+
+        actor.addEventListener("click", () => triggerCharacter(member.id));
+        actor.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            triggerCharacter(member.id);
           }
-          grid.appendChild(row);
+        });
+
+        layer.appendChild(actor);
+      });
+    }
+
+    function triggerCharacter(memberId, options = {}) {
+      const member = COMMITTEE_CONFIG.members.find((m) => m.id === memberId);
+      const actor = document.getElementById(`actor-${memberId}`);
+      const bubble = document.getElementById(`bubble-${memberId}`);
+      if (!member || !actor || !bubble) return;
+
+      const now = Date.now();
+      if (!options.bypassCooldown && state.cooldowns[memberId] && now - state.cooldowns[memberId] < 320) return;
+      state.cooldowns[memberId] = now;
+
+      if (state.clickStreak.id === memberId && now - state.clickStreak.lastTime < 1400) {
+        state.clickStreak.count += 1;
+      } else {
+        state.clickStreak = { id: memberId, count: 1, lastTime: now };
+      }
+      const overload = state.clickStreak.count >= 4;
+      if (overload) state.clickStreak.count = 0;
+
+      if (!options.keepOtherBubbles) {
+        document.querySelectorAll(".speech-bubble.visible").forEach((b) => {
+          if (b !== bubble) b.classList.remove("visible");
         });
       }
 
-      function tickStep() {
-        document.querySelectorAll(".seq-step.current-col").forEach((el) => el.classList.remove("current-col"));
-        document.querySelectorAll(`.seq-step[data-col="${currentStep}"]`).forEach((el) => el.classList.add("current-col"));
+      actor.classList.remove(member.clickAnim, "react-overload");
+      void actor.offsetWidth;
+      actor.classList.add(overload ? "react-overload" : member.clickAnim);
 
-        COMMITTEE_CONFIG.members.forEach((member, rIdx) => {
-          if (pattern[rIdx][currentStep]) {
-            audioManager.playMemberSound(member, null, true);
-          }
-        });
+      clearTimeout(actor._animTimer);
+      actor._animTimer = setTimeout(() => {
+        actor.classList.remove(member.clickAnim, "react-overload");
+      }, 920);
 
-        currentStep = (currentStep + 1) % steps;
+      bubble.textContent = member.dialogue;
+      bubble.classList.add("visible");
+
+      clearTimeout(state.dialogueTimers[memberId]);
+      state.dialogueTimers[memberId] = setTimeout(() => {
+        bubble.classList.remove("visible");
+      }, COMMITTEE_CONFIG.settings.dialogueDurationMs);
+
+      if (!options.silent) audioManager.playMemberSound(member);
+      if (!options.quietLog) logActivity(`${member.name.toUpperCase()}: "${member.dialogue}"`);
+    }
+
+    function startCharacterFight(forcedIdA = null, forcedIdB = null) {
+      const members = COMMITTEE_CONFIG.members;
+      let mA = members.find((m) => m.id === forcedIdA) || members[Math.floor(Math.random() * members.length)];
+      let mB = members.find((m) => m.id === forcedIdB && m.id !== mA.id);
+      if (!mB) {
+        const others = members.filter((m) => m.id !== mA.id);
+        mB = others[Math.floor(Math.random() * others.length)];
       }
 
-      playBtn.addEventListener("click", () => {
-        if (isPlaying) {
-          isPlaying = false;
-          clearInterval(timer);
-          playBtn.textContent = "Play Loop";
-          document.querySelectorAll(".seq-step.current-col").forEach((el) => el.classList.remove("current-col"));
-        } else {
-          isPlaying = true;
-          playBtn.textContent = "Stop Loop";
-          currentStep = 0;
-          tickStep();
-          timer = setInterval(tickStep, 340);
-        }
+      const actorA = document.getElementById(`actor-${mA.id}`);
+      const actorB = document.getElementById(`actor-${mB.id}`);
+      const banner = document.getElementById("brawl-banner");
+      if (!actorA || !actorB) return;
+
+      // Switch to Main Scene if triggered from another tab
+      switchTab("scene-view");
+
+      clearInterval(state.brawlTimer);
+      document.querySelectorAll(".character-actor").forEach((el) => {
+        el.classList.remove("is-brawling-attacker", "is-brawling-victim");
       });
 
-      randomBtn.addEventListener("click", () => {
-        for (let r = 0; r < pattern.length; r++) {
-          for (let c = 0; c < steps; c++) {
-            pattern[r][c] = Math.random() > 0.78;
-          }
-        }
-        renderGrid();
-      });
+      const centerX = 44 + Math.random() * 12;
+      const centerY = 83 + Math.random() * 7;
+      actorA.style.left = `${centerX - 4}%`;
+      actorA.style.top = `${centerY}%`;
+      actorB.style.left = `${centerX + 4}%`;
+      actorB.style.top = `${centerY}%`;
 
-      clearBtn.addEventListener("click", () => {
-        for (let r = 0; r < pattern.length; r++) {
-          pattern[r].fill(false);
-        }
-        renderGrid();
-      });
+      if (banner) {
+        banner.textContent = `FIGHT // ${mA.name.toUpperCase()} VS ${mB.name.toUpperCase()}`;
+        banner.classList.add("active");
+      }
+      logActivity(`STREET FIGHT: ${mA.name} vs ${mB.name}!`);
 
-      renderGrid();
+      triggerCharacter(mA.id, { keepOtherBubbles: true, bypassCooldown: true, quietLog: true });
+      setTimeout(() => {
+        triggerCharacter(mB.id, { keepOtherBubbles: true, bypassCooldown: true, quietLog: true });
+      }, 300);
+
+      let ticks = 0;
+      state.brawlTimer = setInterval(() => {
+        ticks += 1;
+        const aAttacks = ticks % 2 === 1;
+        actorA.classList.toggle("is-brawling-attacker", aAttacks);
+        actorA.classList.toggle("is-brawling-victim", !aAttacks);
+        actorB.classList.toggle("is-brawling-attacker", !aAttacks);
+        actorB.classList.toggle("is-brawling-victim", aAttacks);
+
+        actorA.style.left = `${centerX - (aAttacks ? 1 : 6)}%`;
+        actorB.style.left = `${centerX + (aAttacks ? 6 : 1)}%`;
+        audioManager.playSynth(aAttacks ? "cackleStaccato" : "grumpGrowl");
+
+        if (ticks >= 8) {
+          clearInterval(state.brawlTimer);
+          actorA.classList.remove("is-brawling-attacker", "is-brawling-victim");
+          actorB.classList.remove("is-brawling-attacker", "is-brawling-victim");
+          actorA.style.left = `${mA.position.x}%`;
+          actorA.style.top = `${mA.position.y}%`;
+          actorB.style.left = `${mB.position.x}%`;
+          actorB.style.top = `${mB.position.y}%`;
+          if (banner) banner.classList.remove("active");
+          logActivity(`${mA.name} vs ${mB.name} brawl ended in mutual chaos.`);
+        }
+      }, 360);
+    }
+
+    function triggerUnleashChaos() {
+      audioManager.playSynth("cackleStaccato");
+      logActivity("CHAOS UNLEASHED // ALL 9 MEMBERS REACTING");
+      const vp = document.getElementById("compound-viewport");
+      vp.classList.add("event-quake");
+      setTimeout(() => vp.classList.remove("event-quake"), 1250);
+
+      COMMITTEE_CONFIG.members.forEach((m, i) => {
+        const actor = document.getElementById(`actor-${m.id}`);
+        if (!actor) return;
+        actor.style.left = `${12 + Math.random() * 78}%`;
+        actor.style.top = `${75 + Math.random() * 18}%`;
+        setTimeout(() => {
+          triggerCharacter(m.id, { silent: i > 1, keepOtherBubbles: true, bypassCooldown: true, quietLog: true });
+        }, i * 130);
+        setTimeout(() => {
+          actor.style.left = `${m.position.x}%`;
+          actor.style.top = `${m.position.y}%`;
+        }, 3200);
+      });
+    }
+
+    function triggerRandomMember() {
+      document.querySelectorAll(".character-actor.is-highlighted").forEach((el) => el.classList.remove("is-highlighted"));
+      const m = COMMITTEE_CONFIG.members[Math.floor(Math.random() * COMMITTEE_CONFIG.members.length)];
+      const actor = document.getElementById(`actor-${m.id}`);
+      if (actor) {
+        actor.classList.add("is-highlighted");
+        setTimeout(() => actor.classList.remove("is-highlighted"), 3600);
+      }
+      triggerCharacter(m.id, { bypassCooldown: true });
+    }
+
+    let eventIdx = 0;
+    function triggerRandomEvent() {
+      const vp = document.getElementById("compound-viewport");
+      vp.classList.remove("event-blackout", "event-quake", "event-drizzle");
+      const list = [
+        { cls: "event-blackout", label: "EVENT: SECTOR 09 POWER BLACKOUT", who: "ali" },
+        { cls: "event-drizzle", label: "EVENT: ACID DRIZZLE OVER COMPOUND", who: "bipu" },
+        { cls: "event-quake", label: "EVENT: FOUNDATION TREMOR", who: "billal" }
+      ];
+      const ev = list[eventIdx % list.length];
+      eventIdx += 1;
+      vp.classList.add(ev.cls);
+      audioManager.playSynth("verdictHorn");
+      logActivity(ev.label);
+      triggerCharacter(ev.who, { bypassCooldown: true, quietLog: true });
+      setTimeout(() => vp.classList.remove(ev.cls), 3600);
+    }
+
+    function startBlinkingLoop() {
+      COMMITTEE_CONFIG.members.forEach((m) => {
+        const loop = () => {
+          setTimeout(() => {
+            const actor = document.getElementById(`actor-${m.id}`);
+            if (actor) {
+              actor.classList.add("is-blinking");
+              setTimeout(() => actor.classList.remove("is-blinking"), 130);
+            }
+            loop();
+          }, 2200 + Math.random() * 4200);
+        };
+        loop();
+      });
+    }
+
+    function startAutonomousLife() {
+      setInterval(() => {
+        const sceneOn = document.getElementById("scene-view").classList.contains("active");
+        const modalOn = document.getElementById("dossier-backdrop").classList.contains("open");
+        if (!sceneOn || modalOn || document.hidden) return;
+        const ms = COMMITTEE_CONFIG.members;
+        const a = ms[Math.floor(Math.random() * ms.length)];
+        const b = ms[Math.floor(Math.random() * ms.length)];
+        triggerCharacter(a.id, { silent: true, keepOtherBubbles: true, quietLog: true });
+        setTimeout(() => triggerCharacter(b.id, { silent: true, keepOtherBubbles: true, quietLog: true }), 600);
+      }, COMMITTEE_CONFIG.settings.autonomousIntervalMs);
     }
 
     /* ==========================================================================
-       EASTER EGGS & BACKGROUND PROP INTERACTIONS
+       GAME 1: HARDCORE 9-MEMBER RUI MACH SLAP & CATCH
        ========================================================================== */
-    function initEasterEggs() {
-      const brandTitle = document.getElementById("brand-title");
-      brandTitle.addEventListener("click", () => {
-        state.titleClicks += 1;
-        if (state.titleClicks >= 5) {
-          state.titleClicks = 0;
-          document.body.classList.toggle("protocol-nine");
-          audioManager.playEventAlert("emergency");
-          logActivity("SECRET TRIGGERED: PROTOCOL 09 VISUAL OVERRIDE");
-          COMMITTEE_CONFIG.members.forEach((m, i) => {
-            setTimeout(() => triggerCharacter(m.id, { silent: true, keepOtherBubbles: true, bypassCooldown: true, quietLog: true }), i * 90);
-          });
-        }
+    const ruiGame = {
+      running: false,
+      score: 0,
+      combo: 1,
+      timeLeft: 25,
+      spawnTimer: null,
+      moveTimer: null,
+      clockTimer: null,
+      targets: [],
+      runners: []
+    };
+
+    function setupRuiRunners() {
+      const arena = document.getElementById("rui-arena");
+      arena.querySelectorAll(".rui-member-runner").forEach((el) => el.remove());
+      ruiGame.runners = COMMITTEE_CONFIG.members.map((m, idx) => {
+        const el = document.createElement("div");
+        el.className = "rui-member-runner";
+        el.style.left = `${(idx * 11) % 86}%`;
+        el.style.bottom = `${4 + (idx % 3) * 14}px`;
+        el.appendChild(createAvatarVisual(m));
+        arena.appendChild(el);
+        return { el, x: (idx * 11) % 86, dir: idx % 2 === 0 ? 1 : -1, speed: 1.4 + (idx % 4) * 0.55 };
       });
+    }
 
-      const propLamp = document.getElementById("prop-lamp");
-      if (propLamp) {
-        propLamp.addEventListener("click", () => {
-          propLamp.classList.add("prop-triggered");
-          setTimeout(() => propLamp.classList.remove("prop-triggered"), 450);
-          document.body.classList.toggle("phosphor-mode");
-          audioManager.playSynthSignature("deadpanBlip");
-          logActivity("HIDDEN PROP: STREETLAMP PHOSPHOR MODE TOGGLED");
-        });
-      }
+    function startHardRuiGame() {
+      clearInterval(ruiGame.spawnTimer);
+      clearInterval(ruiGame.moveTimer);
+      clearInterval(ruiGame.clockTimer);
 
-      const propBarrel = document.getElementById("prop-barrel");
-      if (propBarrel) {
-        propBarrel.addEventListener("click", () => {
-          propBarrel.classList.add("prop-triggered");
-          setTimeout(() => propBarrel.classList.remove("prop-triggered"), 450);
-          triggerCharacter("bipu", { bypassCooldown: true });
-        });
-      }
+      const arena = document.getElementById("rui-arena");
+      arena.querySelectorAll(".rui-target").forEach((t) => t.remove());
+      ruiGame.targets = [];
+      ruiGame.running = true;
+      ruiGame.score = 0;
+      ruiGame.combo = 1;
+      ruiGame.timeLeft = 25;
 
-      const propCrate = document.getElementById("prop-crate");
-      if (propCrate) {
-        propCrate.addEventListener("click", () => {
-          propCrate.classList.add("prop-triggered");
-          setTimeout(() => propCrate.classList.remove("prop-triggered"), 450);
-          triggerCharacter("sayzid", { bypassCooldown: true });
-        });
-      }
+      document.getElementById("rui-score").textContent = "0";
+      document.getElementById("rui-combo").textContent = "1x";
+      document.getElementById("rui-time").textContent = "25s";
 
-      const propAntenna = document.getElementById("prop-antenna");
-      if (propAntenna) {
-        propAntenna.addEventListener("click", () => {
-          propAntenna.classList.add("prop-triggered");
-          setTimeout(() => propAntenna.classList.remove("prop-triggered"), 450);
-          audioManager.playEventAlert("chaos");
-          triggerRandomMember();
-        });
-      }
+      setupRuiRunners();
+      audioManager.playSynth("marketChirp");
 
-      document.addEventListener("keydown", (e) => {
-        if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
-        state.secretBuffer = (state.secretBuffer + e.key.toLowerCase()).slice(-6);
-        if (state.secretBuffer.endsWith("999")) {
-          state.secretBuffer = "";
-          triggerUnleashChaos();
-          logActivity("KEYCODE 999 ACCEPTED // COMPOUND OVERRIDE");
+      ruiGame.clockTimer = setInterval(() => {
+        ruiGame.timeLeft -= 1;
+        document.getElementById("rui-time").textContent = `${ruiGame.timeLeft}s`;
+        if (ruiGame.timeLeft <= 0) {
+          stopHardRuiGame();
         }
+      }, 1000);
+
+      ruiGame.spawnTimer = setInterval(() => {
+        if (!ruiGame.running) return;
+        const roll = Math.random();
+        const kind = roll < 0.22 ? "trap" : roll < 0.45 ? "golden" : "fish";
+        const label = kind === "trap" ? "কাঁটা/ট্র্যাপ!" : kind === "golden" ? "গোল্ডেন রুই +25" : "রুই মাছ +10";
+
+        const el = document.createElement("button");
+        el.type = "button";
+        el.className = `rui-target ${kind}`;
+        el.textContent = label;
+
+        const maxX = Math.max(40, arena.clientWidth - 110);
+        const maxY = Math.max(60, arena.clientHeight - 95);
+        const tObj = {
+          el,
+          kind,
+          x: Math.random() * maxX,
+          y: 34 + Math.random() * (maxY - 34),
+          vx: (Math.random() < 0.5 ? -1 : 1) * (2.6 + Math.random() * 2.8),
+          vy: (Math.random() < 0.5 ? -1 : 1) * (2.1 + Math.random() * 2.2)
+        };
+
+        el.style.left = `${tObj.x}px`;
+        el.style.top = `${tObj.y}px`;
+
+        el.addEventListener("click", () => {
+          if (!ruiGame.running) return;
+          if (kind === "trap") {
+            ruiGame.combo = 1;
+            ruiGame.score = Math.max(0, ruiGame.score - 15);
+            audioManager.playSynth("grumpGrowl");
+          } else {
+            const pts = (kind === "golden" ? 25 : 10) * ruiGame.combo;
+            ruiGame.score += pts;
+            ruiGame.combo = Math.min(6, ruiGame.combo + 1);
+            audioManager.playSynth("marketChirp");
+          }
+          document.getElementById("rui-score").textContent = String(ruiGame.score);
+          document.getElementById("rui-combo").textContent = `${ruiGame.combo}x`;
+          el.remove();
+          ruiGame.targets = ruiGame.targets.filter((item) => item !== tObj);
+        });
+
+        arena.appendChild(el);
+        ruiGame.targets.push(tObj);
+
+        setTimeout(() => {
+          if (el.parentElement) {
+            el.remove();
+            ruiGame.targets = ruiGame.targets.filter((item) => item !== tObj);
+          }
+        }, 1450);
+      }, 430);
+
+      ruiGame.moveTimer = setInterval(() => {
+        if (!ruiGame.running) return;
+        const w = arena.clientWidth;
+        const h = arena.clientHeight;
+
+        ruiGame.runners.forEach((r) => {
+          r.x += r.dir * r.speed;
+          if (r.x <= 2) { r.x = 2; r.dir = 1; }
+          if (r.x >= 88) { r.x = 88; r.dir = -1; }
+          r.el.style.left = `${r.x}%`;
+        });
+
+        ruiGame.targets.forEach((t) => {
+          t.x += t.vx + (Math.random() - 0.5) * 2.2;
+          t.y += t.vy + (Math.random() - 0.5) * 1.8;
+          if (t.x < 6 || t.x > w - 115) t.vx *= -1;
+          if (t.y < 34 || t.y > h - 85) t.vy *= -1;
+          t.x = Math.max(6, Math.min(w - 115, t.x));
+          t.y = Math.max(34, Math.min(h - 85, t.y));
+          t.el.style.left = `${t.x}px`;
+          t.el.style.top = `${t.y}px`;
+        });
+      }, 30);
+    }
+
+    function stopHardRuiGame() {
+      ruiGame.running = false;
+      clearInterval(ruiGame.spawnTimer);
+      clearInterval(ruiGame.moveTimer);
+      clearInterval(ruiGame.clockTimer);
+      document.getElementById("rui-time").textContent = `DONE (${ruiGame.score})`;
+      logActivity(`HARD RUI RUN FINISHED // SCORE: ${ruiGame.score}`);
+    }
+
+    /* ==========================================================================
+       BANGLA DARK HUMOR GAMES (3 PLAYABLE GAMES)
+       ========================================================================== */
+    const CORPSE_CASES = [
+      {
+        prompt: "কেস ০১: সেক্টর-০৯ এর পেছনে একটা সন্দেহজনক বস্তা আর পাশে এক গাদা মাছের আঁশ পাওয়া গেছে। কে আগে সাফাই করবে?",
+        options: [
+          { label: "Ali: 'বস্তা না, এটা আমার নতুন দালালি ডিল—কমিশন ৫০%।'", punch: "আলি বস্তার দাম বাড়িয়ে দিল, লাশ এখনও বেওয়ারিশ!" },
+          { label: "Sayzid: 'দাদা বস্তায় কি রুই মাছ আছে, নাকি অন্য কিছু?'", punch: "সায়জিদ বস্তা খুলে মাছ খুঁজছে, ফরেনসিক টিম অজ্ঞান!" },
+          { label: "Billal: 'কী রে শূয়োরের বাচ্চারা, নিজেরাই কেস খাও।'", punch: "বিল্লাল সবার ওপরেই সন্দেহ চাপিয়ে চা খেতে চলে গেল!" }
+        ]
+      },
+      {
+        prompt: "কেস ০২: ব্যারেলের ভেতর থেকে অদ্ভুত আওয়াজ আর ধোঁয়া বের হচ্ছে। দায় কার?",
+        options: [
+          { label: "Bipu: 'ব্যারেল খুইলা লাভ নাই, আমি তো ব্যারেল হইবার চাইছিলাম।'", punch: "বিপু ব্যারেলের মালিকানা দাবি করে ভেতরেই ঢুকে পড়ল!" },
+          { label: "Vaste: '১৬ ইঞ্চি হিসাব মিলছে না, প্রেম করাই ভুল ছিল।'", punch: "ভাস্তে লাশের ময়নাতদন্ত বাদ দিয়ে মাপজোখ শুরু করল!" },
+          { label: "Jahid: 'কী রে! হাতির হোল হইয়া গেসু তুই?'", punch: "জাহিদ পোস্টমর্টেম রিপোর্টে শুধু রোস্ট লিখে দিল!" }
+        ]
+      },
+      {
+        prompt: "কেস ০৩: কবরের পাশ থেকে হঠাৎ 'I love Mamuni' ভেসে এসেছে। তদন্তের মোড় কোন দিকে?",
+        options: [
+          { label: "Ragib: 'আমি তো মনযোগ দিয়া শুনতেছিলাম, লাশ কই?'", punch: "রাগিব সব ভুলে নিজের লাইনেই আটকে রইল!" },
+          { label: "Nafi: 'প্রেম করসু তো বিয়ে করাই লাগবি।'", punch: "নাফি জীবিত-মৃত সবার কপালেই বিয়ের রায় দিয়ে দিল!" },
+          { label: "Anam: 'ইইইই ভাই, একদম কচি মাল রে!'", punch: "আনাম খিলখিলিয়ে হেসে পুরো তদন্ত পণ্ড করে দিল!" }
+        ]
+      }
+    ];
+    let corpseIndex = 0;
+
+    function renderCorpseCase() {
+      const c = CORPSE_CASES[corpseIndex % CORPSE_CASES.length];
+      document.getElementById("corpse-prompt").textContent = c.prompt;
+      const box = document.getElementById("corpse-choices");
+      box.innerHTML = "";
+      c.options.forEach((opt) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "choice-btn";
+        btn.textContent = opt.label;
+        btn.addEventListener("click", () => {
+          document.getElementById("corpse-result").textContent = `রায়: ${opt.punch}`;
+          audioManager.playSynth("verdictHorn");
+        });
+        box.appendChild(btn);
+      });
+    }
+
+    const AFTERLIFE_TOPICS = [
+      {
+        button: "টপিক ১: কবর থেকে Wi-Fi পাসওয়ার্ড চাওয়া",
+        lines: [
+          ["Billal", "কবরের নিচেও নেট স্লো, কী রে শূয়োরের বাচ্চারা?"],
+          ["Ali", "পাসওয়ার্ড লাগলে বল, ওপারের অ্যাডমিনের সাথে দালালি কইরা আনি।"],
+          ["Anam", "ইইইই ভাই, ভূতেরাও টিকটক বানায়, একদম কচি মাল রে!"]
+        ]
+      },
+      {
+        button: "টপিক ২: জানাজার পর বিরিয়ানির প্যাকেট",
+        lines: [
+          ["Sayzid", "বিরিয়ানির বদলে রুই মাছ দিলে কি পাপ কমবে?"],
+          ["Bipu", "খাওয়া-দাওয়া শেষ হইলে আমারে একটা বড় ব্যারেল দিয়ো।"],
+          ["Nafi", "বেঁচে থাকতে প্রেম করছিস, এখন পরকালের বিয়ে সামলা!"]
+        ]
+      },
+      {
+        button: "টপিক ৩: শয়তানের সাথে প্রথম মিটিং",
+        lines: [
+          ["Jahid", "কী রে! শয়তানও তো দেখি হাতির হোল হইয়া গেসে!"],
+          ["Vaste", "হিসাব পরিষ্কার—১৬ ইঞ্চি গ্যাপ, প্রেম করাই ভুল ছিল।"],
+          ["Ragib", "I love Mamuni — এই লাইনটা কবরের এপিটাফেও লেখা থাকবে।"]
+        ]
+      }
+    ];
+
+    function renderAfterlifeChat() {
+      const chat = document.getElementById("afterlife-chat");
+      const btnWrap = document.getElementById("afterlife-buttons");
+      chat.innerHTML = `<div class="chat-line"><strong>SYSTEM:</strong> কবরের গ্রুপ চ্যাটে স্বাগতম। নিচে একটা টপিক চাপো।</div>`;
+      btnWrap.innerHTML = "";
+
+      AFTERLIFE_TOPICS.forEach((topic) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "choice-btn";
+        btn.textContent = topic.button;
+        btn.addEventListener("click", () => {
+          chat.innerHTML = "";
+          topic.lines.forEach(([who, msg], idx) => {
+            setTimeout(() => {
+              const row = document.createElement("div");
+              row.className = "chat-line";
+              row.innerHTML = `<strong>${who}:</strong> ${msg}`;
+              chat.appendChild(row);
+              chat.scrollTop = chat.scrollHeight;
+              audioManager.playSynth("deadpanBlip");
+            }, idx * 240);
+          });
+        });
+        btnWrap.appendChild(btn);
+      });
+    }
+
+    const HELL_QUESTIONS = [
+      {
+        q: "নরকের HR প্রশ্ন ১: কড়াইয়ে তেল গরম হচ্ছে—তুমি কেন নিজেকে যোগ্য মনে করো?",
+        choices: [
+          "আমি সারাজীবন ফালতু তর্কে তেল ঢেলেছি, গরম তেল আমার অভ্যাস।",
+          "আগে দালালি করে কমিশন নেব, তারপর কড়াইয়ে নামব।",
+          "মাপজোখ ভুল আছে, কড়াইটা ১৬ ইঞ্চি গভীর হওয়া উচিত ছিল।"
+        ],
+        verdict: "HR রায়: তোমাকে 'অতিরিক্ত জ্বালাতন' বিভাগে জুনিয়র কয়লা-ঠেলা পদে নেওয়া হলো!"
+      },
+      {
+        q: "নরকের HR প্রশ্ন ২: শয়তান যদি বলে 'আজ ছুটি, তুমি ডিউটি করো'—কী বলবে?",
+        choices: [
+          "রুই মাছের চালান আসলে বলব, নইলে বসব না।",
+          "হাহাহা, কী রে! তুইও দেখি শেষমেশ কয়লা হইয়া গেলি?",
+          "ইইইই ভাই, একদম কচি পাপী আসছে আজকে!"
+        ],
+        verdict: "HR রায়: তোমার সিভি পুড়িয়ে ফেলা হয়েছে, তবে ক্যান্টিনের ঝাড়ুদার হিসেবে ট্রায়াল চলবে!"
+      }
+    ];
+    let hellIndex = 0;
+
+    function renderHellQuestion() {
+      const item = HELL_QUESTIONS[hellIndex % HELL_QUESTIONS.length];
+      document.getElementById("hell-question").textContent = item.q;
+      const list = document.getElementById("hell-choices");
+      list.innerHTML = "";
+      item.choices.forEach((txt) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "choice-btn";
+        btn.textContent = txt;
+        btn.addEventListener("click", () => {
+          document.getElementById("hell-verdict").textContent = item.verdict;
+          audioManager.playSynth("cackleStaccato");
+        });
+        list.appendChild(btn);
       });
     }
 
     /* ==========================================================================
-       RENDER MEMBERS ROSTER, SOUND ROOM, MEMORY WALL & ABOUT
+       ROSTER, MEMORY WALL, SOUND ROOM, ABOUT & DOSSIER
        ========================================================================== */
     function renderMembersRoster() {
       const grid = document.getElementById("roster-grid");
       grid.innerHTML = "";
-
-      COMMITTEE_CONFIG.members.forEach((member, index) => {
+      COMMITTEE_CONFIG.members.forEach((m, i) => {
         const card = document.createElement("article");
         card.className = "roster-card";
 
         const top = document.createElement("div");
-        top.className = "roster-card-top";
+        top.className = "roster-top";
+        const av = document.createElement("div");
+        av.className = "roster-avatar";
+        av.appendChild(createAvatarVisual(m));
 
-        const avatarBox = document.createElement("div");
-        avatarBox.className = "roster-avatar-box";
-        avatarBox.appendChild(createAvatarVisual(member));
+        const info = document.createElement("div");
+        info.innerHTML = `<div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--amber-sulfur);">UNIT 0${i + 1}</div><h3>${m.name}</h3>`;
+        top.appendChild(av);
+        top.appendChild(info);
 
-        const meta = document.createElement("div");
-        meta.className = "roster-meta";
-        meta.innerHTML = `
-          <div class="roster-nick">UNIT 0${index + 1} // ${member.nickname}</div>
-          <h3>${member.name}</h3>
-        `;
-
-        top.appendChild(avatarBox);
-        top.appendChild(meta);
-
-        const quote = document.createElement("div");
-        quote.className = "roster-dialogue";
-        quote.textContent = `"${member.dialogue}"`;
+        const q = document.createElement("div");
+        q.className = "roster-dialogue";
+        q.textContent = `"${m.dialogue}"`;
 
         const actions = document.createElement("div");
         actions.className = "roster-actions";
 
-        const speakBtn = document.createElement("button");
-        speakBtn.type = "button";
-        speakBtn.textContent = "Play Dialogue";
-        speakBtn.addEventListener("click", () => {
-          audioManager.playMemberSound(member);
-          logActivity(`${member.name.toUpperCase()}: "${member.dialogue}"`);
+        const playBtn = document.createElement("button");
+        playBtn.type = "button";
+        playBtn.textContent = "Speak";
+        playBtn.addEventListener("click", () => {
+          switchTab("scene-view");
+          triggerCharacter(m.id, { bypassCooldown: true });
         });
 
-        const dossierBtn = document.createElement("button");
-        dossierBtn.type = "button";
-        dossierBtn.textContent = "Open Dossier";
-        dossierBtn.addEventListener("click", () => openDossier(member.id));
+        const fightBtn = document.createElement("button");
+        fightBtn.type = "button";
+        fightBtn.textContent = "Fight";
+        fightBtn.addEventListener("click", () => startCharacterFight(m.id));
 
-        actions.appendChild(speakBtn);
-        actions.appendChild(dossierBtn);
+        const dosBtn = document.createElement("button");
+        dosBtn.type = "button";
+        dosBtn.textContent = "ID";
+        dosBtn.addEventListener("click", () => openDossier(m.id));
+
+        actions.appendChild(playBtn);
+        actions.appendChild(fightBtn);
+        actions.appendChild(dosBtn);
 
         card.appendChild(top);
-        card.appendChild(quote);
+        card.appendChild(q);
         card.appendChild(actions);
         grid.appendChild(card);
       });
@@ -835,28 +2856,20 @@
     function renderSoundRoom() {
       const grid = document.getElementById("soundboard-grid");
       grid.innerHTML = "";
-
-      COMMITTEE_CONFIG.members.forEach((member, idx) => {
+      COMMITTEE_CONFIG.members.forEach((m, i) => {
         const pad = document.createElement("button");
         pad.type = "button";
         pad.className = "sound-pad";
         pad.innerHTML = `
-          <div class="sound-pad-header">
-            <span class="sound-pad-index">CH 0${idx + 1}</span>
-            <div class="sound-bars" aria-hidden="true"><span></span><span></span><span></span></div>
-          </div>
-          <div class="sound-pad-name">${member.name}</div>
-          <div class="sound-pad-quote">"${member.dialogue}"</div>
+          <div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--amber-sulfur);">CH 0${i + 1}</div>
+          <div style="font-family:var(--font-display);font-size:1.2rem;font-weight:800;">${m.name}</div>
+          <div style="font-family:var(--font-mono);font-size:0.8rem;color:var(--cream-muted);">"${m.dialogue}"</div>
         `;
-
         pad.addEventListener("click", () => {
           document.querySelectorAll(".sound-pad.is-playing").forEach((el) => el.classList.remove("is-playing"));
           pad.classList.add("is-playing");
-          audioManager.playMemberSound(member, () => {
-            pad.classList.remove("is-playing");
-          });
+          audioManager.playMemberSound(m, () => pad.classList.remove("is-playing"));
         });
-
         grid.appendChild(pad);
       });
     }
@@ -864,10 +2877,10 @@
     function renderMemoryWall() {
       const filterBar = document.getElementById("memory-filters");
       const grid = document.getElementById("memory-grid");
-      const categories = ["ALL", ...new Set(COMMITTEE_CONFIG.memories.map((m) => m.category))];
+      const cats = ["ALL", ...new Set(COMMITTEE_CONFIG.memories.map((x) => x.category))];
 
       filterBar.innerHTML = "";
-      categories.forEach((cat) => {
+      cats.forEach((cat) => {
         const chip = document.createElement("button");
         chip.type = "button";
         chip.className = `filter-chip ${state.memoryCategory === cat ? "active" : ""}`;
@@ -880,103 +2893,92 @@
       });
 
       grid.innerHTML = "";
-      const filtered = state.memoryCategory === "ALL"
+      const items = state.memoryCategory === "ALL"
         ? COMMITTEE_CONFIG.memories
-        : COMMITTEE_CONFIG.memories.filter((m) => m.category === state.memoryCategory);
+        : COMMITTEE_CONFIG.memories.filter((x) => x.category === state.memoryCategory);
 
-      filtered.forEach((item) => {
+      items.forEach((item) => {
         const card = document.createElement("article");
         card.className = "memory-card";
 
-        const mediaBox = document.createElement("div");
-        mediaBox.className = "memory-media";
+        const media = document.createElement("div");
+        media.className = "memory-media";
 
         if (item.mediaType === "image") {
           const img = document.createElement("img");
           img.src = item.mediaPath;
           img.alt = item.title;
           img.onerror = () => {
-            mediaBox.innerHTML = `<div class="memory-placeholder-label">MISSING FILE: ${item.mediaPath}</div>`;
+            media.innerHTML = `<div class="memory-placeholder">MISSING FILE: ${item.mediaPath}</div>`;
           };
-          mediaBox.appendChild(img);
+          media.appendChild(img);
         } else if (item.mediaType === "video") {
           const vid = document.createElement("video");
           vid.src = item.mediaPath;
           vid.controls = true;
-          mediaBox.appendChild(vid);
+          media.appendChild(vid);
         } else {
-          mediaBox.innerHTML = `<div class="memory-placeholder-label">PLACEHOLDER SLOT<br>${item.mediaPath}</div>`;
+          media.innerHTML = `<div class="memory-placeholder">PLACEHOLDER SLOT<br>${item.mediaPath}</div>`;
         }
 
-        card.appendChild(mediaBox);
+        card.appendChild(media);
         card.insertAdjacentHTML("beforeend", `
-          <div class="memory-meta">
+          <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:0.72rem;color:var(--amber-sulfur);">
             <span>${item.category}</span>
             <span>${item.date}</span>
           </div>
-          <div class="memory-caption">${item.title}</div>
-          <div class="memory-desc">${item.caption}</div>
+          <div style="font-weight:700;">${item.title}</div>
+          <div style="font-family:var(--font-mono);font-size:0.8rem;color:var(--cream-muted);">${item.caption}</div>
         `);
         grid.appendChild(card);
       });
     }
 
     function renderAboutSection() {
-      const container = document.getElementById("about-content");
-      container.innerHTML = "";
-      COMMITTEE_CONFIG.about.paragraphs.forEach((text) => {
+      const box = document.getElementById("about-content");
+      box.innerHTML = "";
+      COMMITTEE_CONFIG.about.paragraphs.forEach((pText) => {
         const p = document.createElement("p");
-        p.textContent = text;
-        container.appendChild(p);
+        p.style.fontFamily = "var(--font-mono)";
+        p.textContent = pText;
+        box.appendChild(p);
       });
       const note = document.createElement("div");
-      note.className = "about-note";
+      note.style.cssText = "background:var(--bg-panel);border-left:3px solid var(--amber-sulfur);padding:0.7rem 0.9rem;font-family:var(--font-mono);font-size:0.8rem;color:var(--cream-muted);";
       note.textContent = COMMITTEE_CONFIG.about.placeholderNotice;
-      container.appendChild(note);
+      box.appendChild(note);
     }
 
-    /* ==========================================================================
-       CHARACTER PROFILE DOSSIER MODAL
-       ========================================================================== */
     function openDossier(memberId) {
       const idx = COMMITTEE_CONFIG.members.findIndex((m) => m.id === memberId);
-      const member = COMMITTEE_CONFIG.members[idx];
-      if (!member) return;
-
-      state.activeModalMember = member;
+      const m = COMMITTEE_CONFIG.members[idx];
+      if (!m) return;
+      state.activeModalMember = m;
 
       document.getElementById("dossier-code").textContent = `FILE // 0${idx + 1}`;
-      document.getElementById("dossier-name").textContent = member.name;
-      document.getElementById("dossier-dialogue").textContent = `"${member.dialogue}"`;
-      document.getElementById("dossier-nickname").textContent = member.nickname;
-      document.getElementById("dossier-desc").textContent = member.description;
-      document.getElementById("dossier-personality").textContent = member.personality;
-      document.getElementById("dossier-ability").textContent = member.ability;
+      document.getElementById("dossier-name").textContent = m.name;
+      document.getElementById("dossier-dialogue").textContent = `"${m.dialogue}"`;
+      document.getElementById("dossier-nickname").textContent = m.nickname;
+      document.getElementById("dossier-desc").textContent = m.description;
+      document.getElementById("dossier-personality").textContent = m.personality;
+      document.getElementById("dossier-ability").textContent = m.ability;
 
-      const avatarSlot = document.getElementById("dossier-avatar-slot");
-      avatarSlot.innerHTML = "";
-      avatarSlot.appendChild(createAvatarVisual(member));
+      const slot = document.getElementById("dossier-avatar-slot");
+      slot.innerHTML = "";
+      slot.appendChild(createAvatarVisual(m));
 
-      const statsContainer = document.getElementById("dossier-stats");
-      statsContainer.innerHTML = "";
-      member.stats.forEach((st) => {
-        const row = document.createElement("div");
-        row.className = "stat-row";
-        row.innerHTML = `
-          <div class="stat-row-head">
-            <span>${st.label}</span>
-            <span>${st.value}%</span>
+      const stats = document.getElementById("dossier-stats");
+      stats.innerHTML = "";
+      m.stats.forEach((st) => {
+        stats.insertAdjacentHTML("beforeend", `
+          <div class="stat-row">
+            <div class="stat-row-head"><span>${st.label}</span><span>${st.value}%</span></div>
+            <div class="stat-track"><div class="stat-fill" style="width:${st.value}%"></div></div>
           </div>
-          <div class="stat-track">
-            <div class="stat-fill" style="width:${Math.max(0, Math.min(100, st.value))}%"></div>
-          </div>
-        `;
-        statsContainer.appendChild(row);
+        `);
       });
 
-      const backdrop = document.getElementById("dossier-backdrop");
-      backdrop.classList.add("open");
-      document.getElementById("dossier-close-btn").focus();
+      document.getElementById("dossier-backdrop").classList.add("open");
     }
 
     function closeDossier() {
@@ -984,40 +2986,76 @@
       state.activeModalMember = null;
     }
 
-    /* ==========================================================================
-       NAVIGATION & INITIALIZATION
-       ========================================================================== */
-    function initNavigation() {
-      const tabs = document.querySelectorAll(".nav-tab");
-      const sections = document.querySelectorAll(".view-section");
+    function switchTab(targetId) {
+      document.querySelectorAll(".nav-tab").forEach((t) => {
+        t.classList.toggle("active", t.dataset.target === targetId);
+      });
+      document.querySelectorAll(".view-section").forEach((sec) => {
+        sec.classList.toggle("active", sec.id === targetId);
+      });
+    }
 
-      tabs.forEach((tab) => {
-        tab.addEventListener("click", () => {
-          const targetId = tab.dataset.target;
-          tabs.forEach((t) => t.classList.remove("active"));
-          tab.classList.add("active");
-
-          sections.forEach((sec) => {
-            sec.classList.toggle("active", sec.id === targetId);
-          });
-        });
+    function initEasterEggs() {
+      const brand = document.getElementById("brand-title");
+      brand.addEventListener("click", () => {
+        state.titleClicks += 1;
+        if (state.titleClicks >= 5) {
+          state.titleClicks = 0;
+          document.body.classList.toggle("protocol-nine");
+          audioManager.playSynth("verdictHorn");
+          logActivity("SECRET TRIGGERED: PROTOCOL 09 INVERSION");
+        }
       });
 
-      // Sub-tabs inside Games & Chaos
-      const gameBtns = document.querySelectorAll(".game-tab-btn");
-      const gamePanels = document.querySelectorAll(".game-panel");
-      gameBtns.forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const targetGame = btn.dataset.game;
-          gameBtns.forEach((b) => b.classList.remove("active"));
-          btn.classList.add("active");
-          gamePanels.forEach((p) => p.classList.toggle("active", p.id === targetGame));
+      const lamp = document.getElementById("prop-lamp");
+      if (lamp) {
+        lamp.addEventListener("click", () => {
+          lamp.classList.add("prop-triggered");
+          setTimeout(() => lamp.classList.remove("prop-triggered"), 450);
+          document.body.classList.toggle("phosphor-mode");
+          audioManager.playSynth("deadpanBlip");
+          logActivity("HIDDEN PROP: STREETLAMP PHOSPHOR MODE");
         });
+      }
+
+      const barrel = document.getElementById("prop-barrel");
+      if (barrel) {
+        barrel.addEventListener("click", () => {
+          barrel.classList.add("prop-triggered");
+          setTimeout(() => barrel.classList.remove("prop-triggered"), 450);
+          triggerCharacter("bipu", { bypassCooldown: true });
+        });
+      }
+
+      const crate = document.getElementById("prop-crate");
+      if (crate) {
+        crate.addEventListener("click", () => {
+          crate.classList.add("prop-triggered");
+          setTimeout(() => crate.classList.remove("prop-triggered"), 450);
+          triggerCharacter("sayzid", { bypassCooldown: true });
+        });
+      }
+
+      const antenna = document.getElementById("prop-antenna");
+      if (antenna) {
+        antenna.addEventListener("click", () => {
+          antenna.classList.add("prop-triggered");
+          setTimeout(() => antenna.classList.remove("prop-triggered"), 450);
+          startCharacterFight();
+        });
+      }
+
+      document.addEventListener("keydown", (e) => {
+        if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+        state.secretBuffer = (state.secretBuffer + e.key.toLowerCase()).slice(-6);
+        if (state.secretBuffer.endsWith("999")) {
+          state.secretBuffer = "";
+          triggerUnleashChaos();
+        }
       });
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-      // Entry Gate Controls
       const gate = document.getElementById("entry-gate");
       document.getElementById("enter-with-sound").addEventListener("click", () => {
         audioManager.unlock(true);
@@ -1028,18 +3066,31 @@
         gate.classList.add("hidden");
       });
 
-      // Top Audio Controls
       document.getElementById("toggle-mute-btn").addEventListener("click", () => audioManager.toggleMute());
       document.getElementById("toggle-music-btn").addEventListener("click", () => audioManager.toggleMusic());
       document.getElementById("volume-control").addEventListener("input", (e) => audioManager.setVolume(e.target.value));
 
-      // Chaos Controls
+      document.querySelectorAll(".nav-tab").forEach((tab) => {
+        tab.addEventListener("click", () => switchTab(tab.dataset.target));
+      });
+
       document.getElementById("btn-unleash-chaos").addEventListener("click", triggerUnleashChaos);
-      document.getElementById("btn-emergency").addEventListener("click", triggerEmergencyMeeting);
+      document.getElementById("btn-brawl-pair").addEventListener("click", () => startCharacterFight());
       document.getElementById("btn-random-member").addEventListener("click", triggerRandomMember);
       document.getElementById("btn-random-event").addEventListener("click", triggerRandomEvent);
 
-      // Modal Controls
+      document.getElementById("rui-start-btn").addEventListener("click", startHardRuiGame);
+      document.getElementById("rui-brawl-btn").addEventListener("click", () => startCharacterFight());
+
+      document.getElementById("corpse-next-btn").addEventListener("click", () => {
+        corpseIndex += 1;
+        renderCorpseCase();
+      });
+      document.getElementById("hell-next-btn").addEventListener("click", () => {
+        hellIndex += 1;
+        renderHellQuestion();
+      });
+
       document.getElementById("dossier-close-btn").addEventListener("click", closeDossier);
       document.getElementById("dossier-backdrop").addEventListener("click", (e) => {
         if (e.target.id === "dossier-backdrop") closeDossier();
@@ -1047,23 +3098,25 @@
       document.getElementById("dossier-sound-btn").addEventListener("click", () => {
         if (state.activeModalMember) audioManager.playMemberSound(state.activeModalMember);
       });
+      document.getElementById("dossier-fight-btn").addEventListener("click", () => {
+        if (state.activeModalMember) {
+          const id = state.activeModalMember.id;
+          closeDossier();
+          startCharacterFight(id);
+        }
+      });
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") closeDossier();
       });
 
-      // Render & Initialize Everything
-      initNavigation();
       renderMainScene();
-      initReactionStamps();
       renderMembersRoster();
       renderSoundRoom();
-      initBeatboxSequencer();
       renderMemoryWall();
       renderAboutSection();
-      initRuiMachGame();
-      initCorpseGame();
-      initAfterlifeChatGame();
-      initHellJobGame();
+      renderCorpseCase();
+      renderAfterlifeChat();
+      renderHellQuestion();
       initEasterEggs();
       startBlinkingLoop();
       startAutonomousLife();

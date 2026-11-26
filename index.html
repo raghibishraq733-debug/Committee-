@@ -307,6 +307,17 @@
       border-color: var(--cream-dirty);
     }
 
+    .nav-tab--games {
+      border-color: rgba(201, 81, 39, 0.45);
+      color: var(--amber-sulfur);
+    }
+
+    .nav-tab--games.active {
+      background: var(--rust-orange);
+      color: #0e0b09;
+      border-color: #090a08;
+    }
+
     .audio-deck {
       display: flex;
       align-items: center;
@@ -546,6 +557,40 @@
       0%, 100% { transform: translateY(0) rotate(0deg); }
       30% { transform: translateY(-8px) rotate(-4deg); }
       65% { transform: translateY(2px) rotate(3deg); }
+    }
+
+    /* Floating Comic Reaction Stamps Layer on Compound Scene */
+    .stamps-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 65;
+      overflow: hidden;
+    }
+
+    .comic-stamp {
+      position: absolute;
+      transform: translate(-50%, -50%) rotate(var(--rot, -6deg)) scale(0.4);
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: clamp(1.1rem, 2.2vw, 1.65rem);
+      padding: 0.35rem 0.85rem;
+      background: var(--stamp-bg, var(--amber-sulfur));
+      color: var(--stamp-fg, #0c0d0b);
+      border: 3px solid #090a08;
+      box-shadow: 5px 5px 0 #090a08;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      pointer-events: auto;
+      cursor: pointer;
+      animation: stampSlam 0.35s cubic-bezier(0.2, 1.5, 0.3, 1) forwards;
+    }
+
+    @keyframes stampSlam {
+      0% { transform: translate(-50%, -50%) rotate(var(--rot, -6deg)) scale(2.1); opacity: 0; }
+      70% { transform: translate(-50%, -50%) rotate(var(--rot, -6deg)) scale(0.95); opacity: 1; }
+      100% { transform: translate(-50%, -50%) rotate(var(--rot, -6deg)) scale(1); opacity: 1; }
     }
 
     /* ==========================================================================
@@ -824,7 +869,6 @@
     }
 
     /* 9 Distinct Click Reaction Animations */
-    /* 1. Ragib: Manic Laugh & Float */
     .react-laugh-float .avatar-stage {
       animation: reactLaughFloat 0.95s ease-in-out;
     }
@@ -838,7 +882,6 @@
       100% { transform: translateY(0) rotate(0deg); }
     }
 
-    /* 2. Ali: Shady Lean & Hand Rub */
     .react-shady-lean .avatar-stage {
       animation: reactShadyLean 0.9s cubic-bezier(0.2, 1.3, 0.3, 1);
     }
@@ -850,7 +893,6 @@
       70% { transform: scale(1.08) skewX(4deg); }
     }
 
-    /* 3. Bipu: Barrel Swell & Belly Laugh */
     .react-barrel-swell .avatar-stage {
       animation: reactBarrelSwell 1s ease-in-out;
     }
@@ -863,7 +905,6 @@
       80% { transform: scale(1.22, 0.92) rotate(3deg); }
     }
 
-    /* 4. Nafi: Accusing Lunge */
     .react-lunge .avatar-stage {
       animation: reactLunge 0.85s cubic-bezier(0.2, 1.4, 0.3, 1);
     }
@@ -874,7 +915,6 @@
       65% { transform: scale(1.14) translateY(-6px) rotate(-3deg); }
     }
 
-    /* 5. Vaste: Deadpan Sideways Tilt */
     .react-tilt .avatar-stage {
       animation: reactTilt 0.95s ease-in-out;
       transform-origin: bottom center;
@@ -885,7 +925,6 @@
       65% { transform: rotate(16deg) translateX(5px); }
     }
 
-    /* 6. Sayzid: Bazaar Hawker Jump */
     .react-hawker-jump .avatar-stage {
       animation: reactHawkerJump 0.85s ease;
     }
@@ -899,7 +938,6 @@
       75% { transform: translateY(-14px) rotate(-3deg); }
     }
 
-    /* 7. Jahid: Roaring Cackle Shake */
     .react-cackle .avatar-stage {
       animation: reactCackle 0.95s ease-in-out;
     }
@@ -912,7 +950,6 @@
       30%, 60%, 90% { transform: translateX(5px) rotate(2deg); }
     }
 
-    /* 8. Billal: Furious Bristle Hop */
     .react-bristle .avatar-stage {
       animation: reactBristle 0.8s steps(3, end);
     }
@@ -924,7 +961,6 @@
       66% { transform: scale(0.95, 1.1) translateY(-4px); }
     }
 
-    /* 9. Anam: Wheeze Double-Over Laugh */
     .react-wheeze .avatar-stage {
       animation: reactWheeze 0.95s ease-in-out;
       transform-origin: bottom center;
@@ -954,7 +990,7 @@
     }
 
     /* ==========================================================================
-       8. CHAOS CONTROL DECK
+       8. CHAOS CONTROL DECK & REACTION STAMP TOOLBAR
        ========================================================================== */
     .chaos-deck {
       margin-top: 0.9rem;
@@ -962,11 +998,17 @@
       border: 2px solid var(--border-grime);
       padding: 0.85rem 1rem;
       display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      box-shadow: var(--shadow-hard);
+    }
+
+    .chaos-row {
+      display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       gap: 0.75rem;
-      box-shadow: var(--shadow-hard);
     }
 
     .chaos-label {
@@ -1027,8 +1069,344 @@
       color: var(--cream-dirty);
     }
 
+    .stamp-bar {
+      border-top: 1px dashed var(--border-grime);
+      padding-top: 0.65rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .stamp-chip {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 0.35rem 0.65rem;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-grime);
+      color: var(--cream-dirty);
+      border-radius: 3px;
+      transition: all var(--transition-fast);
+    }
+
+    .stamp-chip:hover {
+      background: var(--amber-sulfur);
+      color: #11100a;
+      border-color: #090a08;
+      transform: translateY(-1px);
+    }
+
     /* ==========================================================================
-       9. MEMBERS DIRECTORY, SOUND ROOM, MEMORY WALL & ABOUT SECTIONS
+       9. GAMES & CHAOS LAB SECTION (3 INTERACTIVE MINI-GAMES)
+       ========================================================================== */
+    .games-subnav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .game-tab-btn {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.65rem 1rem;
+      background: var(--bg-charcoal);
+      border: 2px solid var(--border-grime);
+      color: var(--cream-muted);
+      box-shadow: 3px 3px 0 #090a08;
+      transition: all var(--transition-fast);
+    }
+
+    .game-tab-btn:hover {
+      color: var(--cream-dirty);
+      border-color: var(--olive-bright);
+    }
+
+    .game-tab-btn.active {
+      background: var(--amber-sulfur);
+      color: #0d0c09;
+      border-color: #090a08;
+    }
+
+    .game-panel {
+      display: none;
+      background: var(--bg-charcoal);
+      border: 2px solid var(--border-grime);
+      box-shadow: var(--shadow-hard);
+      padding: 1.25rem;
+    }
+
+    .game-panel.active {
+      display: block;
+      animation: sectionEnter 0.25s ease;
+    }
+
+    /* --- GAME 1: RUI MACH SLAP & CATCH --- */
+    .fish-hud {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-grime);
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.9rem;
+      font-family: var(--font-mono);
+    }
+
+    .hud-stat {
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .hud-stat span {
+      color: var(--amber-sulfur);
+      font-size: 1.05rem;
+    }
+
+    .fish-arena {
+      position: relative;
+      width: 100%;
+      height: clamp(360px, 54vh, 460px);
+      background:
+        radial-gradient(circle at 50% 25%, rgba(75, 87, 60, 0.25), transparent 65%),
+        linear-gradient(180deg, #121713 0%, #1d261e 68%, #282319 69%, #151611 100%);
+      border: 2px solid #090a08;
+      overflow: hidden;
+      user-select: none;
+      cursor: crosshair;
+    }
+
+    .fish-sayzid-host {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 115px;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 5;
+    }
+
+    .fish-host-shout {
+      background: var(--cream-dirty);
+      color: var(--ink-dark);
+      border: 2px solid #090a08;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.25rem 0.55rem;
+      border-radius: 4px;
+      white-space: nowrap;
+      margin-bottom: 4px;
+      box-shadow: 2px 2px 0 #090a08;
+    }
+
+    .flying-target {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      z-index: 15;
+      padding: 6px;
+      transition: transform 0.08s ease;
+      touch-action: manipulation;
+    }
+
+    .flying-target:active {
+      transform: translate(-50%, -50%) scale(0.82);
+    }
+
+    .floating-score-pop {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.15rem;
+      pointer-events: none;
+      z-index: 30;
+      text-shadow: 2px 2px 0 #090a08;
+      animation: floatScoreUp 0.65s ease-out forwards;
+    }
+
+    @keyframes floatScoreUp {
+      from { opacity: 1; transform: translate(-50%, -50%) scale(0.9); }
+      to { opacity: 0; transform: translate(-50%, -130%) scale(1.25); }
+    }
+
+    /* --- GAME 2: EMERGENCY TRIBUNAL & EJECTION --- */
+    .tribunal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 0.85rem;
+      margin-top: 1rem;
+    }
+
+    .suspect-card {
+      background: var(--bg-panel);
+      border: 2px solid var(--border-grime);
+      padding: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      transition: border-color var(--transition-fast), transform var(--transition-fast);
+    }
+
+    .suspect-card:hover {
+      border-color: var(--danger-red);
+      transform: translateY(-2px);
+    }
+
+    .suspect-top {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .suspect-avatar {
+      width: 54px;
+      height: 64px;
+      flex-shrink: 0;
+    }
+
+    .suspect-alibi {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--cream-muted);
+      background: var(--bg-charcoal);
+      padding: 0.45rem;
+      border-left: 2px solid var(--amber-sulfur);
+      min-height: 54px;
+    }
+
+    .eject-vote-btn {
+      margin-top: auto;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.5rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-grime);
+      transition: all var(--transition-fast);
+    }
+
+    .eject-vote-btn:hover {
+      background: var(--danger-red);
+      color: var(--cream-dirty);
+      border-color: #090a08;
+    }
+
+    .ejection-cinema {
+      position: relative;
+      width: 100%;
+      height: 220px;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,0.45) 1px, transparent 2px),
+        radial-gradient(circle at 75% 20%, rgba(255,255,255,0.5) 1.5px, transparent 2.5px),
+        radial-gradient(circle at 45% 75%, rgba(255,255,255,0.35) 1px, transparent 2px),
+        radial-gradient(circle at 85% 65%, rgba(255,255,255,0.45) 1.5px, transparent 2.5px),
+        #080a08;
+      background-size: 180px 140px;
+      border: 2px solid #090a08;
+      margin-bottom: 1rem;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ejected-flyer {
+      position: absolute;
+      left: -120px;
+      width: 88px;
+      height: 105px;
+      pointer-events: none;
+    }
+
+    .ejected-flyer.is-flying {
+      animation: ejectAcrossSpace 3.4s linear forwards;
+    }
+
+    @keyframes ejectAcrossSpace {
+      0% { left: -110px; top: 58%; transform: rotate(0deg) scale(1); }
+      50% { left: 50%; top: 38%; transform: rotate(420deg) scale(0.75); }
+      100% { left: calc(100% + 120px); top: 22%; transform: rotate(900deg) scale(0.35); }
+    }
+
+    .ejection-caption {
+      font-family: var(--font-mono);
+      font-size: clamp(0.9rem, 2vw, 1.15rem);
+      font-weight: 700;
+      color: var(--cream-dirty);
+      text-align: center;
+      padding: 0 1.25rem;
+      z-index: 5;
+      text-shadow: 2px 2px 0 #000;
+    }
+
+    /* --- GAME 3: DIALOGUE ROULETTE & GROUP ROAST --- */
+    .roulette-stage {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 1rem;
+      align-items: center;
+      margin: 1rem 0;
+    }
+
+    .roulette-slot {
+      background: var(--bg-panel);
+      border: 2px solid var(--border-grime);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0.6rem;
+    }
+
+    .roulette-avatar {
+      width: 92px;
+      height: 110px;
+    }
+
+    .roulette-vs {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: var(--rust-orange);
+    }
+
+    .roulette-quote-box {
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      background: var(--bg-charcoal);
+      border-left: 3px solid var(--amber-sulfur);
+      padding: 0.55rem 0.7rem;
+      width: 100%;
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .roast-verdict-banner {
+      background: var(--bg-panel);
+      border: 2px solid var(--rust-orange);
+      padding: 0.85rem 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      color: var(--cream-dirty);
+      margin-top: 0.75rem;
+    }
+
+    /* ==========================================================================
+       10. MEMBERS DIRECTORY, SOUND ROOM + BEATBOX SEQUENCER, MEMORY WALL & ABOUT
        ========================================================================== */
     .section-header {
       border-bottom: 2px solid var(--border-grime);
@@ -1147,11 +1525,12 @@
       font-weight: 700;
     }
 
-    /* Sound Room Grid */
+    /* Sound Room Grid + Bazaar Beatbox Sequencer */
     .soundboard-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
       gap: 1rem;
+      margin-bottom: 2rem;
     }
 
     .sound-pad {
@@ -1228,6 +1607,63 @@
       font-family: var(--font-mono);
       font-size: 0.8rem;
       color: var(--cream-muted);
+    }
+
+    /* 8-Step Bazaar Beatbox Sequencer */
+    .sequencer-box {
+      background: var(--bg-charcoal);
+      border: 2px solid var(--border-grime);
+      box-shadow: var(--shadow-hard);
+      padding: 1.2rem;
+    }
+
+    .sequencer-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .seq-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      overflow-x: auto;
+    }
+
+    .seq-row {
+      display: grid;
+      grid-template-columns: 95px repeat(8, minmax(34px, 1fr));
+      gap: 0.35rem;
+      align-items: center;
+    }
+
+    .seq-member-label {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--cream-dirty);
+    }
+
+    .seq-step {
+      height: 30px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-grime);
+      border-radius: 3px;
+      transition: background 0.1s ease, transform 0.1s ease;
+    }
+
+    .seq-step.active {
+      background: var(--rust-orange);
+      border-color: #090a08;
+    }
+
+    .seq-step.current-col {
+      outline: 2px solid var(--amber-sulfur);
+      transform: scale(1.06);
     }
 
     /* Memory Wall */
@@ -1350,7 +1786,7 @@
     }
 
     /* ==========================================================================
-       10. CHARACTER DOSSIER MODAL
+       11. CHARACTER DOSSIER MODAL
        ========================================================================== */
     .modal-backdrop {
       position: fixed;
@@ -1494,7 +1930,7 @@
     }
 
     /* ==========================================================================
-       11. RESPONSIVE & REDUCED MOTION
+       12. RESPONSIVE & REDUCED MOTION
        ========================================================================== */
     @media (max-width: 860px) {
       .compound-viewport {
@@ -1542,6 +1978,9 @@
         font-size: 0.74rem;
         padding: 0.55rem 0.6rem;
       }
+      .roulette-stage {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1563,7 +2002,7 @@
       <div class="gate-stamp">SECTOR 09 // RESTRICTED ACCESS</div>
       <h1 id="gate-heading" class="gate-title">COMMITTEE</h1>
       <p class="gate-desc">
-        Nine individuals. One unstable compound. Sound effects and ambient audio are part of the environment.
+        Nine individuals. One unstable compound. Sound effects, mini-games, and ambient audio are part of the environment.
       </p>
       <div class="gate-actions">
         <button id="enter-with-sound" class="btn-primary" type="button">Enter With Audio</button>
@@ -1584,9 +2023,10 @@
 
     <nav class="nav-tabs" aria-label="Main Sections">
       <button class="nav-tab active" data-target="scene-view" type="button">Main Scene</button>
+      <button class="nav-tab nav-tab--games" data-target="games-view" type="button">Games &amp; Chaos</button>
       <button class="nav-tab" data-target="members-view" type="button">Members</button>
-      <button class="nav-tab" data-target="memory-view" type="button">Memory Wall</button>
       <button class="nav-tab" data-target="sound-view" type="button">Sound Room</button>
+      <button class="nav-tab" data-target="memory-view" type="button">Memory Wall</button>
       <button class="nav-tab" data-target="about-view" type="button">About</button>
     </nav>
 
@@ -1667,9 +2107,7 @@
 
             <!-- COMMITTEE HQ Concrete & Corrugated Structure -->
             <g id="hq-building">
-              <!-- Main Concrete Block -->
               <rect x="330" y="185" width="520" height="255" fill="#23261f" stroke="#10120f" stroke-width="4" />
-              <!-- Slanted Corrugated Rust Roof -->
               <polygon points="305,190 875,165 885,195 300,212" fill="#483526" stroke="#10120f" stroke-width="4" />
               <!-- Roof Antenna (Interactive Easter Egg Prop) -->
               <g id="prop-antenna" class="scene-prop" transform="translate(790, 92)">
@@ -1705,7 +2143,6 @@
             <!-- Compound Ground / Dirt & Cracked Concrete Yard -->
             <rect x="0" y="432" width="1400" height="288" fill="url(#groundGrad)" />
             <line x1="0" y1="432" x2="1400" y2="432" stroke="#363d30" stroke-width="3" />
-            <!-- Cracks & Yard Texture -->
             <path d="M220 520 L310 538 L360 525 M890 560 L980 545 L1060 572 M490 640 L610 628" stroke="#0e100d" stroke-width="3" fill="none" />
 
             <!-- Interactive Easter Egg Prop: Flickering Streetlamp -->
@@ -1740,24 +2177,118 @@
             </g>
           </svg>
 
+          <!-- Floating Comic Stamps Layer -->
+          <div id="stamps-layer" class="stamps-layer"></div>
+
           <!-- All 9 Characters Mount Here -->
           <div id="characters-layer" class="characters-layer"></div>
         </div>
       </div>
 
-      <!-- CHAOS & RANDOM EVENT CONTROLS -->
+      <!-- CHAOS & RANDOM EVENT CONTROLS + REACTION STAMPS -->
       <div class="chaos-deck" aria-label="Chaos and Event Controls">
-        <div class="chaos-label">COMPOUND OVERRIDE //</div>
-        <div class="chaos-buttons">
-          <button id="btn-unleash-chaos" class="chaos-btn chaos-btn--chaos" type="button">Unleash Chaos</button>
-          <button id="btn-emergency" class="chaos-btn chaos-btn--emergency" type="button">Emergency Meeting</button>
-          <button id="btn-random-member" class="chaos-btn chaos-btn--random" type="button">Random Member</button>
-          <button id="btn-random-event" class="chaos-btn chaos-btn--event" type="button">Random Event</button>
+        <div class="chaos-row">
+          <div class="chaos-label">COMPOUND OVERRIDE //</div>
+          <div class="chaos-buttons">
+            <button id="btn-unleash-chaos" class="chaos-btn chaos-btn--chaos" type="button">Unleash Chaos</button>
+            <button id="btn-emergency" class="chaos-btn chaos-btn--emergency" type="button">Emergency Meeting</button>
+            <button id="btn-random-member" class="chaos-btn chaos-btn--random" type="button">Random Member</button>
+            <button id="btn-random-event" class="chaos-btn chaos-btn--event" type="button">Random Event</button>
+          </div>
+        </div>
+        <div class="stamp-bar" aria-label="Reaction Stamps">
+          <span class="chaos-label">DROP STAMP:</span>
+          <button class="stamp-chip" data-stamp="16 INCHI!" data-bg="#d4a437" data-fg="#11100a" type="button">16 INCHI!</button>
+          <button class="stamp-chip" data-stamp="BARREL MODE" data-bg="#4b573c" data-fg="#e3ddc8" type="button">BARREL MODE</button>
+          <button class="stamp-chip" data-stamp="RUI MACH?" data-bg="#e3ddc8" data-fg="#111310" type="button">RUI MACH?</button>
+          <button class="stamp-chip" data-stamp="BIYE KORAI LAGBI" data-bg="#b82929" data-fg="#e3ddc8" type="button">BIYE KORAI LAGBI</button>
+          <button class="stamp-chip" data-stamp="KOCHI MAL" data-bg="#c95127" data-fg="#100d0a" type="button">KOCHI MAL</button>
+          <button id="btn-clear-stamps" class="stamp-chip" type="button" style="margin-left:auto;border-color:var(--danger-red);">Clear Stamps</button>
         </div>
       </div>
     </section>
 
-    <!-- 2. MEMBERS ROSTER SECTION -->
+    <!-- 2. GAMES & CHAOS LAB SECTION -->
+    <section id="games-view" class="view-section" aria-label="Games and Chaos Mini-Games">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">SECTOR 09 // GAMES &amp; CHAOS</h2>
+          <p class="section-subtitle">Three unhinged mini-games featuring all nine COMMITTEE operatives.</p>
+        </div>
+      </div>
+
+      <div class="games-subnav" role="tablist">
+        <button class="game-tab-btn active" data-game="game-ruimach" type="button">1. Rui Mach Slap &amp; Catch</button>
+        <button class="game-tab-btn" data-game="game-tribunal" type="button">2. Emergency Tribunal &amp; Ejection</button>
+        <button class="game-tab-btn" data-game="game-roulette" type="button">3. Dialogue Roulette &amp; Group Roast</button>
+      </div>
+
+      <!-- MINI-GAME 1: RUI MACH SLAP & CATCH -->
+      <div id="game-ruimach" class="game-panel active">
+        <div class="fish-hud">
+          <div class="hud-stat">SCORE: <span id="fish-score">0</span></div>
+          <div class="hud-stat">COMBO: <span id="fish-combo">x1</span></div>
+          <div class="hud-stat">TIME: <span id="fish-time">30s</span></div>
+          <div class="hud-stat">BEST: <span id="fish-best">0</span></div>
+          <button id="btn-start-fish" class="btn-primary" type="button" style="flex:0 0 auto;padding:0.5rem 1rem;font-size:0.8rem;">Start Fish Rush</button>
+        </div>
+        <p class="section-subtitle" style="margin-bottom:0.75rem;">
+          Tap/click flying <strong>Rui Mach (+10)</strong> and <strong>Golden King Rui (+30)</strong> before Sayzid loses his mind! Avoid <strong>Bipu's Barrels (-15)</strong> and <strong>Billal's Scowl Bombs (-20)</strong>.
+        </p>
+        <div id="fish-arena" class="fish-arena">
+          <div class="fish-sayzid-host">
+            <div id="fish-sayzid-shout" class="fish-host-shout">Dada rui mach hobe rui mach?</div>
+            <div id="fish-sayzid-avatar" style="width:82px;height:96px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MINI-GAME 2: EMERGENCY TRIBUNAL & EJECTION -->
+      <div id="game-tribunal" class="game-panel">
+        <div class="ejection-cinema" id="ejection-cinema">
+          <div id="ejected-flyer" class="ejected-flyer"></div>
+          <div id="ejection-caption" class="ejection-caption">
+            SELECT A SUSPECT BELOW TO EJECT THEM INTO SECTOR 09 ORBIT
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:0.5rem;">
+          <p class="section-subtitle">Read each member's wildly suspicious alibi, then cast the deciding ejection vote.</p>
+          <button id="btn-reroll-alibis" class="btn-secondary" type="button" style="padding:0.5rem 0.85rem;font-size:0.78rem;">New Alibis</button>
+        </div>
+        <div id="tribunal-grid" class="tribunal-grid"></div>
+      </div>
+
+      <!-- MINI-GAME 3: DIALOGUE ROULETTE & GROUP ROAST -->
+      <div id="game-roulette" class="game-panel">
+        <div style="display:flex;flex-wrap:wrap;gap:0.65rem;align-items:center;justify-content:space-between;">
+          <p class="section-subtitle">Spin two random operatives into an argument or summon the entire committee to roast one target.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+            <button id="btn-spin-roulette" class="btn-primary" type="button" style="padding:0.55rem 1rem;font-size:0.8rem;">Spin Argument</button>
+            <button id="btn-group-roast" class="chaos-btn chaos-btn--emergency" type="button" style="font-size:0.8rem;">Trigger Group Roast</button>
+          </div>
+        </div>
+
+        <div class="roulette-stage">
+          <div class="roulette-slot">
+            <div id="roulette-av-1" class="roulette-avatar"></div>
+            <h3 id="roulette-name-1" style="font-family:var(--font-display);">---</h3>
+            <div id="roulette-quote-1" class="roulette-quote-box">Press Spin Argument</div>
+          </div>
+          <div class="roulette-vs">VS</div>
+          <div class="roulette-slot">
+            <div id="roulette-av-2" class="roulette-avatar"></div>
+            <h3 id="roulette-name-2" style="font-family:var(--font-display);">---</h3>
+            <div id="roulette-quote-2" class="roulette-quote-box">Waiting for challenger...</div>
+          </div>
+        </div>
+
+        <div id="roast-verdict-banner" class="roast-verdict-banner">
+          COMPOUND TRIBUNAL LOG: Ready for verbal escalation.
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. MEMBERS ROSTER SECTION -->
     <section id="members-view" class="view-section" aria-label="All Nine Members">
       <div class="section-header">
         <div>
@@ -1768,7 +2299,33 @@
       <div id="roster-grid" class="roster-grid"></div>
     </section>
 
-    <!-- 3. MEMORY WALL SECTION -->
+    <!-- 4. SOUND ROOM + BAZAAR BEATBOX SEQUENCER -->
+    <section id="sound-view" class="view-section" aria-label="Sound Room">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">SOUND ROOM</h2>
+          <p class="section-subtitle">9-channel audio board &amp; 8-step Bazaar Beatbox Sequencer.</p>
+        </div>
+      </div>
+      <div id="soundboard-grid" class="soundboard-grid"></div>
+
+      <div class="sequencer-box">
+        <div class="sequencer-controls">
+          <div>
+            <h3 style="font-family:var(--font-display);font-size:1.25rem;">BAZAAR BEATBOX // 8-STEP REMIXER</h3>
+            <p class="section-subtitle">Toggle cells to layer all 9 voices/synths into a cursed Sector 09 loop.</p>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+            <button id="btn-seq-play" class="btn-primary" type="button" style="padding:0.5rem 0.9rem;font-size:0.78rem;">Play Loop</button>
+            <button id="btn-seq-random" class="btn-secondary" type="button" style="padding:0.5rem 0.85rem;font-size:0.78rem;">Random Beat</button>
+            <button id="btn-seq-clear" class="btn-secondary" type="button" style="padding:0.5rem 0.85rem;font-size:0.78rem;">Clear</button>
+          </div>
+        </div>
+        <div id="seq-grid" class="seq-grid"></div>
+      </div>
+    </section>
+
+    <!-- 5. MEMORY WALL SECTION -->
     <section id="memory-view" class="view-section" aria-label="Memory Wall">
       <div class="section-header">
         <div>
@@ -1780,18 +2337,7 @@
       <div id="memory-grid" class="memory-grid"></div>
     </section>
 
-    <!-- 4. SOUND ROOM SECTION -->
-    <section id="sound-view" class="view-section" aria-label="Sound Room">
-      <div class="section-header">
-        <div>
-          <h2 class="section-title">SOUND ROOM</h2>
-          <p class="section-subtitle">9-channel audio board. Plays custom MP3s from assets/sounds/ or built-in synth fallbacks.</p>
-        </div>
-      </div>
-      <div id="soundboard-grid" class="soundboard-grid"></div>
-    </section>
-
-    <!-- 5. ABOUT SECTION -->
+    <!-- 6. ABOUT SECTION -->
     <section id="about-view" class="view-section" aria-label="About Committee">
       <div class="section-header">
         <div>
@@ -1857,7 +2403,6 @@
     /* ==========================================================================
        CENTRALIZED CONFIGURATION OBJECT (EDIT EVERYTHING HERE)
        - Exact 9 members & exact verbatim signature dialogues preserved.
-       - Sample profile text & memories are clearly marked [EDITABLE PLACEHOLDER].
        ========================================================================== */
     const COMMITTEE_CONFIG = {
       settings: {
@@ -1891,6 +2436,15 @@
           description: "[EDITABLE PLACEHOLDER] Add Ragib's short dossier note here.",
           personality: "[EDITABLE PLACEHOLDER] Unfazed, locked onto a single fixation.",
           ability: "[EDITABLE PLACEHOLDER] Immune to distraction once Mamuni is mentioned.",
+          alibis: [
+            "Was staring at the moon writing Mamuni's name in the dirt.",
+            "Claims he didn't hear the alarm because he was daydreaming.",
+            "Swears he was nowhere near the barrel—just floating."
+          ],
+          roastLines: [
+            "Ragib could survive a meteor strike and still whisper 'I love Mamuni' from the crater.",
+            "Even Vaste's 16-inch ruler can't measure how far Ragib's head is in the clouds."
+          ],
           stats: [
             { label: "[EDITABLE] Focus Lock", value: 99 },
             { label: "[EDITABLE] Situational Awareness", value: 18 },
@@ -1912,6 +2466,15 @@
           description: "[EDITABLE PLACEHOLDER] Add Ali's short dossier note here.",
           personality: "[EDITABLE PLACEHOLDER] Always negotiating an angle nobody asked for.",
           ability: "[EDITABLE PLACEHOLDER] Brokers unnecessary deals in record time.",
+          alibis: [
+            "Was in Poshchim Para negotiating a 30% commission on Sayzid's rui mach.",
+            "Claims he wasn't sabotaging anything—he was 'facilitating a transfer'.",
+            "Tried to sell the Emergency Meeting button before pressing it."
+          ],
+          roastLines: [
+            "Ali would try to take a dalali cut on his own ejection ticket.",
+            "If two people argue in Sector 09, Ali is already charging both sides brokerage fees."
+          ],
           stats: [
             { label: "[EDITABLE] Dalali Instinct", value: 96 },
             { label: "[EDITABLE] Eye Contact Stability", value: 24 },
@@ -1933,6 +2496,15 @@
           description: "[EDITABLE PLACEHOLDER] Add Bipu's short dossier note here.",
           personality: "[EDITABLE PLACEHOLDER] Heavy gravity, zero urgency, barrel-shaped ambition.",
           ability: "[EDITABLE PLACEHOLDER] Expands volume to occupy any available seating.",
+          alibis: [
+            "Literally cannot fit inside the ventilation shafts. Barrel physics.",
+            "Was parked next to the rusted barrel achieving peak cylindrical form.",
+            "Too busy expanding horizontally to commit any crime."
+          ],
+          roastLines: [
+            "Bipu doesn't walk into Sector 09—he rolls in with full barrel momentum.",
+            "Scientists mistook Bipu's silhouette for the compound's reserve fuel drum."
+          ],
           stats: [
             { label: "[EDITABLE] Barrel Density", value: 98 },
             { label: "[EDITABLE] Rush Factor", value: 5 },
@@ -1954,6 +2526,15 @@
           description: "[EDITABLE PLACEHOLDER] Add Nafi's short dossier note here.",
           personality: "[EDITABLE PLACEHOLDER] Self-appointed magistrate of everyone else's bad choices.",
           ability: "[EDITABLE PLACEHOLDER] Instant unsolicited marriage sentencing.",
+          alibis: [
+            "Was busy drafting mandatory marriage warrants for Ragib.",
+            "Accuses whoever votes for him of secret romance.",
+            "Swears he was lecturing Vaste about proper court procedure."
+          ],
+          roastLines: [
+            "Say hello to someone once and Nafi already booked the community center.",
+            "Nafi treats every minor inconvenience like a capital marriage offense."
+          ],
           stats: [
             { label: "[EDITABLE] Verdict Speed", value: 94 },
             { label: "[EDITABLE] Mercy", value: 7 },
@@ -1975,6 +2556,15 @@
           description: "[EDITABLE PLACEHOLDER] Add Vaste's short dossier note here.",
           personality: "[EDITABLE PLACEHOLDER] Cold arithmetic, zero romance, severe posture.",
           ability: "[EDITABLE PLACEHOLDER] Reduces any emotional crisis to raw measurements.",
+          alibis: [
+            "Was measuring the HQ door frame with a 16-inch ruler. Exact match.",
+            "Calculated that sabotaging the compound has a 0% ROI.",
+            "Stood completely motionless at a 22-degree angle the entire time."
+          ],
+          roastLines: [
+            "Vaste's neck tilts harder than the Sector 09 corrugated roof.",
+            "Vaste rejected romance purely on structural engineering grounds."
+          ],
           stats: [
             { label: "[EDITABLE] Cold Logic", value: 95 },
             { label: "[EDITABLE] Romance Tolerance", value: 2 },
@@ -1996,6 +2586,15 @@
           description: "[EDITABLE PLACEHOLDER] Add Sayzid's short dossier note here.",
           personality: "[EDITABLE PLACEHOLDER] Treats every quiet room like a wet-market auction.",
           ability: "[EDITABLE PLACEHOLDER] Materializes rui mach inquiries out of thin air.",
+          alibis: [
+            "Was checking the wooden crate for fresh rui mach inventory.",
+            "Thought the Emergency Siren was the morning fish boat arriving.",
+            "Offers two prime rui mach if you vote for Billal instead."
+          ],
+          roastLines: [
+            "Sayzid could walk into a bank vault and still ask the guard for rui mach.",
+            "Even in zero gravity, Sayzid is weighing fish scales."
+          ],
           stats: [
             { label: "[EDITABLE] Fish Pitch", value: 97 },
             { label: "[EDITABLE] Indoor Voice", value: 12 },
@@ -2017,6 +2616,15 @@
           description: "[EDITABLE PLACEHOLDER] Add Jahid's short dossier note here.",
           personality: "[EDITABLE PLACEHOLDER] Observational menace with zero filter.",
           ability: "[EDITABLE PLACEHOLDER] Spots structural mutations from fifty paces.",
+          alibis: [
+            "Was laughing too hard at Bipu to sabotage anything.",
+            "Claims he only pointed out the obvious elephant-scale anomaly.",
+            "Was busy roasting Ali's brokerage math near the streetlamp."
+          ],
+          roastLines: [
+            "Jahid's cackle registers on the Sector 09 seismograph.",
+            "Nobody survives walking past Jahid without getting an unsolicited anatomy audit."
+          ],
           stats: [
             { label: "[EDITABLE] Roasting Accuracy", value: 93 },
             { label: "[EDITABLE] Filter", value: 4 },
@@ -2038,6 +2646,15 @@
           description: "[EDITABLE PLACEHOLDER] Add Billal's short dossier note here.",
           personality: "[EDITABLE PLACEHOLDER] Perpetually unimpressed by the other eight.",
           ability: "[EDITABLE PLACEHOLDER] Instant room-wide hostility greeting.",
+          alibis: [
+            "Woke up angry, stayed angry, didn't even touch the wires.",
+            "Insulted all eight members equally—complete impartiality.",
+            "Was scowling at the flickering streetlamp until it turned green."
+          ],
+          roastLines: [
+            "Billal's 'good morning' violates three international diplomacy treaties.",
+            "If Billal smiles, check the Sector 09 reactor because reality is breaking."
+          ],
           stats: [
             { label: "[EDITABLE] Hostility Greeting", value: 99 },
             { label: "[EDITABLE] Patience", value: 9 },
@@ -2059,6 +2676,15 @@
           description: "[EDITABLE PLACEHOLDER] Add Anam's short dossier note here.",
           personality: "[EDITABLE PLACEHOLDER] High-pitched chaos commentary from the corner.",
           ability: "[EDITABLE PLACEHOLDER] Ultrasonic wheeze-laugh that destabilizes meetings.",
+          alibis: [
+            "Was wheezing in the far right corner at ultrasonic frequencies.",
+            "Claims his pitch shattered the HQ window by pure accident.",
+            "Too busy folding in half laughing to press any sabotage buttons."
+          ],
+          roastLines: [
+            "Anam's 'eeeee vaiii' can be heard by stray dogs three districts away.",
+            "Anam bends in half like a folding chair every time someone says one word."
+          ],
           stats: [
             { label: "[EDITABLE] Pitch Frequency", value: 98 },
             { label: "[EDITABLE] Restraint", value: 6 },
@@ -2100,16 +2726,12 @@
 
     /* ==========================================================================
        CUSTOM HANDCRAFTED SVG AVATAR GENERATOR (9 DISTINCT CHARACTER RIGS)
-       - Used automatically whenever assets/characters/<id>.png is not present.
-       - Built with separate head, eyelids (for blinking), pupils, closed/laughing
-         mouths, torso, and arms so every member animates uniquely.
        ========================================================================== */
     function buildCharacterSVG(memberId) {
       const rigs = {
         ragib: `
           <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
             <g class="char-torso">
-              <!-- Slouchy Olive Hoodie -->
               <path d="M36 96 Q70 84 104 96 L112 162 L28 162 Z" fill="#4b573c" stroke="#0d0f0c" stroke-width="3"/>
               <path d="M54 96 L70 116 L86 96" fill="none" stroke="#1b2217" stroke-width="3"/>
               <line x1="62" y1="106" x2="62" y2="128" stroke="#e3ddc8" stroke-width="2"/>
@@ -2124,11 +2746,8 @@
               <path d="M104 100 Q120 126 108 150" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
             </g>
             <g class="char-head">
-              <!-- Head -->
               <rect x="44" y="34" width="52" height="58" rx="22" fill="#cfa684" stroke="#0d0f0c" stroke-width="3"/>
-              <!-- Messy Wavy Hair -->
               <path d="M40 52 Q42 20 72 22 Q102 22 100 52 Q92 38 78 42 Q64 34 50 43 Z" fill="#171614" stroke="#0d0f0c" stroke-width="2.5"/>
-              <!-- Dazed Half-Lidded Eyes -->
               <g class="char-eyes">
                 <ellipse cx="58" cy="58" rx="6.5" ry="5.5" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
                 <ellipse cx="82" cy="58" rx="6.5" ry="5.5" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
@@ -2142,7 +2761,6 @@
                   <rect x="74" y="51" width="16" height="14" rx="4" fill="#cfa684" stroke="#0d0f0c" stroke-width="2"/>
                 </g>
               </g>
-              <!-- Dreamily Crooked Smirk & Laugh Mouth -->
               <path class="char-mouth-closed" d="M60 76 Q71 82 81 74" fill="none" stroke="#0d0f0c" stroke-width="2.8" stroke-linecap="round"/>
               <path class="char-mouth-laugh" opacity="0" d="M58 72 Q70 72 82 72 Q80 87 70 87 Q60 87 58 72 Z" fill="#2b1212" stroke="#0d0f0c" stroke-width="2.2"/>
             </g>
@@ -2151,7 +2769,6 @@
         ali: `
           <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
             <g class="char-torso">
-              <!-- High-Collar Rust Jacket -->
               <path d="M38 94 L70 88 L102 94 L108 162 L32 162 Z" fill="#c95127" stroke="#0d0f0c" stroke-width="3"/>
               <polygon points="52,90 70,114 88,90 82,82 58,82" fill="#1e221c" stroke="#0d0f0c" stroke-width="2.5"/>
               <line x1="70" y1="114" x2="70" y2="162" stroke="#0d0f0c" stroke-width="3"/>
@@ -2165,11 +2782,8 @@
               <path d="M102 100 L112 134 L86 138" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
             </g>
             <g class="char-head">
-              <!-- Angular Broker Jaw -->
               <polygon points="46,34 94,34 90,82 70,92 50,82" fill="#c49773" stroke="#0d0f0c" stroke-width="3"/>
-              <!-- Slicked Sharp Hair -->
               <path d="M44 44 L48 22 L92 26 L96 44 L76 34 Z" fill="#141413" stroke="#0d0f0c" stroke-width="2.5"/>
-              <!-- Shifty Narrow Eyes -->
               <g class="char-eyes">
                 <rect x="52" y="52" width="13" height="8" rx="2" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
                 <rect x="75" y="52" width="13" height="8" rx="2" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
@@ -2183,7 +2797,6 @@
                   <rect x="74" y="50" width="16" height="12" fill="#c49773" stroke="#0d0f0c" stroke-width="2"/>
                 </g>
               </g>
-              <!-- Thin Mustache & Scheming Grin -->
               <path d="M58 70 Q70 67 82 70" stroke="#141413" stroke-width="2.2" fill="none"/>
               <path class="char-mouth-closed" d="M56 76 L84 74" stroke="#0d0f0c" stroke-width="2.6" stroke-linecap="round"/>
               <path class="char-mouth-laugh" opacity="0" d="M56 73 L84 73 L80 84 L60 84 Z" fill="#2b1212" stroke="#0d0f0c" stroke-width="2"/>
@@ -2193,7 +2806,6 @@
         bipu: `
           <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
             <g class="char-torso">
-              <!-- Wide Barrel Torso -->
               <ellipse cx="70" cy="128" rx="48" ry="38" fill="#2d3827" stroke="#0d0f0c" stroke-width="3.5"/>
               <path d="M25 118 Q70 126 115 118" fill="none" stroke="#171d14" stroke-width="3"/>
               <path d="M26 138 Q70 146 114 138" fill="none" stroke="#171d14" stroke-width="3"/>
@@ -2207,12 +2819,9 @@
               <path d="M114 112 Q130 132 118 152" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
             </g>
             <g class="char-head">
-              <!-- Round Heavy Head -->
               <circle cx="70" cy="64" r="30" fill="#be916e" stroke="#0d0f0c" stroke-width="3"/>
-              <!-- Knit Beanie -->
               <path d="M40 56 Q42 26 70 26 Q98 26 100 56 Z" fill="#483526" stroke="#0d0f0c" stroke-width="3"/>
               <rect x="39" y="48" width="62" height="10" rx="4" fill="#634833" stroke="#0d0f0c" stroke-width="2.5"/>
-              <!-- Heavy Droopy Eyes -->
               <g class="char-eyes">
                 <circle cx="58" cy="65" r="6" fill="#e6dcc8" stroke="#0d0f0c" stroke-width="2"/>
                 <circle cx="82" cy="65" r="6" fill="#e6dcc8" stroke="#0d0f0c" stroke-width="2"/>
@@ -2227,7 +2836,6 @@
                   <circle cx="82" cy="65" r="6.5" fill="#be916e" stroke="#0d0f0c" stroke-width="2"/>
                 </g>
               </g>
-              <!-- Mouth -->
               <path class="char-mouth-closed" d="M61 81 Q70 78 79 81" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
               <ellipse class="char-mouth-laugh" opacity="0" cx="70" cy="82" rx="11" ry="8" fill="#2b1212" stroke="#0d0f0c" stroke-width="2.5"/>
             </g>
@@ -2236,7 +2844,6 @@
         nafi: `
           <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
             <g class="char-torso">
-              <!-- Buttoned Dark Coat -->
               <path d="M40 94 L100 94 L106 162 L34 162 Z" fill="#232620" stroke="#0d0f0c" stroke-width="3"/>
               <polygon points="62,94 70,118 78,94" fill="#e3ddc8" stroke="#0d0f0c" stroke-width="2"/>
               <polygon points="68,98 72,98 74,132 70,138 66,132" fill="#c95127"/>
@@ -2251,9 +2858,7 @@
             </g>
             <g class="char-head">
               <rect x="46" y="32" width="48" height="58" rx="16" fill="#cca07c" stroke="#0d0f0c" stroke-width="3"/>
-              <!-- Spiky Crop Hair -->
               <polygon points="44,44 48,22 58,32 68,18 78,31 90,20 96,44" fill="#141413" stroke="#0d0f0c" stroke-width="2.5"/>
-              <!-- Stern Magistrate Eyes -->
               <g class="char-eyes">
                 <circle cx="58" cy="56" r="6" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
                 <circle cx="82" cy="56" r="6" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
@@ -2261,7 +2866,6 @@
                   <circle cx="58" cy="56" r="2.7" fill="#0d0f0c"/>
                   <circle cx="82" cy="56" r="2.7" fill="#0d0f0c"/>
                 </g>
-                <!-- Angry V-Brows -->
                 <path d="M50 46 L65 52 M90 46 L75 52" stroke="#0d0f0c" stroke-width="3.2" stroke-linecap="round"/>
                 <g class="char-eyelids">
                   <rect x="50" y="49" width="16" height="14" fill="#cca07c" stroke="#0d0f0c" stroke-width="2"/>
@@ -2276,7 +2880,6 @@
         vaste: `
           <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
             <g class="char-torso">
-              <!-- Tall Narrow Striped Sweater -->
               <rect x="44" y="92" width="52" height="70" rx="6" fill="#3a452e" stroke="#0d0f0c" stroke-width="3"/>
               <line x1="44" y1="112" x2="96" y2="112" stroke="#d4a437" stroke-width="4"/>
               <line x1="44" y1="132" x2="96" y2="132" stroke="#181d13" stroke-width="4"/>
@@ -2290,11 +2893,8 @@
               <path d="M96 98 L106 150" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
             </g>
             <g class="char-head">
-              <!-- Elongated Deadpan Head -->
               <rect x="48" y="26" width="44" height="64" rx="18" fill="#c79b78" stroke="#0d0f0c" stroke-width="3"/>
-              <!-- Flat Bowl-Cut / Fringe -->
               <path d="M46 44 Q46 20 70 20 Q94 20 94 44 L46 44 Z" fill="#181715" stroke="#0d0f0c" stroke-width="2.5"/>
-              <!-- Blank Stare Eyes -->
               <g class="char-eyes">
                 <circle cx="59" cy="56" r="6.5" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
                 <circle cx="81" cy="56" r="6.5" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
@@ -2307,7 +2907,6 @@
                   <rect x="73" y="49" width="16" height="14" fill="#c79b78" stroke="#0d0f0c" stroke-width="2"/>
                 </g>
               </g>
-              <!-- Completely Flat Line Mouth -->
               <line class="char-mouth-closed" x1="59" y1="77" x2="81" y2="77" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
               <rect class="char-mouth-laugh" opacity="0" x="60" y="73" width="20" height="9" rx="2" fill="#2b1212" stroke="#0d0f0c" stroke-width="2"/>
             </g>
@@ -2316,7 +2915,6 @@
         sayzid: `
           <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
             <g class="char-torso">
-              <!-- Market Vest over Dirty Cream Shirt -->
               <path d="M38 94 L102 94 L106 162 L34 162 Z" fill="#d8d1bc" stroke="#0d0f0c" stroke-width="3"/>
               <path d="M38 94 L56 94 L56 162 L34 162 Z" fill="#483526" stroke="#0d0f0c" stroke-width="2.5"/>
               <path d="M84 94 L102 94 L106 162 L84 162 Z" fill="#483526" stroke="#0d0f0c" stroke-width="2.5"/>
@@ -2331,9 +2929,7 @@
             </g>
             <g class="char-head">
               <circle cx="70" cy="60" r="27" fill="#cfa37e" stroke="#0d0f0c" stroke-width="3"/>
-              <!-- Curly Puff Hair -->
               <path d="M42 52 Q40 24 70 24 Q100 24 98 52 Q88 38 70 40 Q52 38 42 52 Z" fill="#171614" stroke="#0d0f0c" stroke-width="2.5"/>
-              <!-- Wide Hawker Eyes -->
               <g class="char-eyes">
                 <circle cx="59" cy="58" r="7" fill="#f7f4ea" stroke="#0d0f0c" stroke-width="2.2"/>
                 <circle cx="81" cy="58" r="7" fill="#f7f4ea" stroke="#0d0f0c" stroke-width="2.2"/>
@@ -2355,7 +2951,6 @@
         jahid: `
           <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
             <g class="char-torso">
-              <!-- Broad Olive-Brown Jacket -->
               <path d="M32 94 L108 94 L112 162 L28 162 Z" fill="#4f543b" stroke="#0d0f0c" stroke-width="3.2"/>
               <path d="M54 94 L70 124 L86 94" fill="#1b1e18" stroke="#0d0f0c" stroke-width="2.5"/>
             </g>
@@ -2369,9 +2964,7 @@
             </g>
             <g class="char-head">
               <rect x="44" y="30" width="52" height="60" rx="20" fill="#c59774" stroke="#0d0f0c" stroke-width="3"/>
-              <!-- Side-Parted Hair -->
               <path d="M42 48 Q44 20 74 20 Q98 22 98 46 Q82 32 56 36 Z" fill="#151412" stroke="#0d0f0c" stroke-width="2.5"/>
-              <!-- Sharp Amused Eyes -->
               <g class="char-eyes">
                 <ellipse cx="58" cy="56" rx="6.5" ry="5" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
                 <ellipse cx="82" cy="56" rx="6.5" ry="5" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
@@ -2385,7 +2978,6 @@
                   <rect x="74" y="50" width="16" height="12" fill="#c59774" stroke="#0d0f0c" stroke-width="2"/>
                 </g>
               </g>
-              <!-- Wide Cackle Grin -->
               <path class="char-mouth-closed" d="M55 74 Q70 84 85 72" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
               <path class="char-mouth-laugh" opacity="0" d="M53 70 Q70 72 87 69 Q84 88 70 88 Q56 88 53 70 Z" fill="#2b1212" stroke="#0d0f0c" stroke-width="2.4"/>
             </g>
@@ -2394,7 +2986,6 @@
         billal: `
           <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
             <g class="char-torso">
-              <!-- Stocky Charcoal Track Top -->
               <path d="M34 94 L106 94 L110 162 L30 162 Z" fill="#1e211d" stroke="#0d0f0c" stroke-width="3.2"/>
               <line x1="36" y1="106" x2="104" y2="106" stroke="#c95127" stroke-width="4"/>
             </g>
@@ -2407,11 +2998,8 @@
               <path d="M106 100 L118 142" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
             </g>
             <g class="char-head">
-              <!-- Square Jaw Head -->
               <rect x="44" y="34" width="52" height="56" rx="12" fill="#c2936f" stroke="#0d0f0c" stroke-width="3"/>
-              <!-- Buzz Cut -->
               <path d="M44 44 Q44 26 70 26 Q96 26 96 44 L92 38 L48 38 Z" fill="#141413" stroke="#0d0f0c" stroke-width="2.5"/>
-              <!-- Heavy Scowl Eyes -->
               <g class="char-eyes">
                 <circle cx="58" cy="57" r="5.8" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
                 <circle cx="82" cy="57" r="5.8" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
@@ -2425,7 +3013,6 @@
                   <rect x="74" y="50" width="16" height="14" fill="#c2936f" stroke="#0d0f0c" stroke-width="2"/>
                 </g>
               </g>
-              <!-- Jagged Scowl Mouth -->
               <path class="char-mouth-closed" d="M56 79 L65 75 L75 78 L84 74" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
               <path class="char-mouth-laugh" opacity="0" d="M55 73 L85 73 L82 86 L58 86 Z" fill="#2b1212" stroke="#0d0f0c" stroke-width="2.4"/>
             </g>
@@ -2434,7 +3021,6 @@
         anam: `
           <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
             <g class="char-torso">
-              <!-- Mustard-Sulfur Oversized Tee -->
               <path d="M38 96 L102 96 L108 162 L32 162 Z" fill="#b88c28" stroke="#0d0f0c" stroke-width="3"/>
               <path d="M56 96 Q70 108 84 96" fill="none" stroke="#0d0f0c" stroke-width="2.5"/>
             </g>
@@ -2448,9 +3034,7 @@
             </g>
             <g class="char-head">
               <ellipse cx="70" cy="60" rx="25" ry="29" fill="#d1a682" stroke="#0d0f0c" stroke-width="3"/>
-              <!-- Tousled Fringe Hair -->
               <path d="M44 50 Q46 22 72 22 Q96 24 96 50 L84 38 L70 44 L56 37 Z" fill="#171614" stroke="#0d0f0c" stroke-width="2.5"/>
-              <!-- Mischievous Squint Eyes -->
               <g class="char-eyes">
                 <ellipse cx="59" cy="57" rx="6" ry="5.5" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
                 <ellipse cx="81" cy="57" rx="6" ry="5.5" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
@@ -2464,7 +3048,6 @@
                   <rect x="73" y="50" width="16" height="14" fill="#d1a682" stroke="#0d0f0c" stroke-width="2"/>
                 </g>
               </g>
-              <!-- Wheeze Smirk & Laugh -->
               <path class="char-mouth-closed" d="M58 75 Q70 84 82 73" fill="none" stroke="#0d0f0c" stroke-width="2.8" stroke-linecap="round"/>
               <path class="char-mouth-laugh" opacity="0" d="M56 71 Q70 74 84 70 Q80 87 70 87 Q60 87 56 71 Z" fill="#2b1212" stroke="#0d0f0c" stroke-width="2.2"/>
             </g>
@@ -2476,9 +3059,6 @@
 
     /* ==========================================================================
        CENTRALIZED AUDIO MANAGER
-       - Plays real MP3s when placed in assets/sounds/ and assets/music/.
-       - Automatically synthesizes unique Web Audio effects & dark ambient drone
-         when MP3 files are not yet uploaded, preventing errors or silence.
        ========================================================================== */
     class CommitteeAudioManager {
       constructor() {
@@ -2567,13 +3147,11 @@
       startMusic() {
         if (this.isMuted || !this.musicEnabled) return;
 
-        // Try loading user-provided background.mp3 first
         if (!this.bgmAudio) {
           const audio = new Audio(COMMITTEE_CONFIG.settings.backgroundMusicPath);
           audio.loop = true;
           audio.volume = this.volume * 0.35;
           audio.addEventListener("error", () => {
-            // File not uploaded yet -> start procedural dark compound ambient drone
             this.bgmAudio = null;
             this.startAmbientDrone();
           }, { once: true });
@@ -2605,9 +3183,9 @@
         const droneGain = this.ctx.createGain();
 
         osc1.type = "sawtooth";
-        osc1.frequency.setValueAtTime(55, now); // Low A1
+        osc1.frequency.setValueAtTime(55, now);
         osc2.type = "triangle";
-        osc2.frequency.setValueAtTime(82.41, now); // E2
+        osc2.frequency.setValueAtTime(82.41, now);
 
         filter.type = "lowpass";
         filter.frequency.setValueAtTime(165, now);
@@ -2644,19 +3222,20 @@
         }
       }
 
-      playMemberSound(member, onEnded) {
+      playMemberSound(member, onEnded, allowOverlap = false) {
         if (this.isMuted) {
           if (onEnded) setTimeout(onEnded, 550);
           return;
         }
         if (!this.unlocked) this.unlock(true);
 
-        // Prevent unwanted overlapping SFX
-        this.stopAllSfx();
+        if (!allowOverlap) {
+          this.stopAllSfx();
+        }
 
         const audio = new Audio(member.soundPath);
         audio.volume = this.volume;
-        this.activeSfxAudio = audio;
+        if (!allowOverlap) this.activeSfxAudio = audio;
 
         let settled = false;
         const finish = () => {
@@ -2668,14 +3247,13 @@
 
         audio.addEventListener("ended", finish, { once: true });
         audio.addEventListener("error", () => {
-          // Fallback to synthesized signature sound if MP3 not uploaded
-          this.activeSfxAudio = null;
+          if (this.activeSfxAudio === audio) this.activeSfxAudio = null;
           this.playSynthSignature(member.synthType);
           setTimeout(finish, 600);
         }, { once: true });
 
         audio.play().catch(() => {
-          this.activeSfxAudio = null;
+          if (this.activeSfxAudio === audio) this.activeSfxAudio = null;
           this.playSynthSignature(member.synthType);
           setTimeout(finish, 600);
         });
@@ -2806,6 +3384,14 @@
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
           osc.start(now);
           osc.stop(now + 0.62);
+        } else if (kind === "slap") {
+          osc.type = "square";
+          osc.frequency.setValueAtTime(480, now);
+          osc.frequency.exponentialRampToValueAtTime(140, now + 0.12);
+          gain.gain.setValueAtTime(0.24, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+          osc.start(now);
+          osc.stop(now + 0.15);
         } else {
           osc.type = "triangle";
           osc.frequency.setValueAtTime(180, now);
@@ -2920,7 +3506,6 @@
         actor.appendChild(shadow);
         actor.appendChild(tagBar);
 
-        // Main Character Click & Keyboard Interaction
         actor.addEventListener("click", () => triggerCharacter(member.id));
         actor.addEventListener("keydown", (e) => {
           if (e.key === "Enter" || e.key === " ") {
@@ -2945,7 +3530,6 @@
       }
       state.cooldowns[memberId] = now;
 
-      // Track rapid clicks on same character for Easter Egg Overload
       if (state.clickStreak.id === memberId && now - state.clickStreak.lastTime < 1400) {
         state.clickStreak.count += 1;
       } else {
@@ -2955,16 +3539,14 @@
       const isOverload = state.clickStreak.count >= 4;
       if (isOverload) state.clickStreak.count = 0;
 
-      // Hide other bubbles unless multi-bubble chaos is active
       if (!options.keepOtherBubbles) {
         document.querySelectorAll(".speech-bubble.visible").forEach((el) => {
           if (el !== bubble) el.classList.remove("visible");
         });
       }
 
-      // Reset & apply reaction animation
       actor.classList.remove(member.clickAnim, "react-overload");
-      void actor.offsetWidth; // Force reflow for clean re-trigger
+      void actor.offsetWidth;
       actor.classList.add(isOverload ? "react-overload" : member.clickAnim);
 
       clearTimeout(actor._animTimer);
@@ -2972,7 +3554,6 @@
         actor.classList.remove(member.clickAnim, "react-overload");
       }, 980);
 
-      // Show exact verbatim signature dialogue
       bubble.textContent = member.dialogue;
       bubble.classList.add("visible");
 
@@ -2988,6 +3569,44 @@
       if (!options.quietLog) {
         logActivity(`${member.name.toUpperCase()}: "${member.dialogue}"`);
       }
+    }
+
+    /* ==========================================================================
+       COMIC REACTION STAMPS ON COMPOUND SCENE
+       ========================================================================== */
+    function initReactionStamps() {
+      const stampsLayer = document.getElementById("stamps-layer");
+      document.querySelectorAll(".stamp-chip[data-stamp]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const text = btn.dataset.stamp;
+          const bg = btn.dataset.bg || "#d4a437";
+          const fg = btn.dataset.fg || "#11100a";
+
+          const stamp = document.createElement("div");
+          stamp.className = "comic-stamp";
+          stamp.textContent = text;
+          stamp.style.left = `${18 + Math.random() * 64}%`;
+          stamp.style.top = `${16 + Math.random() * 48}%`;
+          stamp.style.setProperty("--rot", `${(Math.random() - 0.5) * 26}deg`);
+          stamp.style.setProperty("--stamp-bg", bg);
+          stamp.style.setProperty("--stamp-fg", fg);
+
+          stamp.title = "Click to peel off stamp";
+          stamp.addEventListener("click", (e) => {
+            e.stopPropagation();
+            stamp.remove();
+          });
+
+          stampsLayer.appendChild(stamp);
+          audioManager.playEventAlert("slap");
+          logActivity(`STAMP DEPLOYED: "${text}"`);
+        });
+      });
+
+      document.getElementById("btn-clear-stamps").addEventListener("click", () => {
+        stampsLayer.innerHTML = "";
+        logActivity("ALL COMIC STAMPS CLEARED");
+      });
     }
 
     /* ==========================================================================
@@ -3017,7 +3636,6 @@
        ========================================================================== */
     function startAutonomousLife() {
       setInterval(() => {
-        // Pause autonomous nudges if modal is open or user is on another tab
         const sceneActive = document.getElementById("scene-view").classList.contains("active");
         const modalOpen = document.getElementById("dossier-backdrop").classList.contains("open");
         if (!sceneActive || modalOpen || document.hidden) return;
@@ -3032,7 +3650,6 @@
         const actorB = document.getElementById(`actor-${mB.id}`);
         if (!actorA || !actorB) return;
 
-        // Subtle shift & silent two-member reaction exchange
         const jitterX = (Math.random() - 0.5) * 4;
         const clampedX = Math.max(10, Math.min(92, mA.position.x + jitterX));
         actorA.style.left = `${clampedX}%`;
@@ -3049,7 +3666,7 @@
     }
 
     /* ==========================================================================
-       CHAOS & RANDOM EVENT CONTROLS (ACTUAL MULTI-MEMBER ACTIONS)
+       CHAOS & RANDOM EVENT CONTROLS
        ========================================================================== */
     function triggerUnleashChaos() {
       audioManager.playEventAlert("chaos");
@@ -3066,7 +3683,6 @@
         const actor = document.getElementById(`actor-${member.id}`);
         if (!actor) return;
 
-        // Temporarily scramble positions
         const tempX = 14 + Math.random() * 74;
         const tempY = 74 + Math.random() * 19;
         actor.style.left = `${tempX}%`;
@@ -3094,7 +3710,6 @@
       banner.classList.add("active");
       logActivity("EMERGENCY MEETING CALLED // ALL 9 MEMBERS SUMMONED");
 
-      // Arrange all 9 members into a tight semicircle huddle in the yard
       const huddleCoords = [
         { x: 18, y: 80 }, { x: 26, y: 85 }, { x: 34, y: 89 },
         { x: 42, y: 91 }, { x: 50, y: 92 }, { x: 58, y: 91 },
@@ -3186,10 +3801,401 @@
     }
 
     /* ==========================================================================
+       MINI-GAME 1: RUI MACH SLAP & CATCH
+       ========================================================================== */
+    function initRuiMachGame() {
+      const arena = document.getElementById("fish-arena");
+      const scoreEl = document.getElementById("fish-score");
+      const comboEl = document.getElementById("fish-combo");
+      const timeEl = document.getElementById("fish-time");
+      const bestEl = document.getElementById("fish-best");
+      const shoutEl = document.getElementById("fish-sayzid-shout");
+      const startBtn = document.getElementById("btn-start-fish");
+
+      const sayzid = COMMITTEE_CONFIG.members.find((m) => m.id === "sayzid");
+      if (sayzid) {
+        document.getElementById("fish-sayzid-avatar").appendChild(createAvatarVisual(sayzid));
+      }
+
+      let score = 0;
+      let combo = 1;
+      let best = parseInt(localStorage.getItem("committee_ruimach_best") || "0", 10);
+      bestEl.textContent = best;
+
+      let timeLeft = 30;
+      let running = false;
+      let spawnTimer = null;
+      let countdownTimer = null;
+
+      function spawnPopText(x, y, text, color) {
+        const pop = document.createElement("div");
+        pop.className = "floating-score-pop";
+        pop.style.left = `${x}px`;
+        pop.style.top = `${y}px`;
+        pop.style.color = color;
+        pop.textContent = text;
+        arena.appendChild(pop);
+        setTimeout(() => pop.remove(), 660);
+      }
+
+      function spawnTarget() {
+        if (!running) return;
+        const roll = Math.random();
+        let kind = "rui"; // +10
+        if (roll > 0.85) kind = "gold"; // +30
+        else if (roll > 0.62) kind = "barrel"; // -15
+        else if (roll > 0.45) kind = "scowl"; // -20
+
+        const el = document.createElement("div");
+        el.className = "flying-target";
+
+        if (kind === "rui") {
+          el.innerHTML = `<svg width="68" height="36" viewBox="0 0 68 36"><path d="M6 18 Q24 2 50 14 L64 6 L60 18 L64 30 L50 22 Q24 34 6 18 Z" fill="#8fa199" stroke="#090a08" stroke-width="2.5"/><circle cx="17" cy="15" r="2.5" fill="#090a08"/></svg>`;
+        } else if (kind === "gold") {
+          el.innerHTML = `<svg width="74" height="40" viewBox="0 0 68 36"><path d="M6 18 Q24 2 50 14 L64 6 L60 18 L64 30 L50 22 Q24 34 6 18 Z" fill="#d4a437" stroke="#090a08" stroke-width="2.5"/><circle cx="17" cy="15" r="2.5" fill="#090a08"/></svg>`;
+        } else if (kind === "barrel") {
+          el.innerHTML = `<svg width="46" height="56" viewBox="0 0 46 56"><rect x="5" y="4" width="36" height="48" rx="5" fill="#4b573c" stroke="#090a08" stroke-width="2.5"/><line x1="5" y1="18" x2="41" y2="18" stroke="#1b2217" stroke-width="3"/><line x1="5" y1="38" x2="41" y2="38" stroke="#1b2217" stroke-width="3"/></svg>`;
+        } else {
+          el.innerHTML = `<svg width="48" height="48" viewBox="0 0 48 48"><circle cx="24" cy="24" r="20" fill="#b82929" stroke="#090a08" stroke-width="2.5"/><path d="M14 17 L21 20 M34 17 L27 20 M16 32 L24 28 L32 32" stroke="#090a08" stroke-width="3" fill="none"/></svg>`;
+        }
+
+        const fromLeft = Math.random() > 0.5;
+        let x = fromLeft ? -40 : arena.clientWidth + 40;
+        let y = 55 + Math.random() * (arena.clientHeight - 150);
+        const vx = (fromLeft ? 1 : -1) * (3.2 + Math.random() * 3.4);
+        let vy = -3.8 - Math.random() * 2.5;
+        const gravity = 0.13;
+
+        el.style.left = `${x}px`;
+        el.style.top = `${y}px`;
+        arena.appendChild(el);
+
+        let hit = false;
+        const onHit = (e) => {
+          e.stopPropagation();
+          if (!running || hit) return;
+          hit = true;
+          el.remove();
+
+          if (kind === "rui" || kind === "gold") {
+            const pts = (kind === "gold" ? 30 : 10) * combo;
+            score += pts;
+            combo = Math.min(8, combo + 1);
+            audioManager.playSynthSignature("marketChirp");
+            shoutEl.textContent = kind === "gold" ? "KING RUI MACH! DADA!" : "Dada rui mach hobe rui mach?";
+            spawnPopText(x, y, `+${pts}`, "#d4a437");
+          } else if (kind === "barrel") {
+            score = Math.max(0, score - 15);
+            combo = 1;
+            audioManager.playSynthSignature("barrelBass");
+            shoutEl.textContent = "Ganja khamu, barrel homu! (-15)";
+            spawnPopText(x, y, "-15 BARREL!", "#e46639");
+          } else {
+            score = Math.max(0, score - 20);
+            combo = 1;
+            audioManager.playSynthSignature("grumpGrowl");
+            shoutEl.textContent = "kire shuworer bacchara! (-20)";
+            spawnPopText(x, y, "-20 BILLAL!", "#b82929");
+          }
+
+          scoreEl.textContent = score;
+          comboEl.textContent = `x${combo}`;
+          if (score > best) {
+            best = score;
+            bestEl.textContent = best;
+            localStorage.setItem("committee_ruimach_best", String(best));
+          }
+        };
+
+        el.addEventListener("pointerdown", onHit);
+
+        const step = () => {
+          if (hit || !running) {
+            el.remove();
+            return;
+          }
+          x += vx;
+          y += vy;
+          vy += gravity;
+          el.style.left = `${x}px`;
+          el.style.top = `${y}px`;
+
+          if (y > arena.clientHeight + 60 || x < -90 || x > arena.clientWidth + 90) {
+            el.remove();
+            return;
+          }
+          requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      }
+
+      startBtn.addEventListener("click", () => {
+        clearInterval(spawnTimer);
+        clearInterval(countdownTimer);
+        arena.querySelectorAll(".flying-target").forEach((n) => n.remove());
+
+        score = 0;
+        combo = 1;
+        timeLeft = 30;
+        running = true;
+        scoreEl.textContent = "0";
+        comboEl.textContent = "x1";
+        timeEl.textContent = "30s";
+        startBtn.textContent = "Restart Rush";
+        shoutEl.textContent = "Dada rui mach hobe rui mach?";
+        if (sayzid) audioManager.playMemberSound(sayzid);
+
+        spawnTimer = setInterval(spawnTarget, 560);
+        spawnTarget();
+
+        countdownTimer = setInterval(() => {
+          timeLeft -= 1;
+          timeEl.textContent = `${timeLeft}s`;
+          if (timeLeft <= 0) {
+            running = false;
+            clearInterval(spawnTimer);
+            clearInterval(countdownTimer);
+            arena.querySelectorAll(".flying-target").forEach((n) => n.remove());
+            shoutEl.textContent = `SHIFT OVER! FINAL HAUL: ${score}`;
+            audioManager.playEventAlert("chaos");
+          }
+        }, 1000);
+      });
+    }
+
+    /* ==========================================================================
+       MINI-GAME 2: EMERGENCY TRIBUNAL & EJECTION
+       ========================================================================== */
+    function initTribunalGame() {
+      const grid = document.getElementById("tribunal-grid");
+      const caption = document.getElementById("ejection-caption");
+      const flyer = document.getElementById("ejected-flyer");
+
+      function renderSuspects() {
+        grid.innerHTML = "";
+        COMMITTEE_CONFIG.members.forEach((member) => {
+          const alibi = member.alibis[Math.floor(Math.random() * member.alibis.length)];
+          const card = document.createElement("div");
+          card.className = "suspect-card";
+
+          const top = document.createElement("div");
+          top.className = "suspect-top";
+          const av = document.createElement("div");
+          av.className = "suspect-avatar";
+          av.appendChild(createAvatarVisual(member));
+
+          const nameBlock = document.createElement("div");
+          nameBlock.innerHTML = `
+            <strong style="font-family:var(--font-display);font-size:1.1rem;">${member.name}</strong>
+            <div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--amber-sulfur);">SUSPECT</div>
+          `;
+          top.appendChild(av);
+          top.appendChild(nameBlock);
+
+          const alibiDiv = document.createElement("div");
+          alibiDiv.className = "suspect-alibi";
+          alibiDiv.textContent = `"${alibi}"`;
+
+          const voteBtn = document.createElement("button");
+          voteBtn.type = "button";
+          voteBtn.className = "eject-vote-btn";
+          voteBtn.textContent = `Eject ${member.name}`;
+          voteBtn.addEventListener("click", () => {
+            audioManager.playMemberSound(member);
+            flyer.innerHTML = "";
+            flyer.appendChild(createAvatarVisual(member));
+            flyer.classList.remove("is-flying");
+            void flyer.offsetWidth;
+            flyer.classList.add("is-flying");
+
+            const verdicts = [
+              `${member.name.toUpperCase()} WAS EJECTED INTO ORBIT. Last words: "${member.dialogue}"`,
+              `9-0 UNANIMOUS VOTE. ${member.name.toUpperCase()} IS NO LONGER SECTOR 09'S PROBLEM.`,
+              `${member.name.toUpperCase()} FLOATS PAST THE MOON YELLING: "${member.dialogue}"`
+            ];
+            caption.textContent = verdicts[Math.floor(Math.random() * verdicts.length)];
+          });
+
+          card.appendChild(top);
+          card.appendChild(alibiDiv);
+          card.appendChild(voteBtn);
+          grid.appendChild(card);
+        });
+      }
+
+      document.getElementById("btn-reroll-alibis").addEventListener("click", () => {
+        audioManager.playEventAlert("emergency");
+        renderSuspects();
+      });
+
+      renderSuspects();
+    }
+
+    /* ==========================================================================
+       MINI-GAME 3: DIALOGUE ROULETTE & GROUP ROAST
+       ========================================================================== */
+    function initDialogueRoulette() {
+      const av1 = document.getElementById("roulette-av-1");
+      const av2 = document.getElementById("roulette-av-2");
+      const name1 = document.getElementById("roulette-name-1");
+      const name2 = document.getElementById("roulette-name-2");
+      const quote1 = document.getElementById("roulette-quote-1");
+      const quote2 = document.getElementById("roulette-quote-2");
+      const banner = document.getElementById("roast-verdict-banner");
+
+      function setSlot(slotNum, member) {
+        if (slotNum === 1) {
+          av1.innerHTML = "";
+          av1.appendChild(createAvatarVisual(member));
+          name1.textContent = member.name.toUpperCase();
+          quote1.textContent = `"${member.dialogue}"`;
+        } else {
+          av2.innerHTML = "";
+          av2.appendChild(createAvatarVisual(member));
+          name2.textContent = member.name.toUpperCase();
+          quote2.textContent = `"${member.dialogue}"`;
+        }
+      }
+
+      document.getElementById("btn-spin-roulette").addEventListener("click", () => {
+        const members = COMMITTEE_CONFIG.members;
+        let ticks = 0;
+        const spinTimer = setInterval(() => {
+          const r1 = members[Math.floor(Math.random() * members.length)];
+          const r2 = members[Math.floor(Math.random() * members.length)];
+          setSlot(1, r1);
+          setSlot(2, r2);
+          ticks += 1;
+
+          if (ticks >= 10) {
+            clearInterval(spinTimer);
+            const idx1 = Math.floor(Math.random() * members.length);
+            const idx2 = (idx1 + 1 + Math.floor(Math.random() * (members.length - 1))) % members.length;
+            const m1 = members[idx1];
+            const m2 = members[idx2];
+            setSlot(1, m1);
+            setSlot(2, m2);
+
+            audioManager.playMemberSound(m1, () => {
+              audioManager.playMemberSound(m2);
+            });
+
+            banner.textContent = `EXCHANGE LOG: ${m1.name} opened with "${m1.dialogue}" — ${m2.name} immediately countered with "${m2.dialogue}". Nobody learned anything.`;
+          }
+        }, 70);
+      });
+
+      document.getElementById("btn-group-roast").addEventListener("click", () => {
+        const members = COMMITTEE_CONFIG.members;
+        const target = members[Math.floor(Math.random() * members.length)];
+        const roaster = members.filter((m) => m.id !== target.id)[Math.floor(Math.random() * (members.length - 1))];
+        const roast = target.roastLines[Math.floor(Math.random() * target.roastLines.length)];
+
+        setSlot(1, roaster);
+        setSlot(2, target);
+        quote1.textContent = `"${roast}"`;
+        quote2.textContent = `"${target.dialogue}"`;
+        audioManager.playMemberSound(roaster);
+        banner.textContent = `GROUP ROAST TARGET [${target.name.toUpperCase()}]: ${roast}`;
+      });
+    }
+
+    /* ==========================================================================
+       BAZAAR BEATBOX 8-STEP SEQUENCER (IN SOUND ROOM)
+       ========================================================================== */
+    function initBeatboxSequencer() {
+      const grid = document.getElementById("seq-grid");
+      const playBtn = document.getElementById("btn-seq-play");
+      const randomBtn = document.getElementById("btn-seq-random");
+      const clearBtn = document.getElementById("btn-seq-clear");
+
+      const steps = 8;
+      const pattern = COMMITTEE_CONFIG.members.map(() => Array(steps).fill(false));
+      let isPlaying = false;
+      let currentStep = 0;
+      let timer = null;
+
+      function renderGrid() {
+        grid.innerHTML = "";
+        COMMITTEE_CONFIG.members.forEach((member, rIdx) => {
+          const row = document.createElement("div");
+          row.className = "seq-row";
+
+          const label = document.createElement("div");
+          label.className = "seq-member-label";
+          label.textContent = member.name;
+          row.appendChild(label);
+
+          for (let c = 0; c < steps; c++) {
+            const cell = document.createElement("button");
+            cell.type = "button";
+            cell.className = `seq-step ${pattern[rIdx][c] ? "active" : ""}`;
+            cell.dataset.col = c;
+            cell.ariaLabel = `${member.name} step ${c + 1}`;
+            cell.addEventListener("click", () => {
+              pattern[rIdx][c] = !pattern[rIdx][c];
+              cell.classList.toggle("active", pattern[rIdx][c]);
+              if (pattern[rIdx][c]) {
+                audioManager.playMemberSound(member, null, true);
+              }
+            });
+            row.appendChild(cell);
+          }
+          grid.appendChild(row);
+        });
+      }
+
+      function tickStep() {
+        document.querySelectorAll(".seq-step.current-col").forEach((el) => el.classList.remove("current-col"));
+        document.querySelectorAll(`.seq-step[data-col="${currentStep}"]`).forEach((el) => el.classList.add("current-col"));
+
+        COMMITTEE_CONFIG.members.forEach((member, rIdx) => {
+          if (pattern[rIdx][currentStep]) {
+            audioManager.playMemberSound(member, null, true);
+          }
+        });
+
+        currentStep = (currentStep + 1) % steps;
+      }
+
+      playBtn.addEventListener("click", () => {
+        if (isPlaying) {
+          isPlaying = false;
+          clearInterval(timer);
+          playBtn.textContent = "Play Loop";
+          document.querySelectorAll(".seq-step.current-col").forEach((el) => el.classList.remove("current-col"));
+        } else {
+          isPlaying = true;
+          playBtn.textContent = "Stop Loop";
+          currentStep = 0;
+          tickStep();
+          timer = setInterval(tickStep, 340);
+        }
+      });
+
+      randomBtn.addEventListener("click", () => {
+        for (let r = 0; r < pattern.length; r++) {
+          for (let c = 0; c < steps; c++) {
+            pattern[r][c] = Math.random() > 0.78;
+          }
+        }
+        renderGrid();
+      });
+
+      clearBtn.addEventListener("click", () => {
+        for (let r = 0; r < pattern.length; r++) {
+          pattern[r].fill(false);
+        }
+        renderGrid();
+      });
+
+      renderGrid();
+    }
+
+    /* ==========================================================================
        EASTER EGGS & BACKGROUND PROP INTERACTIONS
        ========================================================================== */
     function initEasterEggs() {
-      // 1. Click COMMITTEE title 5 times -> Protocol 09 Inversion
       const brandTitle = document.getElementById("brand-title");
       brandTitle.addEventListener("click", () => {
         state.titleClicks += 1;
@@ -3204,7 +4210,6 @@
         }
       });
 
-      // 2. Clickable Streetlamp -> Phosphor Night-Vision Mode
       const propLamp = document.getElementById("prop-lamp");
       if (propLamp) {
         propLamp.addEventListener("click", () => {
@@ -3216,7 +4221,6 @@
         });
       }
 
-      // 3. Clickable Rusted Barrel -> Bipu reaction
       const propBarrel = document.getElementById("prop-barrel");
       if (propBarrel) {
         propBarrel.addEventListener("click", () => {
@@ -3226,7 +4230,6 @@
         });
       }
 
-      // 4. Clickable Fish Crate -> Sayzid reaction
       const propCrate = document.getElementById("prop-crate");
       if (propCrate) {
         propCrate.addEventListener("click", () => {
@@ -3236,7 +4239,6 @@
         });
       }
 
-      // 5. Clickable Roof Antenna -> Random transmission
       const propAntenna = document.getElementById("prop-antenna");
       if (propAntenna) {
         propAntenna.addEventListener("click", () => {
@@ -3247,7 +4249,6 @@
         });
       }
 
-      // 6. Secret Keyboard Sequence: type "999" anywhere
       document.addEventListener("keydown", (e) => {
         if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
         state.secretBuffer = (state.secretBuffer + e.key.toLowerCase()).slice(-6);
@@ -3394,14 +4395,14 @@
         }
 
         card.appendChild(mediaBox);
-        card.innerHTML += `
+        card.insertAdjacentHTML("beforeend", `
           <div class="memory-meta">
             <span>${item.category}</span>
             <span>${item.date}</span>
           </div>
           <div class="memory-caption">${item.title}</div>
           <div class="memory-desc">${item.caption}</div>
-        `;
+        `);
         grid.appendChild(card);
       });
     }
@@ -3487,6 +4488,18 @@
           });
         });
       });
+
+      // Sub-tabs inside Games & Chaos
+      const gameBtns = document.querySelectorAll(".game-tab-btn");
+      const gamePanels = document.querySelectorAll(".game-panel");
+      gameBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const targetGame = btn.dataset.game;
+          gameBtns.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          gamePanels.forEach((p) => p.classList.toggle("active", p.id === targetGame));
+        });
+      });
     }
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -3524,13 +4537,18 @@
         if (e.key === "Escape") closeDossier();
       });
 
-      // Render All Views
+      // Render & Initialize Everything
       initNavigation();
       renderMainScene();
+      initReactionStamps();
       renderMembersRoster();
       renderSoundRoom();
+      initBeatboxSequencer();
       renderMemoryWall();
       renderAboutSection();
+      initRuiMachGame();
+      initTribunalGame();
+      initDialogueRoulette();
       initEasterEggs();
       startBlinkingLoop();
       startAutonomousLife();

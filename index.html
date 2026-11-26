@@ -1,825 +1,3540 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>COMMITTEE</title>
-<style>
-  :root {
-    --bg: #1a1814;
-    --surface: #24201b;
-    --cream: #d8d0c0;
-    --olive: #4a5c3a;
-    --muted: #6b5e4e;
-    --rust: #a65a3a;
-    --dark: #0f0e0c;
-    --text: #e8e0d4;
-    --dim: #9a9080;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body {
-    height: 100%;
-    background: var(--bg);
-    color: var(--text);
-    font-family: "Segoe UI", system-ui, sans-serif;
-    overflow-x: hidden;
-  }
-  body.locked { overflow: hidden; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>COMMITTEE // Sector 09</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Space+Grotesk:wght@400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ==========================================================================
+       1. DESIGN TOKENS & ATMOSPHERIC PALETTE
+       ========================================================================== */
+    :root {
+      --bg-void: #0f110e;
+      --bg-charcoal: #171a16;
+      --bg-panel: #1f231d;
+      --bg-elevated: #282e25;
+      --forest-dark: #1b281d;
+      --olive-muted: #4b573c;
+      --olive-bright: #73855c;
+      --brown-faded: #483526;
+      --brown-dark: #2d2118;
+      --rust-orange: #c95127;
+      --rust-glow: #e46639;
+      --amber-sulfur: #d4a437;
+      --cream-dirty: #e3ddc8;
+      --cream-muted: #a69f88;
+      --ink-dark: #111310;
+      --border-grime: #343b30;
+      --danger-red: #b82929;
 
-  /* ENTER SCREEN */
-  #enter-screen {
-    position: fixed; inset: 0; z-index: 9999;
-    background: var(--dark);
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 1.5rem;
-    cursor: pointer;
-  }
-  #enter-screen h1 {
-    font-size: clamp(2.5rem, 8vw, 4.5rem);
-    letter-spacing: 0.3em;
-    color: var(--cream);
-    text-shadow: 0 0 30px rgba(166,90,58,0.4);
-  }
-  #enter-screen p { color: var(--dim); font-size: 0.95rem; }
-  #enter-screen.hidden { display: none; }
+      --font-display: 'Syne', 'Impact', sans-serif;
+      --font-body: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'Courier Prime', 'Courier New', monospace;
 
-  /* LAYOUT */
-  .app { display: none; min-height: 100vh; flex-direction: column; }
-  .app.active { display: flex; }
-
-  /* NAV */
-  nav {
-    display: flex; flex-wrap: wrap; gap: 0.4rem;
-    padding: 0.6rem 1rem;
-    background: var(--surface);
-    border-bottom: 1px solid #3a342c;
-    position: sticky; top: 0; z-index: 100;
-  }
-  nav button {
-    background: transparent;
-    border: 1px solid #4a4338;
-    color: var(--cream);
-    padding: 0.4rem 0.9rem;
-    font-size: 0.8rem;
-    letter-spacing: 0.05em;
-    cursor: pointer;
-    transition: 0.15s;
-  }
-  nav button:hover, nav button.active {
-    background: var(--olive);
-    border-color: var(--olive);
-  }
-  .audio-controls {
-    margin-left: auto;
-    display: flex; align-items: center; gap: 0.5rem;
-  }
-  .audio-controls button, .audio-controls input {
-    background: #2e2a24;
-    border: 1px solid #4a4338;
-    color: var(--cream);
-    padding: 0.3rem 0.6rem;
-    font-size: 0.75rem;
-    cursor: pointer;
-  }
-  .audio-controls input[type=range] { width: 70px; }
-
-  /* SECTIONS */
-  .section { display: none; flex: 1; padding: 1rem; }
-  .section.active { display: block; }
-
-  /* MAIN SCENE */
-  #main-scene {
-    position: relative;
-    min-height: 70vh;
-    background: linear-gradient(180deg, #1c1a16 0%, #2a261f 40%, #1e1c18 100%);
-    border: 1px solid #3a342c;
-    overflow: hidden;
-    border-radius: 4px;
-  }
-  .scene-bg {
-    position: absolute; inset: 0;
-    background:
-      radial-gradient(ellipse at 20% 80%, rgba(74,92,58,0.15) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 30%, rgba(166,90,58,0.08) 0%, transparent 40%);
-  }
-  .ground {
-    position: absolute; bottom: 0; left: 0; right: 0; height: 28%;
-    background: linear-gradient(180deg, transparent, #1a1814 30%, #12100e);
-  }
-  .tree, .building, .lamp {
-    position: absolute;
-    pointer-events: none;
-    opacity: 0.7;
-  }
-  .tree {
-    width: 40px; height: 90px;
-    background: #2a3220;
-    border-radius: 50% 50% 10% 10%;
-    bottom: 22%;
-  }
-  .building {
-    width: 70px; height: 110px;
-    background: #2c2822;
-    bottom: 20%;
-    border: 1px solid #3a342c;
-  }
-  .lamp {
-    width: 6px; height: 55px;
-    background: #3a342c;
-    bottom: 24%;
-  }
-  .lamp::after {
-    content: "";
-    position: absolute; top: -8px; left: -8px;
-    width: 22px; height: 14px;
-    background: rgba(200,160,80,0.25);
-    border-radius: 50%;
-    box-shadow: 0 0 20px rgba(200,160,80,0.3);
-  }
-
-  /* CHARACTERS */
-  .char {
-    position: absolute;
-    width: 70px; height: 90px;
-    cursor: pointer;
-    transition: transform 0.2s;
-    z-index: 10;
-    display: flex; flex-direction: column; align-items: center;
-  }
-  .char:hover { transform: scale(1.08); z-index: 20; }
-  .char-body {
-    width: 58px; height: 70px;
-    background: var(--muted);
-    border-radius: 12px 12px 6px 6px;
-    position: relative;
-    border: 2px solid #4a4338;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.6rem;
-    color: var(--cream);
-    user-select: none;
-  }
-  .char-name {
-    font-size: 0.65rem;
-    margin-top: 3px;
-    color: var(--dim);
-    text-align: center;
-    letter-spacing: 0.03em;
-  }
-  .char.react .char-body {
-    animation: bounce 0.4s ease;
-  }
-  @keyframes bounce {
-    0%,100% { transform: translateY(0); }
-    40% { transform: translateY(-12px); }
-    70% { transform: translateY(-4px); }
-  }
-  .char.idle-look .char-body { animation: look 4s ease-in-out infinite; }
-  .char.idle-breathe .char-body { animation: breathe 3s ease-in-out infinite; }
-  .char.idle-sway .char-body { animation: sway 5s ease-in-out infinite; }
-  @keyframes look {
-    0%,100% { transform: rotate(0deg); }
-    30% { transform: rotate(-6deg); }
-    70% { transform: rotate(5deg); }
-  }
-  @keyframes breathe {
-    0%,100% { transform: scaleY(1); }
-    50% { transform: scaleY(1.04); }
-  }
-  @keyframes sway {
-    0%,100% { transform: translateX(0); }
-    50% { transform: translateX(4px); }
-  }
-
-  /* SPEECH BUBBLE */
-  .bubble {
-    position: absolute;
-    bottom: 105%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--cream);
-    color: #1a1814;
-    padding: 0.45rem 0.7rem;
-    border-radius: 6px;
-    font-size: 0.72rem;
-    white-space: nowrap;
-    max-width: 180px;
-    white-space: normal;
-    text-align: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s;
-    z-index: 30;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-  }
-  .bubble::after {
-    content: "";
-    position: absolute;
-    top: 100%; left: 50%;
-    margin-left: -6px;
-    border: 6px solid transparent;
-    border-top-color: var(--cream);
-  }
-  .bubble.show { opacity: 1; }
-
-  /* CHAOS BAR */
-  .chaos-bar {
-    display: flex; flex-wrap: wrap; gap: 0.5rem;
-    margin-top: 1rem; justify-content: center;
-  }
-  .chaos-bar button {
-    background: var(--rust);
-    border: none;
-    color: #fff;
-    padding: 0.55rem 1.1rem;
-    font-size: 0.8rem;
-    letter-spacing: 0.04em;
-    cursor: pointer;
-    border-radius: 3px;
-  }
-  .chaos-bar button:hover { filter: brightness(1.15); }
-
-  /* PROFILE MODAL */
-  .modal-overlay {
-    position: fixed; inset: 0; z-index: 500;
-    background: rgba(0,0,0,0.75);
-    display: none; align-items: center; justify-content: center;
-    padding: 1rem;
-  }
-  .modal-overlay.open { display: flex; }
-  .profile-card {
-    background: var(--surface);
-    border: 1px solid #4a4338;
-    max-width: 360px; width: 100%;
-    padding: 1.4rem;
-    position: relative;
-    animation: pop 0.25s ease;
-  }
-  @keyframes pop {
-    from { transform: scale(0.9); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
-  .profile-card .close {
-    position: absolute; top: 0.6rem; right: 0.8rem;
-    background: none; border: none; color: var(--dim);
-    font-size: 1.4rem; cursor: pointer;
-  }
-  .profile-card h2 {
-    font-size: 1.4rem; margin-bottom: 0.3rem;
-    color: var(--cream);
-  }
-  .profile-card .dialogue {
-    font-style: italic; color: var(--rust);
-    margin: 0.6rem 0; font-size: 0.9rem;
-  }
-  .profile-card .meta {
-    font-size: 0.8rem; color: var(--dim);
-    line-height: 1.5; margin-top: 0.8rem;
-  }
-  .profile-card .stats {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 0.3rem; margin-top: 0.8rem; font-size: 0.75rem;
-  }
-  .profile-card button.sound-btn {
-    margin-top: 1rem;
-    background: var(--olive);
-    border: none; color: #fff;
-    padding: 0.45rem 1rem; cursor: pointer;
-  }
-
-  /* MEMORY WALL */
-  .memory-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 1rem;
-  }
-  .memory-card {
-    background: var(--surface);
-    border: 1px solid #3a342c;
-    padding: 0.8rem;
-    font-size: 0.8rem;
-  }
-  .memory-card .ph {
-    height: 100px;
-    background: #2e2a24;
-    display: flex; align-items: center; justify-content: center;
-    color: var(--dim); margin-bottom: 0.5rem;
-  }
-
-  /* SOUND ROOM */
-  .sound-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 0.8rem;
-  }
-  .sound-btn {
-    background: var(--surface);
-    border: 1px solid #4a4338;
-    color: var(--cream);
-    padding: 1rem 0.5rem;
-    text-align: center;
-    cursor: pointer;
-    font-size: 0.85rem;
-  }
-  .sound-btn:hover { background: var(--olive); }
-
-  /* ABOUT */
-  .about-box {
-    max-width: 560px;
-    background: var(--surface);
-    border: 1px solid #3a342c;
-    padding: 1.5rem;
-    line-height: 1.6;
-    font-size: 0.9rem;
-    color: var(--dim);
-  }
-
-  /* MEMBERS LIST (simple) */
-  .members-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 0.8rem;
-  }
-  .member-tile {
-    background: var(--surface);
-    border: 1px solid #3a342c;
-    padding: 1rem 0.5rem;
-    text-align: center;
-    cursor: pointer;
-  }
-  .member-tile:hover { border-color: var(--rust); }
-
-  /* MOBILE */
-  @media (max-width: 700px) {
-    .char { width: 56px; height: 75px; }
-    .char-body { width: 48px; height: 58px; font-size: 1.3rem; }
-    .char-name { font-size: 0.58rem; }
-    #main-scene { min-height: 55vh; }
-    .chaos-bar button { font-size: 0.72rem; padding: 0.45rem 0.7rem; }
-  }
-</style>
-</head>
-<body class="locked">
-
-<!-- ENTER -->
-<div id="enter-screen">
-  <h1>COMMITTEE</h1>
-  <p>Click to enter</p>
-</div>
-
-<!-- APP -->
-<div class="app" id="app">
-  <nav>
-    <button data-section="main" class="active">MAIN SCENE</button>
-    <button data-section="members">MEMBERS</button>
-    <button data-section="memory">MEMORY WALL</button>
-    <button data-section="soundroom">SOUND ROOM</button>
-    <button data-section="about">ABOUT</button>
-    <div class="audio-controls">
-      <button id="mute-btn">MUTE</button>
-      <input type="range" id="vol" min="0" max="1" step="0.05" value="0.6">
-    </div>
-  </nav>
-
-  <!-- MAIN -->
-  <div class="section active" id="section-main">
-    <div id="main-scene">
-      <div class="scene-bg"></div>
-      <div class="ground"></div>
-      <!-- decorative elements -->
-      <div class="tree" style="left:8%;"></div>
-      <div class="tree" style="left:78%; height:70px;"></div>
-      <div class="building" style="left:18%;"></div>
-      <div class="building" style="right:12%; height:90px; width:55px;"></div>
-      <div class="lamp" style="left:42%;"></div>
-      <div class="lamp" style="right:28%;"></div>
-      <!-- characters injected by JS -->
-    </div>
-    <div class="chaos-bar">
-      <button id="btn-chaos">UNLEASH CHAOS</button>
-      <button id="btn-meeting">EMERGENCY MEETING</button>
-      <button id="btn-random">RANDOM MEMBER</button>
-      <button id="btn-event">RANDOM EVENT</button>
-    </div>
-  </div>
-
-  <!-- MEMBERS -->
-  <div class="section" id="section-members">
-    <h2 style="margin-bottom:1rem;color:var(--cream);">MEMBERS</h2>
-    <div class="members-list" id="members-list"></div>
-  </div>
-
-  <!-- MEMORY -->
-  <div class="section" id="section-memory">
-    <h2 style="margin-bottom:1rem;color:var(--cream);">MEMORY WALL</h2>
-    <div class="memory-grid" id="memory-grid"></div>
-  </div>
-
-  <!-- SOUND ROOM -->
-  <div class="section" id="section-soundroom">
-    <h2 style="margin-bottom:1rem;color:var(--cream);">SOUND ROOM</h2>
-    <div class="sound-grid" id="sound-grid"></div>
-  </div>
-
-  <!-- ABOUT -->
-  <div class="section" id="section-about">
-    <h2 style="margin-bottom:1rem;color:var(--cream);">ABOUT</h2>
-    <div class="about-box">
-      <p>[EDITABLE] COMMITTEE is a private digital space for nine people.</p>
-      <p style="margin-top:0.8rem;">No founding story. No rules. No slogans.</p>
-      <p style="margin-top:0.8rem;">The rest is left blank on purpose.</p>
-    </div>
-  </div>
-</div>
-
-<!-- PROFILE MODAL -->
-<div class="modal-overlay" id="profile-modal">
-  <div class="profile-card" id="profile-content"></div>
-</div>
-
-<script>
-/* ===================== CONFIG ===================== */
-const MEMBERS = [
-  {
-    id: "ragib",
-    name: "Ragib",
-    dialogue: "I love Mamuni",
-    nickname: "[EDITABLE]",
-    description: "[EDITABLE] Short description goes here.",
-    personality: "[EDITABLE]",
-    ability: "[EDITABLE]",
-    stats: { chaos: 7, patience: 3, volume: 8 },
-    color: "#5a4a3a",
-    idle: "idle-look",
-    pos: { left: "8%", bottom: "26%" }
-  },
-  {
-    id: "ali",
-    name: "Ali",
-    dialogue: "kanta thake poshchim para, amar shobhab dalali kora",
-    nickname: "[EDITABLE]",
-    description: "[EDITABLE] Short description goes here.",
-    personality: "[EDITABLE]",
-    ability: "[EDITABLE]",
-    stats: { chaos: 6, patience: 4, volume: 7 },
-    color: "#3a4a3a",
-    idle: "idle-breathe",
-    pos: { left: "20%", bottom: "22%" }
-  },
-  {
-    id: "bipu",
-    name: "Bipu",
-    dialogue: "Ganja khamu, barrel homu",
-    nickname: "[EDITABLE]",
-    description: "[EDITABLE] Short description goes here.",
-    personality: "[EDITABLE]",
-    ability: "[EDITABLE]",
-    stats: { chaos: 9, patience: 2, volume: 9 },
-    color: "#4a3a4a",
-    idle: "idle-sway",
-    pos: { left: "32%", bottom: "28%" }
-  },
-  {
-    id: "nafi",
-    name: "Nafi",
-    dialogue: "Prem korsu tuk biye korai lagbi boxod.",
-    nickname: "[EDITABLE]",
-    description: "[EDITABLE] Short description goes here.",
-    personality: "[EDITABLE]",
-    ability: "[EDITABLE]",
-    stats: { chaos: 5, patience: 6, volume: 5 },
-    color: "#3a3a4a",
-    idle: "idle-look",
-    pos: { left: "44%", bottom: "24%" }
-  },
-  {
-    id: "vaste",
-    name: "Vaste",
-    dialogue: "16 inchi hol, prem korai vul.",
-    nickname: "[EDITABLE]",
-    description: "[EDITABLE] Short description goes here.",
-    personality: "[EDITABLE]",
-    ability: "[EDITABLE]",
-    stats: { chaos: 8, patience: 3, volume: 6 },
-    color: "#4a4a3a",
-    idle: "idle-breathe",
-    pos: { left: "56%", bottom: "27%" }
-  },
-  {
-    id: "sayzid",
-    name: "Sayzid",
-    dialogue: "Dada rui mach hobe rui mach?",
-    nickname: "[EDITABLE]",
-    description: "[EDITABLE] Short description goes here.",
-    personality: "[EDITABLE]",
-    ability: "[EDITABLE]",
-    stats: { chaos: 4, patience: 7, volume: 4 },
-    color: "#3a4a4a",
-    idle: "idle-sway",
-    pos: { left: "68%", bottom: "23%" }
-  },
-  {
-    id: "jahid",
-    name: "Jahid",
-    dialogue: "kire! Hatir hol hoya gesu tui?",
-    nickname: "[EDITABLE]",
-    description: "[EDITABLE] Short description goes here.",
-    personality: "[EDITABLE]",
-    ability: "[EDITABLE]",
-    stats: { chaos: 8, patience: 2, volume: 8 },
-    color: "#4a3a3a",
-    idle: "idle-look",
-    pos: { left: "80%", bottom: "26%" }
-  },
-  {
-    id: "billal",
-    name: "Billal",
-    dialogue: "kire shuworer bacchara.",
-    nickname: "[EDITABLE]",
-    description: "[EDITABLE] Short description goes here.",
-    personality: "[EDITABLE]",
-    ability: "[EDITABLE]",
-    stats: { chaos: 9, patience: 1, volume: 9 },
-    color: "#3a3a3a",
-    idle: "idle-breathe",
-    pos: { left: "14%", bottom: "18%" }
-  },
-  {
-    id: "anam",
-    name: "Anam",
-    dialogue: "eeeee vaiii. Ekdom kochi mal re.",
-    nickname: "[EDITABLE]",
-    description: "[EDITABLE] Short description goes here.",
-    personality: "[EDITABLE]",
-    ability: "[EDITABLE]",
-    stats: { chaos: 7, patience: 4, volume: 7 },
-    color: "#4a4a4a",
-    idle: "idle-sway",
-    pos: { left: "74%", bottom: "19%" }
-  }
-];
-
-const MEMORIES = [
-  { id: 1, caption: "[EDITABLE] Placeholder memory", date: "—", category: "general" },
-  { id: 2, caption: "[EDITABLE] Another placeholder", date: "—", category: "general" },
-  { id: 3, caption: "[EDITABLE] Add real photos later", date: "—", category: "general" }
-];
-
-/* ===================== AUDIO ===================== */
-const AudioMgr = {
-  muted: false,
-  volume: 0.6,
-  sounds: {},
-  unlock() {
-    // create silent context so later plays work
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      if (ctx.state === "suspended") ctx.resume();
-    } catch(e) {}
-  },
-  play(id) {
-    if (this.muted) return;
-    // try real file first, fallback to beep
-    const path = `assets/sounds/${id}.mp3`;
-    let a = this.sounds[id];
-    if (!a) {
-      a = new Audio(path);
-      a.volume = this.volume;
-      a.onerror = () => { this.beep(); };
-      this.sounds[id] = a;
+      --shadow-hard: 4px 4px 0px #090a08;
+      --shadow-deep: 0 18px 40px rgba(0, 0, 0, 0.65);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --transition-fast: 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      --transition-med: 320ms cubic-bezier(0.22, 1, 0.36, 1);
     }
-    a.currentTime = 0;
-    a.volume = this.volume;
-    a.play().catch(() => this.beep());
-  },
-  beep() {
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.connect(g); g.connect(ctx.destination);
-      o.frequency.value = 180 + Math.random()*120;
-      g.gain.value = this.volume * 0.15;
-      o.start();
-      setTimeout(() => { o.stop(); ctx.close(); }, 180);
-    } catch(e) {}
-  },
-  setVol(v) {
-    this.volume = v;
-    Object.values(this.sounds).forEach(a => a.volume = v);
-  },
-  toggleMute() {
-    this.muted = !this.muted;
-    return this.muted;
-  }
-};
 
-/* ===================== STATE ===================== */
-let currentMember = null;
-const coolDown = new Map();
+    /* Secret Blacklight / Phosphor Easter Egg Mode */
+    body.phosphor-mode {
+      --bg-void: #070d08;
+      --bg-charcoal: #0b160d;
+      --bg-panel: #102113;
+      --bg-elevated: #162e1a;
+      --olive-muted: #2d6b38;
+      --olive-bright: #5ce675;
+      --rust-orange: #d9ff43;
+      --rust-glow: #ecff8c;
+      --amber-sulfur: #5ce675;
+      --cream-dirty: #d2f7d6;
+      --cream-muted: #7ab382;
+      --border-grime: #244d2b;
+    }
 
-/* ===================== BUILD SCENE ===================== */
-function buildScene() {
-  const scene = document.getElementById("main-scene");
-  MEMBERS.forEach(m => {
-    const el = document.createElement("div");
-    el.className = `char ${m.idle}`;
-    el.id = `char-${m.id}`;
-    el.style.left = m.pos.left;
-    el.style.bottom = m.pos.bottom;
-    el.innerHTML = `
-      <div class="bubble" id="bubble-${m.id}"></div>
-      <div class="char-body" style="background:\( {m.color}"> \){m.name[0]}</div>
-      <div class="char-name">${m.name}</div>
-    `;
-    el.addEventListener("click", () => interact(m.id));
-    scene.appendChild(el);
-  });
-}
+    /* Secret 9th Protocol Inversion Glitch */
+    body.protocol-nine {
+      filter: hue-rotate(155deg) contrast(1.15);
+    }
 
-function interact(id) {
-  if (coolDown.get(id)) return;
-  coolDown.set(id, true);
-  setTimeout(() => coolDown.set(id, false), 900);
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-  const m = MEMBERS.find(x => x.id === id);
-  const el = document.getElementById(`char-${id}`);
-  const bubble = document.getElementById(`bubble-${id}`);
+    html, body {
+      background-color: var(--bg-void);
+      color: var(--cream-dirty);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.45;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-  el.classList.add("react");
-  setTimeout(() => el.classList.remove("react"), 450);
+    /* Subtle Film Grain & Vignette Overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9000;
+      opacity: 0.045;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
 
-  bubble.textContent = m.dialogue;
-  bubble.classList.add("show");
-  setTimeout(() => bubble.classList.remove("show"), 2800);
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 8999;
+      background: radial-gradient(circle at center, transparent 58%, rgba(5, 6, 5, 0.68) 100%);
+    }
 
-  AudioMgr.play(id);
-}
+    :focus-visible {
+      outline: 2px solid var(--rust-glow);
+      outline-offset: 3px;
+    }
 
-/* ===================== PROFILE ===================== */
-function openProfile(id) {
-  const m = MEMBERS.find(x => x.id === id);
-  const content = document.getElementById("profile-content");
-  content.innerHTML = `
-    <button class="close" onclick="closeProfile()">×</button>
-    <h2>${m.name}</h2>
-    <div class="dialogue">"${m.dialogue}"</div>
-    <div class="meta">
-      Nickname: ${m.nickname}<br>
-      ${m.description}<br>
-      Personality: ${m.personality}<br>
-      Ability: ${m.ability}
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      color: inherit;
+      background: none;
+      border: none;
+    }
+
+    /* ==========================================================================
+       2. ENTRY GATE (AUDIO ACTIVATION SCREEN)
+       ========================================================================== */
+    #entry-gate {
+      position: fixed;
+      inset: 0;
+      z-index: 9500;
+      background:
+        radial-gradient(circle at 50% 35%, rgba(75, 87, 60, 0.22), transparent 60%),
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 4px),
+        var(--bg-void);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      transition: opacity 0.45s ease, visibility 0.45s ease;
+    }
+
+    #entry-gate.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .gate-box {
+      max-width: 520px;
+      width: 100%;
+      background: var(--bg-charcoal);
+      border: 2px solid var(--border-grime);
+      box-shadow: 8px 8px 0px #060706;
+      padding: 2.25rem 2rem;
+      position: relative;
+    }
+
+    .gate-stamp {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--amber-sulfur);
+      border: 1px solid var(--amber-sulfur);
+      padding: 0.2rem 0.55rem;
+      margin-bottom: 1rem;
+      transform: rotate(-1.5deg);
+    }
+
+    .gate-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 6vw, 3.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 0.95;
+      color: var(--cream-dirty);
+      margin-bottom: 0.9rem;
+    }
+
+    .gate-desc {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: var(--cream-muted);
+      margin-bottom: 1.75rem;
+      border-left: 3px solid var(--rust-orange);
+      padding-left: 0.85rem;
+    }
+
+    .gate-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .btn-primary {
+      background: var(--rust-orange);
+      color: #100d0a;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.85rem 1.4rem;
+      border: 2px solid #090a08;
+      box-shadow: var(--shadow-hard);
+      transition: transform var(--transition-fast), background var(--transition-fast);
+      flex: 1 1 auto;
+    }
+
+    .btn-primary:hover {
+      background: var(--rust-glow);
+      transform: translate(-1px, -1px);
+    }
+
+    .btn-primary:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 #090a08;
+    }
+
+    .btn-secondary {
+      background: var(--bg-elevated);
+      color: var(--cream-dirty);
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.85rem 1.1rem;
+      border: 1px solid var(--border-grime);
+      transition: border-color var(--transition-fast), background var(--transition-fast);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--cream-muted);
+      background: #31382d;
+    }
+
+    /* ==========================================================================
+       3. TOP NAVIGATION & GLOBAL AUDIO BAR
+       ========================================================================== */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 500;
+      background: rgba(18, 20, 17, 0.94);
+      backdrop-filter: blur(8px);
+      border-bottom: 2px solid var(--border-grime);
+      padding: 0.65rem 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .brand-cluster {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    #brand-title {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.45rem;
+      letter-spacing: -0.02em;
+      color: var(--cream-dirty);
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      transition: color var(--transition-fast);
+    }
+
+    #brand-title:hover {
+      color: var(--rust-glow);
+    }
+
+    .brand-tag {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      background: var(--forest-dark);
+      color: var(--olive-bright);
+      border: 1px solid var(--olive-muted);
+      padding: 0.15rem 0.45rem;
+      border-radius: 3px;
+    }
+
+    .nav-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+
+    .nav-tab {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.45rem 0.75rem;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      color: var(--cream-muted);
+      transition: all var(--transition-fast);
+    }
+
+    .nav-tab:hover {
+      color: var(--cream-dirty);
+      background: var(--bg-panel);
+    }
+
+    .nav-tab.active {
+      color: var(--ink-dark);
+      background: var(--cream-dirty);
+      font-weight: 700;
+      border-color: var(--cream-dirty);
+    }
+
+    .audio-deck {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-grime);
+      padding: 0.3rem 0.6rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .audio-btn {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      padding: 0.28rem 0.5rem;
+      border: 1px solid var(--border-grime);
+      border-radius: 3px;
+      background: var(--bg-charcoal);
+      color: var(--cream-dirty);
+      transition: all var(--transition-fast);
+    }
+
+    .audio-btn:hover {
+      border-color: var(--amber-sulfur);
+      color: var(--amber-sulfur);
+    }
+
+    .audio-btn.is-muted,
+    .audio-btn.is-stopped {
+      border-color: var(--danger-red);
+      color: #f08080;
+    }
+
+    .volume-slider {
+      width: 68px;
+      accent-color: var(--rust-orange);
+      cursor: pointer;
+    }
+
+    /* ==========================================================================
+       4. SECTION SYSTEM & TRANSITIONS
+       ========================================================================== */
+    .app-shell {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 1rem 1.25rem 3rem;
+    }
+
+    .view-section {
+      display: none;
+      animation: sectionEnter 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .view-section.active {
+      display: block;
+    }
+
+    @keyframes sectionEnter {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ==========================================================================
+       5. MAIN INTERACTIVE COMPOUND SCENE
+       ========================================================================== */
+    .scene-status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--cream-muted);
+    }
+
+    .live-ticker {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-grime);
+      padding: 0.35rem 0.75rem;
+      border-radius: var(--radius-sm);
+      max-width: 100%;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--rust-orange);
+      box-shadow: 0 0 8px var(--rust-orange);
+      animation: pulseDot 1.8s infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.35; transform: scale(0.75); }
+    }
+
+    .compound-viewport {
+      position: relative;
+      width: 100%;
+      height: clamp(540px, 72vh, 740px);
+      background: linear-gradient(180deg, #131815 0%, #1c241b 46%, #242319 47%, #171813 100%);
+      border: 2px solid var(--border-grime);
+      box-shadow: var(--shadow-deep);
+      overflow: hidden;
+      border-radius: var(--radius-sm);
+      user-select: none;
+    }
+
+    /* Environmental Effects inside Viewport */
+    .compound-viewport.event-blackout .compound-environment,
+    .compound-viewport.event-blackout .character-actor {
+      filter: brightness(0.28) contrast(1.4);
+    }
+
+    .compound-viewport.event-blackout .streetlamp-cone {
+      opacity: 0.95 !important;
+    }
+
+    .compound-viewport.event-quake {
+      animation: sceneShake 0.45s ease-in-out 3;
+    }
+
+    .compound-viewport.event-drizzle::after {
+      content: "";
+      position: absolute;
+      inset: -20%;
+      pointer-events: none;
+      z-index: 45;
+      background-image: repeating-linear-gradient(
+        105deg,
+        transparent 0px,
+        transparent 14px,
+        rgba(173, 214, 140, 0.16) 15px,
+        transparent 16px
+      );
+      animation: acidRain 0.55s linear infinite;
+    }
+
+    @keyframes acidRain {
+      from { transform: translate(0, -30px); }
+      to { transform: translate(-18px, 30px); }
+    }
+
+    @keyframes sceneShake {
+      0%, 100% { transform: translate(0, 0); }
+      20% { transform: translate(-6px, 3px); }
+      40% { transform: translate(5px, -4px); }
+      60% { transform: translate(-4px, -2px); }
+      80% { transform: translate(4px, 3px); }
+    }
+
+    /* Emergency Meeting Banner */
+    .emergency-overlay {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-140%);
+      z-index: 80;
+      background: var(--danger-red);
+      color: var(--cream-dirty);
+      border: 2px solid #090a08;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.8);
+      padding: 0.6rem 1.4rem;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: clamp(0.95rem, 2.2vw, 1.3rem);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transition: transform 0.35s cubic-bezier(0.2, 1.2, 0.3, 1);
+      pointer-events: none;
+    }
+
+    .emergency-overlay.active {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Background Illustrated Scenery SVG */
+    .compound-environment {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      transition: filter 0.4s ease;
+    }
+
+    .cloud-drift-1 {
+      animation: driftSlow 55s linear infinite;
+    }
+    .cloud-drift-2 {
+      animation: driftSlow 78s linear infinite reverse;
+    }
+
+    @keyframes driftSlow {
+      from { transform: translateX(-80px); }
+      to { transform: translateX(120px); }
+    }
+
+    .streetlamp-cone {
+      animation: lampFlicker 7s infinite;
+    }
+
+    @keyframes lampFlicker {
+      0%, 92%, 96%, 100% { opacity: 0.42; }
+      93%, 95% { opacity: 0.12; }
+      94% { opacity: 0.55; }
+    }
+
+    /* Interactive Easter Egg Props inside Scene */
+    .scene-prop {
+      cursor: pointer;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+
+    .scene-prop:hover {
+      filter: drop-shadow(0 0 8px rgba(212, 164, 55, 0.55));
+    }
+
+    .scene-prop.prop-triggered {
+      animation: propBounce 0.45s ease;
+    }
+
+    @keyframes propBounce {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      30% { transform: translateY(-8px) rotate(-4deg); }
+      65% { transform: translateY(2px) rotate(3deg); }
+    }
+
+    /* ==========================================================================
+       6. CHARACTER ACTORS, SPEECH BUBBLES & ANIMATION STATES
+       ========================================================================== */
+    .characters-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+    }
+
+    .character-actor {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      width: clamp(104px, 10.5vw, 144px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transition: left 0.75s cubic-bezier(0.22, 1, 0.36, 1), top 0.75s cubic-bezier(0.22, 1, 0.36, 1), filter 0.25s ease;
+      touch-action: manipulation;
+    }
+
+    .character-actor:hover,
+    .character-actor:focus-visible {
+      z-index: 45 !important;
+      filter: drop-shadow(0 6px 14px rgba(201, 81, 39, 0.45));
+    }
+
+    .character-actor.is-highlighted {
+      z-index: 50 !important;
+      filter: drop-shadow(0 0 18px var(--amber-sulfur));
+    }
+
+    .character-actor.is-highlighted::before {
+      content: "▼ TARGET";
+      position: absolute;
+      top: -28px;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 700;
+      background: var(--amber-sulfur);
+      color: var(--ink-dark);
+      padding: 0.1rem 0.4rem;
+      border-radius: 3px;
+      animation: bounceMarker 0.6s infinite alternate;
+    }
+
+    @keyframes bounceMarker {
+      from { transform: translateY(0); }
+      to { transform: translateY(-5px); }
+    }
+
+    .avatar-stage {
+      width: 100%;
+      aspect-ratio: 1 / 1.22;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .avatar-stage img.custom-char-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
+    .avatar-stage svg.char-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    /* Ground shadow under character */
+    .char-shadow {
+      width: 72%;
+      height: 12px;
+      background: rgba(5, 6, 5, 0.58);
+      border-radius: 50%;
+      margin-top: -6px;
+      transition: transform 0.25s ease;
+    }
+
+    /* Nameplate & Quick Profile Trigger */
+    .char-tag-bar {
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      background: rgba(17, 19, 16, 0.92);
+      border: 1px solid var(--border-grime);
+      padding: 2px 6px;
+      border-radius: 3px;
+      box-shadow: 2px 2px 0 #070807;
+    }
+
+    .char-name-label {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--cream-dirty);
+    }
+
+    .char-info-btn {
+      font-family: var(--font-mono);
+      font-size: 0.64rem;
+      background: var(--olive-muted);
+      color: var(--cream-dirty);
+      padding: 1px 4px;
+      border-radius: 2px;
+      line-height: 1.2;
+      transition: background var(--transition-fast);
+    }
+
+    .char-info-btn:hover {
+      background: var(--rust-orange);
+      color: #0d0b09;
+    }
+
+    /* Speech Bubble */
+    .speech-bubble {
+      position: absolute;
+      bottom: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%) scale(0.85);
+      min-width: 170px;
+      max-width: 250px;
+      width: max-content;
+      background: var(--cream-dirty);
+      color: var(--ink-dark);
+      border: 2px solid #090a08;
+      box-shadow: 4px 4px 0 #090a08;
+      padding: 0.55rem 0.75rem;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      line-height: 1.3;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 75;
+      transition: opacity 0.18s ease, transform 0.22s cubic-bezier(0.2, 1.3, 0.3, 1);
+    }
+
+    .speech-bubble::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 8px 7px 0 7px;
+      border-style: solid;
+      border-color: #090a08 transparent transparent transparent;
+    }
+
+    .speech-bubble.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(-50%) scale(1);
+    }
+
+    /* Edge clamping so bubbles never clip off left/right of viewport */
+    .character-actor.edge-left .speech-bubble {
+      left: 0;
+      transform: translateX(0) scale(0.85);
+    }
+    .character-actor.edge-left .speech-bubble.visible {
+      transform: translateX(0) scale(1);
+    }
+    .character-actor.edge-left .speech-bubble::after {
+      left: 28px;
+    }
+
+    .character-actor.edge-right .speech-bubble {
+      left: auto;
+      right: 0;
+      transform: translateX(0) scale(0.85);
+    }
+    .character-actor.edge-right .speech-bubble.visible {
+      transform: translateX(0) scale(1);
+    }
+    .character-actor.edge-right .speech-bubble::after {
+      left: auto;
+      right: 28px;
+    }
+
+    /* ==========================================================================
+       7. SVG RIG PARTS, BLINKING, IDLE & CLICK REACTION KEYFRAMES
+       ========================================================================== */
+    .char-eyelids {
+      transform-origin: center;
+      transform: scaleY(0);
+      transition: transform 0.07s ease;
+    }
+
+    .character-actor.is-blinking .char-eyelids {
+      transform: scaleY(1);
+    }
+
+    /* Subtle breathing on all SVG torsos */
+    .char-torso {
+      transform-origin: 50% 85%;
+      animation: breatheIdle 3.2s ease-in-out infinite;
+    }
+
+    @keyframes breatheIdle {
+      0%, 100% { transform: scaleY(1) scaleX(1); }
+      50% { transform: scaleY(1.028) scaleX(0.985); }
+    }
+
+    /* 9 Distinct Idle Animations */
+    .idle-dreamy .char-head { animation: idleDreamy 4.2s ease-in-out infinite; transform-origin: 50% 48%; }
+    @keyframes idleDreamy {
+      0%, 100% { transform: rotate(-3deg) translateY(0); }
+      50% { transform: rotate(4deg) translateY(-2px); }
+    }
+
+    .idle-shifty .char-head { animation: idleShifty 3.6s steps(2, end) infinite; transform-origin: 50% 48%; }
+    .idle-shifty .char-pupils { animation: pupilsDart 3.6s steps(2, end) infinite; }
+    @keyframes idleShifty {
+      0%, 100% { transform: translateX(-2px); }
+      50% { transform: translateX(2px); }
+    }
+    @keyframes pupilsDart {
+      0%, 100% { transform: translateX(-2.5px); }
+      50% { transform: translateX(2.5px); }
+    }
+
+    .idle-heavy .avatar-stage { animation: idleHeavy 4.8s ease-in-out infinite; transform-origin: bottom center; }
+    @keyframes idleHeavy {
+      0%, 100% { transform: scale(1, 1); }
+      50% { transform: scale(1.04, 0.97); }
+    }
+
+    .idle-impatient .avatar-stage { animation: idleImpatient 1.4s ease-in-out infinite; transform-origin: bottom center; }
+    @keyframes idleImpatient {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-2.5px); }
+    }
+
+    .idle-twitch .char-head { animation: idleTwitch 5s infinite; transform-origin: 50% 48%; }
+    @keyframes idleTwitch {
+      0%, 88%, 100% { transform: rotate(0deg); }
+      91% { transform: rotate(-9deg); }
+      94% { transform: rotate(6deg); }
+    }
+
+    .idle-hawker .avatar-stage { animation: idleHawker 2.4s ease-in-out infinite; transform-origin: bottom center; }
+    @keyframes idleHawker {
+      0%, 100% { transform: translateY(0) rotate(-1deg); }
+      50% { transform: translateY(-4px) rotate(1.5deg); }
+    }
+
+    .idle-scan .char-head { animation: idleScan 4.5s ease-in-out infinite; transform-origin: 50% 48%; }
+    @keyframes idleScan {
+      0%, 100% { transform: rotate(2deg); }
+      50% { transform: rotate(-4deg); }
+    }
+
+    .idle-grump .avatar-stage { animation: idleGrump 3.8s ease-in-out infinite; transform-origin: bottom center; }
+    @keyframes idleGrump {
+      0%, 100% { transform: skewX(0deg); }
+      50% { transform: skewX(-2deg); }
+    }
+
+    .idle-sneak .avatar-stage { animation: idleSneak 2.9s ease-in-out infinite; transform-origin: bottom center; }
+    @keyframes idleSneak {
+      0%, 100% { transform: translateY(0) scaleY(0.98); }
+      50% { transform: translateY(2px) scaleY(0.95); }
+    }
+
+    /* 9 Distinct Click Reaction Animations */
+    /* 1. Ragib: Manic Laugh & Float */
+    .react-laugh-float .avatar-stage {
+      animation: reactLaughFloat 0.95s ease-in-out;
+    }
+    .react-laugh-float .char-mouth-closed { opacity: 0; }
+    .react-laugh-float .char-mouth-laugh { opacity: 1 !important; animation: jawChatter 0.14s infinite alternate; }
+    @keyframes reactLaughFloat {
+      0% { transform: translateY(0) rotate(0deg); }
+      25% { transform: translateY(-14px) rotate(-6deg); }
+      50% { transform: translateY(-10px) rotate(6deg); }
+      75% { transform: translateY(-14px) rotate(-4deg); }
+      100% { transform: translateY(0) rotate(0deg); }
+    }
+
+    /* 2. Ali: Shady Lean & Hand Rub */
+    .react-shady-lean .avatar-stage {
+      animation: reactShadyLean 0.9s cubic-bezier(0.2, 1.3, 0.3, 1);
+    }
+    .react-shady-lean .char-arm-l { transform: rotate(-35deg) translate(6px, -6px); }
+    .react-shady-lean .char-arm-r { transform: rotate(35deg) translate(-6px, -6px); }
+    @keyframes reactShadyLean {
+      0%, 100% { transform: scale(1) skewX(0deg); }
+      35% { transform: scale(1.12) skewX(-7deg) translateY(-4px); }
+      70% { transform: scale(1.08) skewX(4deg); }
+    }
+
+    /* 3. Bipu: Barrel Swell & Belly Laugh */
+    .react-barrel-swell .avatar-stage {
+      animation: reactBarrelSwell 1s ease-in-out;
+    }
+    .react-barrel-swell .char-mouth-closed { opacity: 0; }
+    .react-barrel-swell .char-mouth-laugh { opacity: 1 !important; animation: jawChatter 0.16s infinite alternate; }
+    @keyframes reactBarrelSwell {
+      0%, 100% { transform: scale(1, 1); }
+      30% { transform: scale(1.26, 0.9) translateY(3px); }
+      60% { transform: scale(1.18, 0.94) rotate(-3deg); }
+      80% { transform: scale(1.22, 0.92) rotate(3deg); }
+    }
+
+    /* 4. Nafi: Accusing Lunge */
+    .react-lunge .avatar-stage {
+      animation: reactLunge 0.85s cubic-bezier(0.2, 1.4, 0.3, 1);
+    }
+    .react-lunge .char-arm-r { transform: rotate(-65deg) translate(-4px, -10px); }
+    @keyframes reactLunge {
+      0%, 100% { transform: scale(1) translateY(0); }
+      30% { transform: scale(1.18) translateY(-10px) rotate(4deg); }
+      65% { transform: scale(1.14) translateY(-6px) rotate(-3deg); }
+    }
+
+    /* 5. Vaste: Deadpan Sideways Tilt */
+    .react-tilt .avatar-stage {
+      animation: reactTilt 0.95s ease-in-out;
+      transform-origin: bottom center;
+    }
+    @keyframes reactTilt {
+      0%, 100% { transform: rotate(0deg); }
+      30% { transform: rotate(-22deg) translateX(-6px); }
+      65% { transform: rotate(16deg) translateX(5px); }
+    }
+
+    /* 6. Sayzid: Bazaar Hawker Jump */
+    .react-hawker-jump .avatar-stage {
+      animation: reactHawkerJump 0.85s ease;
+    }
+    .react-hawker-jump .char-arm-l { transform: rotate(-125deg); }
+    .react-hawker-jump .char-mouth-closed { opacity: 0; }
+    .react-hawker-jump .char-mouth-laugh { opacity: 1 !important; }
+    @keyframes reactHawkerJump {
+      0%, 100% { transform: translateY(0); }
+      25% { transform: translateY(-22px) rotate(-5deg); }
+      50% { transform: translateY(-4px) rotate(4deg); }
+      75% { transform: translateY(-14px) rotate(-3deg); }
+    }
+
+    /* 7. Jahid: Roaring Cackle Shake */
+    .react-cackle .avatar-stage {
+      animation: reactCackle 0.95s ease-in-out;
+    }
+    .react-cackle .char-head { transform: rotate(-14deg) translateY(-3px); }
+    .react-cackle .char-mouth-closed { opacity: 0; }
+    .react-cackle .char-mouth-laugh { opacity: 1 !important; animation: jawChatter 0.12s infinite alternate; }
+    @keyframes reactCackle {
+      0%, 100% { transform: translateX(0); }
+      15%, 45%, 75% { transform: translateX(-5px) rotate(-2deg); }
+      30%, 60%, 90% { transform: translateX(5px) rotate(2deg); }
+    }
+
+    /* 8. Billal: Furious Bristle Hop */
+    .react-bristle .avatar-stage {
+      animation: reactBristle 0.8s steps(3, end);
+    }
+    .react-bristle .char-arm-l { transform: rotate(-45deg); }
+    .react-bristle .char-arm-r { transform: rotate(45deg); }
+    @keyframes reactBristle {
+      0%, 100% { transform: scale(1) translateY(0); }
+      33% { transform: scale(1.15, 0.92) translateY(-12px); }
+      66% { transform: scale(0.95, 1.1) translateY(-4px); }
+    }
+
+    /* 9. Anam: Wheeze Double-Over Laugh */
+    .react-wheeze .avatar-stage {
+      animation: reactWheeze 0.95s ease-in-out;
+      transform-origin: bottom center;
+    }
+    .react-wheeze .char-mouth-closed { opacity: 0; }
+    .react-wheeze .char-mouth-laugh { opacity: 1 !important; animation: jawChatter 0.11s infinite alternate; }
+    @keyframes reactWheeze {
+      0%, 100% { transform: scaleY(1) skewX(0deg); }
+      25% { transform: scaleY(0.84) skewX(9deg) translateY(6px); }
+      50% { transform: scaleY(0.88) skewX(-7deg) translateY(4px); }
+      75% { transform: scaleY(0.83) skewX(8deg) translateY(6px); }
+    }
+
+    /* Bonus Overload Spin on 4x Rapid Clicks */
+    .react-overload .avatar-stage {
+      animation: reactOverload 0.75s cubic-bezier(0.3, 1.4, 0.4, 1);
+    }
+    @keyframes reactOverload {
+      0% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.28) rotate(180deg); }
+      100% { transform: scale(1) rotate(360deg); }
+    }
+
+    @keyframes jawChatter {
+      from { transform: translateY(0); }
+      to { transform: translateY(2.5px); }
+    }
+
+    /* ==========================================================================
+       8. CHAOS CONTROL DECK
+       ========================================================================== */
+    .chaos-deck {
+      margin-top: 0.9rem;
+      background: var(--bg-charcoal);
+      border: 2px solid var(--border-grime);
+      padding: 0.85rem 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      box-shadow: var(--shadow-hard);
+    }
+
+    .chaos-label {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--amber-sulfur);
+    }
+
+    .chaos-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      flex: 1 1 auto;
+      justify-content: flex-end;
+    }
+
+    .chaos-btn {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.6rem 0.95rem;
+      border: 2px solid #090a08;
+      box-shadow: 3px 3px 0 #090a08;
+      transition: transform var(--transition-fast), filter var(--transition-fast);
+    }
+
+    .chaos-btn:hover {
+      transform: translate(-1px, -1px);
+      filter: brightness(1.1);
+    }
+
+    .chaos-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 #090a08;
+    }
+
+    .chaos-btn--chaos {
+      background: var(--rust-orange);
+      color: #0e0b09;
+    }
+
+    .chaos-btn--emergency {
+      background: var(--danger-red);
+      color: var(--cream-dirty);
+    }
+
+    .chaos-btn--random {
+      background: var(--amber-sulfur);
+      color: #11100a;
+    }
+
+    .chaos-btn--event {
+      background: var(--olive-muted);
+      color: var(--cream-dirty);
+    }
+
+    /* ==========================================================================
+       9. MEMBERS DIRECTORY, SOUND ROOM, MEMORY WALL & ABOUT SECTIONS
+       ========================================================================== */
+    .section-header {
+      border-bottom: 2px solid var(--border-grime);
+      padding-bottom: 0.85rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 3.5vw, 2.3rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .section-subtitle {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--cream-muted);
+    }
+
+    /* Members Roster Grid */
+    .roster-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.1rem;
+    }
+
+    .roster-card {
+      background: var(--bg-charcoal);
+      border: 2px solid var(--border-grime);
+      box-shadow: var(--shadow-hard);
+      padding: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      transition: border-color var(--transition-fast), transform var(--transition-fast);
+    }
+
+    .roster-card:hover {
+      border-color: var(--olive-bright);
+      transform: translateY(-2px);
+    }
+
+    .roster-card-top {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .roster-avatar-box {
+      width: 78px;
+      height: 92px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-grime);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      padding: 4px;
+    }
+
+    .roster-avatar-box svg,
+    .roster-avatar-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .roster-meta h3 {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      color: var(--cream-dirty);
+    }
+
+    .roster-nick {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--amber-sulfur);
+    }
+
+    .roster-dialogue {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      background: var(--bg-panel);
+      border-left: 3px solid var(--rust-orange);
+      padding: 0.55rem 0.7rem;
+      color: var(--cream-dirty);
+    }
+
+    .roster-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: auto;
+    }
+
+    .roster-actions button {
+      flex: 1;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      padding: 0.5rem;
+      border: 1px solid var(--border-grime);
+      background: var(--bg-elevated);
+      transition: all var(--transition-fast);
+    }
+
+    .roster-actions button:hover {
+      background: var(--rust-orange);
+      color: #0d0b09;
+      border-color: #090a08;
+      font-weight: 700;
+    }
+
+    /* Sound Room Grid */
+    .soundboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    .sound-pad {
+      background: var(--bg-charcoal);
+      border: 2px solid var(--border-grime);
+      box-shadow: var(--shadow-hard);
+      padding: 1.1rem;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.75rem;
+      position: relative;
+      transition: transform var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+    }
+
+    .sound-pad:hover {
+      border-color: var(--amber-sulfur);
+      background: var(--bg-panel);
+    }
+
+    .sound-pad.is-playing {
+      border-color: var(--rust-glow);
+      background: #2b211a;
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 #090a08;
+    }
+
+    .sound-pad-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sound-pad-index {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--amber-sulfur);
+    }
+
+    .sound-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 14px;
+    }
+
+    .sound-bars span {
+      width: 3px;
+      height: 4px;
+      background: var(--olive-bright);
+      transition: height 0.15s ease;
+    }
+
+    .sound-pad.is-playing .sound-bars span {
+      background: var(--rust-glow);
+      animation: eqBar 0.25s infinite alternate;
+    }
+    .sound-pad.is-playing .sound-bars span:nth-child(2) { animation-delay: 0.08s; }
+    .sound-pad.is-playing .sound-bars span:nth-child(3) { animation-delay: 0.16s; }
+
+    @keyframes eqBar {
+      from { height: 4px; }
+      to { height: 14px; }
+    }
+
+    .sound-pad-name {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 800;
+    }
+
+    .sound-pad-quote {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--cream-muted);
+    }
+
+    /* Memory Wall */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .filter-chip {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      padding: 0.35rem 0.7rem;
+      border: 1px solid var(--border-grime);
+      background: var(--bg-panel);
+      color: var(--cream-muted);
+    }
+
+    .filter-chip.active {
+      background: var(--amber-sulfur);
+      color: var(--ink-dark);
+      font-weight: 700;
+      border-color: var(--amber-sulfur);
+    }
+
+    .memory-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .memory-card {
+      background: var(--bg-charcoal);
+      border: 2px solid var(--border-grime);
+      box-shadow: var(--shadow-hard);
+      padding: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .memory-media {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      background:
+        repeating-linear-gradient(45deg, #171a16 0, #171a16 10px, #1f231d 10px, #1f231d 20px);
+      border: 1px solid var(--border-grime);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      text-align: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .memory-media img,
+    .memory-media video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .memory-placeholder-label {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--cream-muted);
+      border: 1px dashed var(--olive-muted);
+      padding: 0.5rem 0.75rem;
+      background: rgba(15, 17, 14, 0.82);
+    }
+
+    .memory-meta {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--amber-sulfur);
+    }
+
+    .memory-caption {
+      font-weight: 700;
+      font-size: 0.98rem;
+    }
+
+    .memory-desc {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--cream-muted);
+    }
+
+    /* About Section */
+    .about-dossier {
+      background: var(--bg-charcoal);
+      border: 2px solid var(--border-grime);
+      box-shadow: var(--shadow-hard);
+      padding: 1.75rem;
+      max-width: 820px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+    }
+
+    .about-dossier p {
+      font-family: var(--font-mono);
+      font-size: 0.92rem;
+      color: var(--cream-dirty);
+    }
+
+    .about-note {
+      background: var(--bg-panel);
+      border-left: 3px solid var(--amber-sulfur);
+      padding: 0.75rem 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--cream-muted);
+    }
+
+    /* ==========================================================================
+       10. CHARACTER DOSSIER MODAL
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 8000;
+      background: rgba(7, 8, 7, 0.84);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.22s ease, visibility 0.22s ease;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .dossier-modal {
+      width: 100%;
+      max-width: 680px;
+      max-height: 90vh;
+      overflow-y: auto;
+      background: var(--bg-charcoal);
+      border: 2px solid var(--cream-dirty);
+      box-shadow: 10px 10px 0 #050605;
+      padding: 1.5rem;
+      position: relative;
+      transform: translateY(14px) scale(0.97);
+      transition: transform 0.25s cubic-bezier(0.2, 1.2, 0.3, 1);
+    }
+
+    .modal-backdrop.open .dossier-modal {
+      transform: translateY(0) scale(1);
+    }
+
+    .dossier-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      border-bottom: 2px solid var(--border-grime);
+      padding-bottom: 1rem;
+      margin-bottom: 1.15rem;
+    }
+
+    .dossier-close {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 700;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-grime);
+      padding: 0.4rem 0.75rem;
+    }
+
+    .dossier-close:hover {
+      background: var(--danger-red);
+      color: var(--cream-dirty);
+    }
+
+    .dossier-grid {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 1.25rem;
+      align-items: start;
+    }
+
+    .dossier-portrait {
+      background: var(--bg-panel);
+      border: 2px solid var(--border-grime);
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .dossier-portrait svg,
+    .dossier-portrait img {
+      width: 140px;
+      height: 165px;
+      object-fit: contain;
+    }
+
+    .dossier-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .dossier-field-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--amber-sulfur);
+      margin-bottom: 0.2rem;
+    }
+
+    .dossier-field-value {
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      color: var(--cream-dirty);
+    }
+
+    .dossier-quote {
+      background: var(--bg-panel);
+      border-left: 3px solid var(--rust-orange);
+      padding: 0.6rem 0.8rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    .stat-row {
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-row-head {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .stat-track {
+      width: 100%;
+      height: 8px;
+      background: var(--bg-void);
+      border: 1px solid var(--border-grime);
+    }
+
+    .stat-fill {
+      height: 100%;
+      background: var(--rust-orange);
+      transition: width 0.4s ease;
+    }
+
+    /* ==========================================================================
+       11. RESPONSIVE & REDUCED MOTION
+       ========================================================================== */
+    @media (max-width: 860px) {
+      .compound-viewport {
+        height: 540px;
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
+
+      .compound-stage-inner {
+        position: relative;
+        width: 1020px;
+        height: 100%;
+      }
+    }
+
+    @media (min-width: 861px) {
+      .compound-stage-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar {
+        padding: 0.6rem 0.85rem;
+      }
+      .dossier-grid {
+        grid-template-columns: 1fr;
+      }
+      .dossier-portrait {
+        flex-direction: row;
+        justify-content: space-between;
+      }
+      .dossier-portrait svg,
+      .dossier-portrait img {
+        width: 96px;
+        height: 112px;
+      }
+      .chaos-buttons {
+        justify-content: stretch;
+      }
+      .chaos-btn {
+        flex: 1 1 45%;
+        font-size: 0.74rem;
+        padding: 0.55rem 0.6rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================================
+       INITIAL ENTRY GATE (USER INTERACTION FOR AUDIO UNLOCK)
+       ======================================================================== -->
+  <div id="entry-gate" role="dialog" aria-modal="true" aria-labelledby="gate-heading">
+    <div class="gate-box">
+      <div class="gate-stamp">SECTOR 09 // RESTRICTED ACCESS</div>
+      <h1 id="gate-heading" class="gate-title">COMMITTEE</h1>
+      <p class="gate-desc">
+        Nine individuals. One unstable compound. Sound effects and ambient audio are part of the environment.
+      </p>
+      <div class="gate-actions">
+        <button id="enter-with-sound" class="btn-primary" type="button">Enter With Audio</button>
+        <button id="enter-muted" class="btn-secondary" type="button">Enter Muted</button>
+      </div>
     </div>
-    <div class="stats">
-      <span>Chaos: ${m.stats.chaos}/10</span>
-      <span>Patience: ${m.stats.patience}/10</span>
-      <span>Volume: ${m.stats.volume}/10</span>
+  </div>
+
+  <!-- ========================================================================
+       TOP BAR NAVIGATION & AUDIO DECK
+       ======================================================================== -->
+  <header class="topbar">
+    <div class="brand-cluster">
+      <div id="brand-title" tabindex="0" role="button" title="COMMITTEE">
+        COMMITTEE <span class="brand-tag">09</span>
+      </div>
     </div>
-    <button class="sound-btn" onclick="AudioMgr.play('${m.id}')">Play Sound</button>
-  `;
-  document.getElementById("profile-modal").classList.add("open");
-}
-function closeProfile() {
-  document.getElementById("profile-modal").classList.remove("open");
-}
-document.getElementById("profile-modal").addEventListener("click", e => {
-  if (e.target.id === "profile-modal") closeProfile();
-});
-document.addEventListener("keydown", e => {
-  if (e.key === "Escape") closeProfile();
-});
 
-/* ===================== NAV ===================== */
-document.querySelectorAll("nav [data-section]").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll("nav [data-section]").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-    document.getElementById("section-" + btn.dataset.section).classList.add("active");
-  });
-});
+    <nav class="nav-tabs" aria-label="Main Sections">
+      <button class="nav-tab active" data-target="scene-view" type="button">Main Scene</button>
+      <button class="nav-tab" data-target="members-view" type="button">Members</button>
+      <button class="nav-tab" data-target="memory-view" type="button">Memory Wall</button>
+      <button class="nav-tab" data-target="sound-view" type="button">Sound Room</button>
+      <button class="nav-tab" data-target="about-view" type="button">About</button>
+    </nav>
 
-/* ===================== MEMBERS LIST ===================== */
-function buildMembersList() {
-  const list = document.getElementById("members-list");
-  MEMBERS.forEach(m => {
-    const tile = document.createElement("div");
-    tile.className = "member-tile";
-    tile.innerHTML = `<div style="font-size:1.8rem;margin-bottom:0.3rem">\( {m.name[0]}</div> \){m.name}`;
-    tile.addEventListener("click", () => openProfile(m.id));
-    list.appendChild(tile);
-  });
-}
+    <div class="audio-deck" aria-label="Global Audio Controls">
+      <button id="toggle-mute-btn" class="audio-btn" type="button" aria-label="Mute or Unmute Audio">SFX: ON</button>
+      <button id="toggle-music-btn" class="audio-btn" type="button" aria-label="Toggle Background Music">BGM: ON</button>
+      <input id="volume-control" class="volume-slider" type="range" min="0" max="1" step="0.05" value="0.75" aria-label="Master Volume" />
+    </div>
+  </header>
 
-/* ===================== MEMORY ===================== */
-function buildMemory() {
-  const grid = document.getElementById("memory-grid");
-  MEMORIES.forEach(mem => {
-    const card = document.createElement("div");
-    card.className = "memory-card";
-    card.innerHTML = `
-      <div class="ph">photo</div>
-      <div>${mem.caption}</div>
-      <div style="color:var(--dim);font-size:0.7rem;margin-top:0.3rem">${mem.date}</div>
-    `;
-    grid.appendChild(card);
-  });
-}
+  <!-- ========================================================================
+       MAIN APPLICATION SHELL
+       ======================================================================== -->
+  <main class="app-shell">
 
-/* ===================== SOUND ROOM ===================== */
-function buildSoundRoom() {
-  const grid = document.getElementById("sound-grid");
-  MEMBERS.forEach(m => {
-    const btn = document.createElement("button");
-    btn.className = "sound-btn";
-    btn.textContent = m.name;
-    btn.addEventListener("click", () => {
-      AudioMgr.play(m.id);
-      // also show dialogue briefly via alert-style bubble if needed
-      const temp = document.createElement("div");
-      temp.style.cssText = "position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--cream);color:#111;padding:0.6rem 1rem;border-radius:4px;z-index:900;font-size:0.85rem;max-width:90%;text-align:center;";
-      temp.textContent = m.dialogue;
-      document.body.appendChild(temp);
-      setTimeout(() => temp.remove(), 2500);
+    <!-- 1. MAIN INTERACTIVE SCENE -->
+    <section id="scene-view" class="view-section active" aria-label="Interactive Compound Scene">
+      <div class="scene-status-bar">
+        <div class="live-ticker">
+          <span class="pulse-dot" aria-hidden="true"></span>
+          <span id="activity-feed">COMPOUND IDLE — CLICK ANY OF THE 9 MEMBERS OR ENVIRONMENT PROPS</span>
+        </div>
+        <div>[CLICK MEMBER: REACT &amp; SPEAK] &bull; [ID BADGE: DOSSIER]</div>
+      </div>
+
+      <div id="compound-viewport" class="compound-viewport">
+        <div id="emergency-banner" class="emergency-overlay" role="alert">
+          EMERGENCY MEETING // ALL 9 PRESENT
+        </div>
+
+        <div class="compound-stage-inner" id="compound-stage">
+          <!-- Illustrated SVG Headquarters Scenery -->
+          <svg class="compound-environment" viewBox="0 0 1400 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs>
+              <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#0d100e" />
+                <stop offset="55%" stop-color="#1b241c" />
+                <stop offset="100%" stop-color="#2c3324" />
+              </linearGradient>
+              <linearGradient id="lampGlow" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#d4a437" stop-opacity="0.55" />
+                <stop offset="100%" stop-color="#d4a437" stop-opacity="0" />
+              </linearGradient>
+              <linearGradient id="groundGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#25281e" />
+                <stop offset="35%" stop-color="#1b1d16" />
+                <stop offset="100%" stop-color="#10120e" />
+              </linearGradient>
+            </defs>
+
+            <!-- Sky -->
+            <rect width="1400" height="440" fill="url(#skyGrad)" />
+
+            <!-- Sickly Moon -->
+            <circle cx="1140" cy="115" r="46" fill="#d8d0b5" opacity="0.82" />
+            <circle cx="1125" cy="105" r="42" fill="#131914" />
+
+            <!-- Drifting Smog / Clouds -->
+            <g class="cloud-drift-1" opacity="0.28" fill="#4b573c">
+              <ellipse cx="260" cy="110" rx="130" ry="24" />
+              <ellipse cx="330" cy="122" rx="95" ry="18" />
+            </g>
+            <g class="cloud-drift-2" opacity="0.22" fill="#5e6850">
+              <ellipse cx="860" cy="90" rx="150" ry="22" />
+              <ellipse cx="940" cy="104" rx="100" ry="16" />
+            </g>
+
+            <!-- Distant Silos & Utility Poles -->
+            <rect x="85" y="190" width="54" height="230" fill="#151915" />
+            <path d="M85 190 Q112 162 139 190 Z" fill="#1a201a" />
+            <rect x="1230" y="170" width="12" height="260" fill="#121512" />
+            <line x1="1205" y1="190" x2="1265" y2="190" stroke="#121512" stroke-width="5" />
+            <line x1="1210" y1="212" x2="1260" y2="212" stroke="#121512" stroke-width="4" />
+
+            <!-- Crooked Power Lines -->
+            <path d="M0 155 Q420 225 820 175 T1400 190" fill="none" stroke="#0c0e0c" stroke-width="2.5" />
+            <path d="M0 172 Q450 245 840 192 T1400 212" fill="none" stroke="#0c0e0c" stroke-width="1.8" />
+
+            <!-- COMMITTEE HQ Concrete & Corrugated Structure -->
+            <g id="hq-building">
+              <!-- Main Concrete Block -->
+              <rect x="330" y="185" width="520" height="255" fill="#23261f" stroke="#10120f" stroke-width="4" />
+              <!-- Slanted Corrugated Rust Roof -->
+              <polygon points="305,190 875,165 885,195 300,212" fill="#483526" stroke="#10120f" stroke-width="4" />
+              <!-- Roof Antenna (Interactive Easter Egg Prop) -->
+              <g id="prop-antenna" class="scene-prop" transform="translate(790, 92)">
+                <line x1="20" y1="76" x2="20" y2="8" stroke="#8d8774" stroke-width="4" />
+                <line x1="4" y1="22" x2="36" y2="14" stroke="#8d8774" stroke-width="3" />
+                <line x1="8" y1="38" x2="32" y2="32" stroke="#8d8774" stroke-width="3" />
+                <circle cx="20" cy="6" r="5" fill="#c95127" />
+              </g>
+
+              <!-- Signboard on HQ -->
+              <rect x="445" y="218" width="290" height="44" fill="#131512" stroke="#4b573c" stroke-width="2" transform="rotate(-1.2 590 240)" />
+              <text x="590" y="246" text-anchor="middle" fill="#e3ddc8" font-family="monospace" font-weight="bold" font-size="20" letter-spacing="4" transform="rotate(-1.2 590 240)">SECTOR // 09</text>
+
+              <!-- Grimy HQ Windows -->
+              <rect x="375" y="280" width="76" height="64" fill="#141813" stroke="#0f110e" stroke-width="3" />
+              <rect x="383" y="288" width="28" height="22" fill="#3a452e" opacity="0.55" />
+              <rect x="725" y="275" width="84" height="64" fill="#141813" stroke="#0f110e" stroke-width="3" />
+              <rect x="765" y="283" width="36" height="48" fill="#5e4722" opacity="0.45" />
+
+              <!-- Heavy Steel Door -->
+              <rect x="545" y="295" width="88" height="145" fill="#2d2118" stroke="#0f110e" stroke-width="4" />
+              <circle cx="618" cy="370" r="5" fill="#d4a437" />
+            </g>
+
+            <!-- Overgrown Trees & Scrub -->
+            <g fill="#162117">
+              <circle cx="175" cy="355" r="78" />
+              <circle cx="235" cy="380" r="62" />
+              <circle cx="1275" cy="365" r="85" />
+              <circle cx="1210" cy="395" r="58" />
+            </g>
+
+            <!-- Compound Ground / Dirt & Cracked Concrete Yard -->
+            <rect x="0" y="432" width="1400" height="288" fill="url(#groundGrad)" />
+            <line x1="0" y1="432" x2="1400" y2="432" stroke="#363d30" stroke-width="3" />
+            <!-- Cracks & Yard Texture -->
+            <path d="M220 520 L310 538 L360 525 M890 560 L980 545 L1060 572 M490 640 L610 628" stroke="#0e100d" stroke-width="3" fill="none" />
+
+            <!-- Interactive Easter Egg Prop: Flickering Streetlamp -->
+            <g id="prop-lamp" class="scene-prop" transform="translate(945, 195)">
+              <polygon class="streetlamp-cone" points="32,38 -85,335 155,335" fill="url(#lampGlow)" />
+              <rect x="26" y="34" width="10" height="260" fill="#151814" />
+              <path d="M12 34 L52 34 L44 20 L20 20 Z" fill="#2b3028" />
+              <ellipse cx="32" cy="38" rx="12" ry="6" fill="#e6be53" />
+            </g>
+
+            <!-- Interactive Easter Egg Prop: Suspicious Rusted Barrel -->
+            <g id="prop-barrel" class="scene-prop" transform="translate(235, 448)">
+              <ellipse cx="34" cy="86" rx="34" ry="9" fill="#090a08" opacity="0.65" />
+              <rect x="6" y="10" width="56" height="76" rx="6" fill="#4d573c" stroke="#10120e" stroke-width="3" />
+              <line x1="6" y1="32" x2="62" y2="32" stroke="#22271c" stroke-width="4" />
+              <line x1="6" y1="62" x2="62" y2="62" stroke="#22271c" stroke-width="4" />
+              <polygon points="34,39 42,53 26,53" fill="#d4a437" />
+            </g>
+
+            <!-- Interactive Easter Egg Prop: Wooden Fish Crate -->
+            <g id="prop-crate" class="scene-prop" transform="translate(1075, 495)">
+              <rect x="0" y="12" width="92" height="54" fill="#483526" stroke="#10120e" stroke-width="3" />
+              <line x1="0" y1="30" x2="92" y2="30" stroke="#261b13" stroke-width="3" />
+              <line x1="0" y1="48" x2="92" y2="48" stroke="#261b13" stroke-width="3" />
+              <path d="M62 12 Q78 -4 94 10 Q78 16 62 12 Z" fill="#8fa199" stroke="#10120e" stroke-width="2" />
+            </g>
+
+            <!-- Foreground Weeds -->
+            <g stroke="#34422b" stroke-width="3" fill="none" stroke-linecap="round">
+              <path d="M65 680 Q58 650 45 642 M65 680 Q72 648 84 638" />
+              <path d="M1310 670 Q1300 638 1288 630 M1310 670 Q1322 642 1335 634" />
+            </g>
+          </svg>
+
+          <!-- All 9 Characters Mount Here -->
+          <div id="characters-layer" class="characters-layer"></div>
+        </div>
+      </div>
+
+      <!-- CHAOS & RANDOM EVENT CONTROLS -->
+      <div class="chaos-deck" aria-label="Chaos and Event Controls">
+        <div class="chaos-label">COMPOUND OVERRIDE //</div>
+        <div class="chaos-buttons">
+          <button id="btn-unleash-chaos" class="chaos-btn chaos-btn--chaos" type="button">Unleash Chaos</button>
+          <button id="btn-emergency" class="chaos-btn chaos-btn--emergency" type="button">Emergency Meeting</button>
+          <button id="btn-random-member" class="chaos-btn chaos-btn--random" type="button">Random Member</button>
+          <button id="btn-random-event" class="chaos-btn chaos-btn--event" type="button">Random Event</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. MEMBERS ROSTER SECTION -->
+    <section id="members-view" class="view-section" aria-label="All Nine Members">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">THE NINE MEMBERS</h2>
+          <p class="section-subtitle">Complete roster. Trigger signature dialogues or inspect editable dossiers.</p>
+        </div>
+      </div>
+      <div id="roster-grid" class="roster-grid"></div>
+    </section>
+
+    <!-- 3. MEMORY WALL SECTION -->
+    <section id="memory-view" class="view-section" aria-label="Memory Wall">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">MEMORY WALL</h2>
+          <p class="section-subtitle">Evidence archive. Add photos, videos, dates, and captions in COMMITTEE_CONFIG.memories.</p>
+        </div>
+      </div>
+      <div id="memory-filters" class="filter-bar"></div>
+      <div id="memory-grid" class="memory-grid"></div>
+    </section>
+
+    <!-- 4. SOUND ROOM SECTION -->
+    <section id="sound-view" class="view-section" aria-label="Sound Room">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">SOUND ROOM</h2>
+          <p class="section-subtitle">9-channel audio board. Plays custom MP3s from assets/sounds/ or built-in synth fallbacks.</p>
+        </div>
+      </div>
+      <div id="soundboard-grid" class="soundboard-grid"></div>
+    </section>
+
+    <!-- 5. ABOUT SECTION -->
+    <section id="about-view" class="view-section" aria-label="About Committee">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">ABOUT // COMMITTEE</h2>
+          <p class="section-subtitle">Editable universe file.</p>
+        </div>
+      </div>
+      <div id="about-content" class="about-dossier"></div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================================
+       CHARACTER PROFILE DOSSIER MODAL
+       ======================================================================== -->
+  <div id="dossier-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="dossier-name">
+    <div class="dossier-modal">
+      <div class="dossier-top">
+        <div>
+          <div class="dossier-field-label" id="dossier-code">FILE // 00</div>
+          <h2 id="dossier-name" class="section-title">MEMBER NAME</h2>
+        </div>
+        <button id="dossier-close-btn" class="dossier-close" type="button" aria-label="Close Dossier">ESC / CLOSE</button>
+      </div>
+      <div class="dossier-grid">
+        <div class="dossier-portrait">
+          <div id="dossier-avatar-slot" style="width:140px;height:165px;"></div>
+          <button id="dossier-sound-btn" class="btn-primary" type="button" style="width:100%;padding:0.55rem;font-size:0.75rem;">
+            Play Audio
+          </button>
+        </div>
+        <div class="dossier-fields">
+          <div>
+            <div class="dossier-field-label">Signature Dialogue</div>
+            <div id="dossier-dialogue" class="dossier-quote"></div>
+          </div>
+          <div>
+            <div class="dossier-field-label">Nickname</div>
+            <div id="dossier-nickname" class="dossier-field-value"></div>
+          </div>
+          <div>
+            <div class="dossier-field-label">Description</div>
+            <div id="dossier-desc" class="dossier-field-value"></div>
+          </div>
+          <div>
+            <div class="dossier-field-label">Personality</div>
+            <div id="dossier-personality" class="dossier-field-value"></div>
+          </div>
+          <div>
+            <div class="dossier-field-label">Special Ability</div>
+            <div id="dossier-ability" class="dossier-field-value"></div>
+          </div>
+          <div>
+            <div class="dossier-field-label">Ridiculous Statistics</div>
+            <div id="dossier-stats"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       CENTRALIZED CONFIGURATION OBJECT (EDIT EVERYTHING HERE)
+       - Exact 9 members & exact verbatim signature dialogues preserved.
+       - Sample profile text & memories are clearly marked [EDITABLE PLACEHOLDER].
+       ========================================================================== */
+    const COMMITTEE_CONFIG = {
+      settings: {
+        backgroundMusicPath: "assets/music/background.mp3",
+        defaultVolume: 0.75,
+        autonomousIntervalMs: 14000,
+        dialogueDurationMs: 4200
+      },
+
+      about: {
+        paragraphs: [
+          "COMMITTEE is a closed-circuit digital compound built for nine specific people and nobody else.",
+          "[EDITABLE PLACEHOLDER] Replace this text in COMMITTEE_CONFIG.about with your own dry summary of what this group is, without turning it into a motivational poster."
+        ],
+        placeholderNotice: "ASSET & TEXT GUIDE: Drop transparent PNGs into assets/characters/<id>.png and MP3s into assets/sounds/<id>.mp3. Edit descriptions, nicknames, stats, and memories directly inside COMMITTEE_CONFIG in index.html."
+      },
+
+      members: [
+        {
+          id: "ragib",
+          name: "Ragib",
+          dialogue: "I love Mamuni",
+          imagePath: "assets/characters/ragib.png",
+          soundPath: "assets/sounds/ragib.mp3",
+          position: { x: 16, y: 82 },
+          zIndex: 24,
+          idleAnim: "idle-dreamy",
+          clickAnim: "react-laugh-float",
+          synthType: "dreamyTremolo",
+          nickname: "[EDITABLE PLACEHOLDER] Nickname",
+          description: "[EDITABLE PLACEHOLDER] Add Ragib's short dossier note here.",
+          personality: "[EDITABLE PLACEHOLDER] Unfazed, locked onto a single fixation.",
+          ability: "[EDITABLE PLACEHOLDER] Immune to distraction once Mamuni is mentioned.",
+          stats: [
+            { label: "[EDITABLE] Focus Lock", value: 99 },
+            { label: "[EDITABLE] Situational Awareness", value: 18 },
+            { label: "[EDITABLE] Unpredictability", value: 74 }
+          ]
+        },
+        {
+          id: "ali",
+          name: "Ali",
+          dialogue: "kanta thake poshchim para, amar shobhab dalali kora",
+          imagePath: "assets/characters/ali.png",
+          soundPath: "assets/sounds/ali.mp3",
+          position: { x: 28, y: 76 },
+          zIndex: 22,
+          idleAnim: "idle-shifty",
+          clickAnim: "react-shady-lean",
+          synthType: "shadySlide",
+          nickname: "[EDITABLE PLACEHOLDER] Nickname",
+          description: "[EDITABLE PLACEHOLDER] Add Ali's short dossier note here.",
+          personality: "[EDITABLE PLACEHOLDER] Always negotiating an angle nobody asked for.",
+          ability: "[EDITABLE PLACEHOLDER] Brokers unnecessary deals in record time.",
+          stats: [
+            { label: "[EDITABLE] Dalali Instinct", value: 96 },
+            { label: "[EDITABLE] Eye Contact Stability", value: 24 },
+            { label: "[EDITABLE] Chaos Escalation", value: 85 }
+          ]
+        },
+        {
+          id: "bipu",
+          name: "Bipu",
+          dialogue: "Ganja khamu, barrel homu",
+          imagePath: "assets/characters/bipu.png",
+          soundPath: "assets/sounds/bipu.mp3",
+          position: { x: 38, y: 89 },
+          zIndex: 28,
+          idleAnim: "idle-heavy",
+          clickAnim: "react-barrel-swell",
+          synthType: "barrelBass",
+          nickname: "[EDITABLE PLACEHOLDER] Nickname",
+          description: "[EDITABLE PLACEHOLDER] Add Bipu's short dossier note here.",
+          personality: "[EDITABLE PLACEHOLDER] Heavy gravity, zero urgency, barrel-shaped ambition.",
+          ability: "[EDITABLE PLACEHOLDER] Expands volume to occupy any available seating.",
+          stats: [
+            { label: "[EDITABLE] Barrel Density", value: 98 },
+            { label: "[EDITABLE] Rush Factor", value: 5 },
+            { label: "[EDITABLE] Smoke Output", value: 91 }
+          ]
+        },
+        {
+          id: "nafi",
+          name: "Nafi",
+          dialogue: "Prem korsu tuk biye korai lagbi boxod.",
+          imagePath: "assets/characters/nafi.png",
+          soundPath: "assets/sounds/nafi.mp3",
+          position: { x: 48, y: 78 },
+          zIndex: 23,
+          idleAnim: "idle-impatient",
+          clickAnim: "react-lunge",
+          synthType: "verdictHorn",
+          nickname: "[EDITABLE PLACEHOLDER] Nickname",
+          description: "[EDITABLE PLACEHOLDER] Add Nafi's short dossier note here.",
+          personality: "[EDITABLE PLACEHOLDER] Self-appointed magistrate of everyone else's bad choices.",
+          ability: "[EDITABLE PLACEHOLDER] Instant unsolicited marriage sentencing.",
+          stats: [
+            { label: "[EDITABLE] Verdict Speed", value: 94 },
+            { label: "[EDITABLE] Mercy", value: 7 },
+            { label: "[EDITABLE] Volume Level", value: 88 }
+          ]
+        },
+        {
+          id: "vaste",
+          name: "Vaste",
+          dialogue: "16 inchi hol, prem korai vul.",
+          imagePath: "assets/characters/vaste.png",
+          soundPath: "assets/sounds/vaste.mp3",
+          position: { x: 58, y: 91 },
+          zIndex: 29,
+          idleAnim: "idle-twitch",
+          clickAnim: "react-tilt",
+          synthType: "deadpanBlip",
+          nickname: "[EDITABLE PLACEHOLDER] Nickname",
+          description: "[EDITABLE PLACEHOLDER] Add Vaste's short dossier note here.",
+          personality: "[EDITABLE PLACEHOLDER] Cold arithmetic, zero romance, severe posture.",
+          ability: "[EDITABLE PLACEHOLDER] Reduces any emotional crisis to raw measurements.",
+          stats: [
+            { label: "[EDITABLE] Cold Logic", value: 95 },
+            { label: "[EDITABLE] Romance Tolerance", value: 2 },
+            { label: "[EDITABLE] Neck Tilt Angle", value: 82 }
+          ]
+        },
+        {
+          id: "sayzid",
+          name: "Sayzid",
+          dialogue: "Dada rui mach hobe rui mach?",
+          imagePath: "assets/characters/sayzid.png",
+          soundPath: "assets/sounds/sayzid.mp3",
+          position: { x: 68, y: 77 },
+          zIndex: 22,
+          idleAnim: "idle-hawker",
+          clickAnim: "react-hawker-jump",
+          synthType: "marketChirp",
+          nickname: "[EDITABLE PLACEHOLDER] Nickname",
+          description: "[EDITABLE PLACEHOLDER] Add Sayzid's short dossier note here.",
+          personality: "[EDITABLE PLACEHOLDER] Treats every quiet room like a wet-market auction.",
+          ability: "[EDITABLE PLACEHOLDER] Materializes rui mach inquiries out of thin air.",
+          stats: [
+            { label: "[EDITABLE] Fish Pitch", value: 97 },
+            { label: "[EDITABLE] Indoor Voice", value: 12 },
+            { label: "[EDITABLE] Hustle", value: 89 }
+          ]
+        },
+        {
+          id: "jahid",
+          name: "Jahid",
+          dialogue: "kire! Hatir hol hoya gesu tui?",
+          imagePath: "assets/characters/jahid.png",
+          soundPath: "assets/sounds/jahid.mp3",
+          position: { x: 78, y: 88 },
+          zIndex: 27,
+          idleAnim: "idle-scan",
+          clickAnim: "react-cackle",
+          synthType: "cackleStaccato",
+          nickname: "[EDITABLE PLACEHOLDER] Nickname",
+          description: "[EDITABLE PLACEHOLDER] Add Jahid's short dossier note here.",
+          personality: "[EDITABLE PLACEHOLDER] Observational menace with zero filter.",
+          ability: "[EDITABLE PLACEHOLDER] Spots structural mutations from fifty paces.",
+          stats: [
+            { label: "[EDITABLE] Roasting Accuracy", value: 93 },
+            { label: "[EDITABLE] Filter", value: 4 },
+            { label: "[EDITABLE] Cackle Decibels", value: 90 }
+          ]
+        },
+        {
+          id: "billal",
+          name: "Billal",
+          dialogue: "kire shuworer bacchara.",
+          imagePath: "assets/characters/billal.png",
+          soundPath: "assets/sounds/billal.mp3",
+          position: { x: 87, y: 79 },
+          zIndex: 24,
+          idleAnim: "idle-grump",
+          clickAnim: "react-bristle",
+          synthType: "grumpGrowl",
+          nickname: "[EDITABLE PLACEHOLDER] Nickname",
+          description: "[EDITABLE PLACEHOLDER] Add Billal's short dossier note here.",
+          personality: "[EDITABLE PLACEHOLDER] Perpetually unimpressed by the other eight.",
+          ability: "[EDITABLE PLACEHOLDER] Instant room-wide hostility greeting.",
+          stats: [
+            { label: "[EDITABLE] Hostility Greeting", value: 99 },
+            { label: "[EDITABLE] Patience", value: 9 },
+            { label: "[EDITABLE] Stance", value: 86 }
+          ]
+        },
+        {
+          id: "anam",
+          name: "Anam",
+          dialogue: "eeeee vaiii. Ekdom kochi mal re.",
+          imagePath: "assets/characters/anam.png",
+          soundPath: "assets/sounds/anam.mp3",
+          position: { x: 93, y: 92 },
+          zIndex: 30,
+          idleAnim: "idle-sneak",
+          clickAnim: "react-wheeze",
+          synthType: "wheezeHigh",
+          nickname: "[EDITABLE PLACEHOLDER] Nickname",
+          description: "[EDITABLE PLACEHOLDER] Add Anam's short dossier note here.",
+          personality: "[EDITABLE PLACEHOLDER] High-pitched chaos commentary from the corner.",
+          ability: "[EDITABLE PLACEHOLDER] Ultrasonic wheeze-laugh that destabilizes meetings.",
+          stats: [
+            { label: "[EDITABLE] Pitch Frequency", value: 98 },
+            { label: "[EDITABLE] Restraint", value: 6 },
+            { label: "[EDITABLE] Wheeze Duration", value: 92 }
+          ]
+        }
+      ],
+
+      memories: [
+        {
+          id: "mem-01",
+          title: "[EDITABLE PLACEHOLDER] Archive Entry 01",
+          date: "[EDITABLE DATE]",
+          category: "INCIDENTS",
+          mediaType: "placeholder",
+          mediaPath: "assets/memories/sample1.jpg",
+          caption: "[EDITABLE PLACEHOLDER] Add real photo/video path in COMMITTEE_CONFIG.memories."
+        },
+        {
+          id: "mem-02",
+          title: "[EDITABLE PLACEHOLDER] Archive Entry 02",
+          date: "[EDITABLE DATE]",
+          category: "GATHERINGS",
+          mediaType: "placeholder",
+          mediaPath: "assets/memories/sample2.jpg",
+          caption: "[EDITABLE PLACEHOLDER] Replace with your actual group photo and date."
+        },
+        {
+          id: "mem-03",
+          title: "[EDITABLE PLACEHOLDER] Archive Entry 03",
+          date: "[EDITABLE DATE]",
+          category: "EVIDENCE",
+          mediaType: "placeholder",
+          mediaPath: "assets/memories/sample3.mp4",
+          caption: "[EDITABLE PLACEHOLDER] Supports .jpg, .png, .webp, or .mp4 files."
+        }
+      ]
+    };
+
+    /* ==========================================================================
+       CUSTOM HANDCRAFTED SVG AVATAR GENERATOR (9 DISTINCT CHARACTER RIGS)
+       - Used automatically whenever assets/characters/<id>.png is not present.
+       - Built with separate head, eyelids (for blinking), pupils, closed/laughing
+         mouths, torso, and arms so every member animates uniquely.
+       ========================================================================== */
+    function buildCharacterSVG(memberId) {
+      const rigs = {
+        ragib: `
+          <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
+            <g class="char-torso">
+              <!-- Slouchy Olive Hoodie -->
+              <path d="M36 96 Q70 84 104 96 L112 162 L28 162 Z" fill="#4b573c" stroke="#0d0f0c" stroke-width="3"/>
+              <path d="M54 96 L70 116 L86 96" fill="none" stroke="#1b2217" stroke-width="3"/>
+              <line x1="62" y1="106" x2="62" y2="128" stroke="#e3ddc8" stroke-width="2"/>
+              <line x1="78" y1="106" x2="78" y2="128" stroke="#e3ddc8" stroke-width="2"/>
+            </g>
+            <g class="char-arm-l" style="transform-origin:36px 102px">
+              <path d="M36 100 Q20 126 32 150" fill="none" stroke="#4b573c" stroke-width="13" stroke-linecap="round"/>
+              <path d="M36 100 Q20 126 32 150" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-arm-r" style="transform-origin:104px 102px">
+              <path d="M104 100 Q120 126 108 150" fill="none" stroke="#4b573c" stroke-width="13" stroke-linecap="round"/>
+              <path d="M104 100 Q120 126 108 150" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-head">
+              <!-- Head -->
+              <rect x="44" y="34" width="52" height="58" rx="22" fill="#cfa684" stroke="#0d0f0c" stroke-width="3"/>
+              <!-- Messy Wavy Hair -->
+              <path d="M40 52 Q42 20 72 22 Q102 22 100 52 Q92 38 78 42 Q64 34 50 43 Z" fill="#171614" stroke="#0d0f0c" stroke-width="2.5"/>
+              <!-- Dazed Half-Lidded Eyes -->
+              <g class="char-eyes">
+                <ellipse cx="58" cy="58" rx="6.5" ry="5.5" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <ellipse cx="82" cy="58" rx="6.5" ry="5.5" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <g class="char-pupils">
+                  <circle cx="58" cy="59" r="2.6" fill="#0d0f0c"/>
+                  <circle cx="82" cy="59" r="2.6" fill="#0d0f0c"/>
+                </g>
+                <path d="M51 56 L65 57 M75 57 L89 56" stroke="#0d0f0c" stroke-width="2.5"/>
+                <g class="char-eyelids">
+                  <rect x="50" y="51" width="16" height="14" rx="4" fill="#cfa684" stroke="#0d0f0c" stroke-width="2"/>
+                  <rect x="74" y="51" width="16" height="14" rx="4" fill="#cfa684" stroke="#0d0f0c" stroke-width="2"/>
+                </g>
+              </g>
+              <!-- Dreamily Crooked Smirk & Laugh Mouth -->
+              <path class="char-mouth-closed" d="M60 76 Q71 82 81 74" fill="none" stroke="#0d0f0c" stroke-width="2.8" stroke-linecap="round"/>
+              <path class="char-mouth-laugh" opacity="0" d="M58 72 Q70 72 82 72 Q80 87 70 87 Q60 87 58 72 Z" fill="#2b1212" stroke="#0d0f0c" stroke-width="2.2"/>
+            </g>
+          </svg>`,
+
+        ali: `
+          <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
+            <g class="char-torso">
+              <!-- High-Collar Rust Jacket -->
+              <path d="M38 94 L70 88 L102 94 L108 162 L32 162 Z" fill="#c95127" stroke="#0d0f0c" stroke-width="3"/>
+              <polygon points="52,90 70,114 88,90 82,82 58,82" fill="#1e221c" stroke="#0d0f0c" stroke-width="2.5"/>
+              <line x1="70" y1="114" x2="70" y2="162" stroke="#0d0f0c" stroke-width="3"/>
+            </g>
+            <g class="char-arm-l" style="transform-origin:38px 100px">
+              <path d="M38 100 L28 134 L54 138" fill="none" stroke="#c95127" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M38 100 L28 134 L54 138" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            <g class="char-arm-r" style="transform-origin:102px 100px">
+              <path d="M102 100 L112 134 L86 138" fill="none" stroke="#c95127" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M102 100 L112 134 L86 138" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            <g class="char-head">
+              <!-- Angular Broker Jaw -->
+              <polygon points="46,34 94,34 90,82 70,92 50,82" fill="#c49773" stroke="#0d0f0c" stroke-width="3"/>
+              <!-- Slicked Sharp Hair -->
+              <path d="M44 44 L48 22 L92 26 L96 44 L76 34 Z" fill="#141413" stroke="#0d0f0c" stroke-width="2.5"/>
+              <!-- Shifty Narrow Eyes -->
+              <g class="char-eyes">
+                <rect x="52" y="52" width="13" height="8" rx="2" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <rect x="75" y="52" width="13" height="8" rx="2" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <g class="char-pupils">
+                  <circle cx="59" cy="56" r="2.5" fill="#0d0f0c"/>
+                  <circle cx="82" cy="56" r="2.5" fill="#0d0f0c"/>
+                </g>
+                <path d="M50 48 L66 50 M74 50 L90 48" stroke="#0d0f0c" stroke-width="2.5"/>
+                <g class="char-eyelids">
+                  <rect x="50" y="50" width="16" height="12" fill="#c49773" stroke="#0d0f0c" stroke-width="2"/>
+                  <rect x="74" y="50" width="16" height="12" fill="#c49773" stroke="#0d0f0c" stroke-width="2"/>
+                </g>
+              </g>
+              <!-- Thin Mustache & Scheming Grin -->
+              <path d="M58 70 Q70 67 82 70" stroke="#141413" stroke-width="2.2" fill="none"/>
+              <path class="char-mouth-closed" d="M56 76 L84 74" stroke="#0d0f0c" stroke-width="2.6" stroke-linecap="round"/>
+              <path class="char-mouth-laugh" opacity="0" d="M56 73 L84 73 L80 84 L60 84 Z" fill="#2b1212" stroke="#0d0f0c" stroke-width="2"/>
+            </g>
+          </svg>`,
+
+        bipu: `
+          <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
+            <g class="char-torso">
+              <!-- Wide Barrel Torso -->
+              <ellipse cx="70" cy="128" rx="48" ry="38" fill="#2d3827" stroke="#0d0f0c" stroke-width="3.5"/>
+              <path d="M25 118 Q70 126 115 118" fill="none" stroke="#171d14" stroke-width="3"/>
+              <path d="M26 138 Q70 146 114 138" fill="none" stroke="#171d14" stroke-width="3"/>
+            </g>
+            <g class="char-arm-l" style="transform-origin:26px 112px">
+              <path d="M26 112 Q10 132 22 152" fill="none" stroke="#2d3827" stroke-width="14" stroke-linecap="round"/>
+              <path d="M26 112 Q10 132 22 152" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-arm-r" style="transform-origin:114px 112px">
+              <path d="M114 112 Q130 132 118 152" fill="none" stroke="#2d3827" stroke-width="14" stroke-linecap="round"/>
+              <path d="M114 112 Q130 132 118 152" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-head">
+              <!-- Round Heavy Head -->
+              <circle cx="70" cy="64" r="30" fill="#be916e" stroke="#0d0f0c" stroke-width="3"/>
+              <!-- Knit Beanie -->
+              <path d="M40 56 Q42 26 70 26 Q98 26 100 56 Z" fill="#483526" stroke="#0d0f0c" stroke-width="3"/>
+              <rect x="39" y="48" width="62" height="10" rx="4" fill="#634833" stroke="#0d0f0c" stroke-width="2.5"/>
+              <!-- Heavy Droopy Eyes -->
+              <g class="char-eyes">
+                <circle cx="58" cy="65" r="6" fill="#e6dcc8" stroke="#0d0f0c" stroke-width="2"/>
+                <circle cx="82" cy="65" r="6" fill="#e6dcc8" stroke="#0d0f0c" stroke-width="2"/>
+                <g class="char-pupils">
+                  <circle cx="58" cy="66" r="2.5" fill="#0d0f0c"/>
+                  <circle cx="82" cy="66" r="2.5" fill="#0d0f0c"/>
+                </g>
+                <line x1="51" y1="62" x2="65" y2="64" stroke="#0d0f0c" stroke-width="3"/>
+                <line x1="75" y1="64" x2="89" y2="62" stroke="#0d0f0c" stroke-width="3"/>
+                <g class="char-eyelids">
+                  <circle cx="58" cy="65" r="6.5" fill="#be916e" stroke="#0d0f0c" stroke-width="2"/>
+                  <circle cx="82" cy="65" r="6.5" fill="#be916e" stroke="#0d0f0c" stroke-width="2"/>
+                </g>
+              </g>
+              <!-- Mouth -->
+              <path class="char-mouth-closed" d="M61 81 Q70 78 79 81" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+              <ellipse class="char-mouth-laugh" opacity="0" cx="70" cy="82" rx="11" ry="8" fill="#2b1212" stroke="#0d0f0c" stroke-width="2.5"/>
+            </g>
+          </svg>`,
+
+        nafi: `
+          <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
+            <g class="char-torso">
+              <!-- Buttoned Dark Coat -->
+              <path d="M40 94 L100 94 L106 162 L34 162 Z" fill="#232620" stroke="#0d0f0c" stroke-width="3"/>
+              <polygon points="62,94 70,118 78,94" fill="#e3ddc8" stroke="#0d0f0c" stroke-width="2"/>
+              <polygon points="68,98 72,98 74,132 70,138 66,132" fill="#c95127"/>
+            </g>
+            <g class="char-arm-l" style="transform-origin:40px 100px">
+              <path d="M40 100 L26 138" fill="none" stroke="#232620" stroke-width="12" stroke-linecap="round"/>
+              <path d="M40 100 L26 138" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-arm-r" style="transform-origin:100px 100px">
+              <path d="M100 100 L118 128" fill="none" stroke="#232620" stroke-width="12" stroke-linecap="round"/>
+              <path d="M100 100 L118 128" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-head">
+              <rect x="46" y="32" width="48" height="58" rx="16" fill="#cca07c" stroke="#0d0f0c" stroke-width="3"/>
+              <!-- Spiky Crop Hair -->
+              <polygon points="44,44 48,22 58,32 68,18 78,31 90,20 96,44" fill="#141413" stroke="#0d0f0c" stroke-width="2.5"/>
+              <!-- Stern Magistrate Eyes -->
+              <g class="char-eyes">
+                <circle cx="58" cy="56" r="6" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <circle cx="82" cy="56" r="6" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <g class="char-pupils">
+                  <circle cx="58" cy="56" r="2.7" fill="#0d0f0c"/>
+                  <circle cx="82" cy="56" r="2.7" fill="#0d0f0c"/>
+                </g>
+                <!-- Angry V-Brows -->
+                <path d="M50 46 L65 52 M90 46 L75 52" stroke="#0d0f0c" stroke-width="3.2" stroke-linecap="round"/>
+                <g class="char-eyelids">
+                  <rect x="50" y="49" width="16" height="14" fill="#cca07c" stroke="#0d0f0c" stroke-width="2"/>
+                  <rect x="74" y="49" width="16" height="14" fill="#cca07c" stroke="#0d0f0c" stroke-width="2"/>
+                </g>
+              </g>
+              <path class="char-mouth-closed" d="M58 77 Q70 71 82 77" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+              <path class="char-mouth-laugh" opacity="0" d="M57 73 L83 73 L79 85 L61 85 Z" fill="#2b1212" stroke="#0d0f0c" stroke-width="2.2"/>
+            </g>
+          </svg>`,
+
+        vaste: `
+          <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
+            <g class="char-torso">
+              <!-- Tall Narrow Striped Sweater -->
+              <rect x="44" y="92" width="52" height="70" rx="6" fill="#3a452e" stroke="#0d0f0c" stroke-width="3"/>
+              <line x1="44" y1="112" x2="96" y2="112" stroke="#d4a437" stroke-width="4"/>
+              <line x1="44" y1="132" x2="96" y2="132" stroke="#181d13" stroke-width="4"/>
+            </g>
+            <g class="char-arm-l" style="transform-origin:44px 98px">
+              <path d="M44 98 L34 150" fill="none" stroke="#3a452e" stroke-width="11" stroke-linecap="round"/>
+              <path d="M44 98 L34 150" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-arm-r" style="transform-origin:96px 98px">
+              <path d="M96 98 L106 150" fill="none" stroke="#3a452e" stroke-width="11" stroke-linecap="round"/>
+              <path d="M96 98 L106 150" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-head">
+              <!-- Elongated Deadpan Head -->
+              <rect x="48" y="26" width="44" height="64" rx="18" fill="#c79b78" stroke="#0d0f0c" stroke-width="3"/>
+              <!-- Flat Bowl-Cut / Fringe -->
+              <path d="M46 44 Q46 20 70 20 Q94 20 94 44 L46 44 Z" fill="#181715" stroke="#0d0f0c" stroke-width="2.5"/>
+              <!-- Blank Stare Eyes -->
+              <g class="char-eyes">
+                <circle cx="59" cy="56" r="6.5" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <circle cx="81" cy="56" r="6.5" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <g class="char-pupils">
+                  <circle cx="59" cy="56" r="2" fill="#0d0f0c"/>
+                  <circle cx="81" cy="56" r="2" fill="#0d0f0c"/>
+                </g>
+                <g class="char-eyelids">
+                  <rect x="51" y="49" width="16" height="14" fill="#c79b78" stroke="#0d0f0c" stroke-width="2"/>
+                  <rect x="73" y="49" width="16" height="14" fill="#c79b78" stroke="#0d0f0c" stroke-width="2"/>
+                </g>
+              </g>
+              <!-- Completely Flat Line Mouth -->
+              <line class="char-mouth-closed" x1="59" y1="77" x2="81" y2="77" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+              <rect class="char-mouth-laugh" opacity="0" x="60" y="73" width="20" height="9" rx="2" fill="#2b1212" stroke="#0d0f0c" stroke-width="2"/>
+            </g>
+          </svg>`,
+
+        sayzid: `
+          <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
+            <g class="char-torso">
+              <!-- Market Vest over Dirty Cream Shirt -->
+              <path d="M38 94 L102 94 L106 162 L34 162 Z" fill="#d8d1bc" stroke="#0d0f0c" stroke-width="3"/>
+              <path d="M38 94 L56 94 L56 162 L34 162 Z" fill="#483526" stroke="#0d0f0c" stroke-width="2.5"/>
+              <path d="M84 94 L102 94 L106 162 L84 162 Z" fill="#483526" stroke="#0d0f0c" stroke-width="2.5"/>
+            </g>
+            <g class="char-arm-l" style="transform-origin:38px 100px">
+              <path d="M38 100 L18 118" fill="none" stroke="#d8d1bc" stroke-width="11" stroke-linecap="round"/>
+              <path d="M38 100 L18 118" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-arm-r" style="transform-origin:102px 100px">
+              <path d="M102 100 L118 134" fill="none" stroke="#d8d1bc" stroke-width="11" stroke-linecap="round"/>
+              <path d="M102 100 L118 134" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-head">
+              <circle cx="70" cy="60" r="27" fill="#cfa37e" stroke="#0d0f0c" stroke-width="3"/>
+              <!-- Curly Puff Hair -->
+              <path d="M42 52 Q40 24 70 24 Q100 24 98 52 Q88 38 70 40 Q52 38 42 52 Z" fill="#171614" stroke="#0d0f0c" stroke-width="2.5"/>
+              <!-- Wide Hawker Eyes -->
+              <g class="char-eyes">
+                <circle cx="59" cy="58" r="7" fill="#f7f4ea" stroke="#0d0f0c" stroke-width="2.2"/>
+                <circle cx="81" cy="58" r="7" fill="#f7f4ea" stroke="#0d0f0c" stroke-width="2.2"/>
+                <g class="char-pupils">
+                  <circle cx="60" cy="58" r="2.8" fill="#0d0f0c"/>
+                  <circle cx="82" cy="58" r="2.8" fill="#0d0f0c"/>
+                </g>
+                <path d="M51 48 Q59 44 66 48 M74 48 Q81 44 89 48" fill="none" stroke="#0d0f0c" stroke-width="2.2"/>
+                <g class="char-eyelids">
+                  <circle cx="59" cy="58" r="7.5" fill="#cfa37e" stroke="#0d0f0c" stroke-width="2"/>
+                  <circle cx="81" cy="58" r="7.5" fill="#cfa37e" stroke="#0d0f0c" stroke-width="2"/>
+                </g>
+              </g>
+              <path class="char-mouth-closed" d="M58 74 Q70 83 82 74" fill="none" stroke="#0d0f0c" stroke-width="2.8" stroke-linecap="round"/>
+              <path class="char-mouth-laugh" opacity="0" d="M56 71 Q70 71 84 71 Q82 86 70 86 Q58 86 56 71 Z" fill="#2b1212" stroke="#0d0f0c" stroke-width="2.2"/>
+            </g>
+          </svg>`,
+
+        jahid: `
+          <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
+            <g class="char-torso">
+              <!-- Broad Olive-Brown Jacket -->
+              <path d="M32 94 L108 94 L112 162 L28 162 Z" fill="#4f543b" stroke="#0d0f0c" stroke-width="3.2"/>
+              <path d="M54 94 L70 124 L86 94" fill="#1b1e18" stroke="#0d0f0c" stroke-width="2.5"/>
+            </g>
+            <g class="char-arm-l" style="transform-origin:34px 102px">
+              <path d="M34 102 L58 128" fill="none" stroke="#4f543b" stroke-width="13" stroke-linecap="round"/>
+              <path d="M34 102 L58 128" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-arm-r" style="transform-origin:106px 102px">
+              <path d="M106 102 L82 128" fill="none" stroke="#4f543b" stroke-width="13" stroke-linecap="round"/>
+              <path d="M106 102 L82 128" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-head">
+              <rect x="44" y="30" width="52" height="60" rx="20" fill="#c59774" stroke="#0d0f0c" stroke-width="3"/>
+              <!-- Side-Parted Hair -->
+              <path d="M42 48 Q44 20 74 20 Q98 22 98 46 Q82 32 56 36 Z" fill="#151412" stroke="#0d0f0c" stroke-width="2.5"/>
+              <!-- Sharp Amused Eyes -->
+              <g class="char-eyes">
+                <ellipse cx="58" cy="56" rx="6.5" ry="5" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <ellipse cx="82" cy="56" rx="6.5" ry="5" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <g class="char-pupils">
+                  <circle cx="58" cy="56" r="2.6" fill="#0d0f0c"/>
+                  <circle cx="82" cy="56" r="2.6" fill="#0d0f0c"/>
+                </g>
+                <path d="M50 49 L65 51 M75 51 L90 48" stroke="#0d0f0c" stroke-width="2.6"/>
+                <g class="char-eyelids">
+                  <rect x="50" y="50" width="16" height="12" fill="#c59774" stroke="#0d0f0c" stroke-width="2"/>
+                  <rect x="74" y="50" width="16" height="12" fill="#c59774" stroke="#0d0f0c" stroke-width="2"/>
+                </g>
+              </g>
+              <!-- Wide Cackle Grin -->
+              <path class="char-mouth-closed" d="M55 74 Q70 84 85 72" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+              <path class="char-mouth-laugh" opacity="0" d="M53 70 Q70 72 87 69 Q84 88 70 88 Q56 88 53 70 Z" fill="#2b1212" stroke="#0d0f0c" stroke-width="2.4"/>
+            </g>
+          </svg>`,
+
+        billal: `
+          <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
+            <g class="char-torso">
+              <!-- Stocky Charcoal Track Top -->
+              <path d="M34 94 L106 94 L110 162 L30 162 Z" fill="#1e211d" stroke="#0d0f0c" stroke-width="3.2"/>
+              <line x1="36" y1="106" x2="104" y2="106" stroke="#c95127" stroke-width="4"/>
+            </g>
+            <g class="char-arm-l" style="transform-origin:34px 100px">
+              <path d="M34 100 L22 142" fill="none" stroke="#1e211d" stroke-width="13" stroke-linecap="round"/>
+              <path d="M34 100 L22 142" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-arm-r" style="transform-origin:106px 100px">
+              <path d="M106 100 L118 142" fill="none" stroke="#1e211d" stroke-width="13" stroke-linecap="round"/>
+              <path d="M106 100 L118 142" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-head">
+              <!-- Square Jaw Head -->
+              <rect x="44" y="34" width="52" height="56" rx="12" fill="#c2936f" stroke="#0d0f0c" stroke-width="3"/>
+              <!-- Buzz Cut -->
+              <path d="M44 44 Q44 26 70 26 Q96 26 96 44 L92 38 L48 38 Z" fill="#141413" stroke="#0d0f0c" stroke-width="2.5"/>
+              <!-- Heavy Scowl Eyes -->
+              <g class="char-eyes">
+                <circle cx="58" cy="57" r="5.8" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <circle cx="82" cy="57" r="5.8" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <g class="char-pupils">
+                  <circle cx="57" cy="57" r="2.6" fill="#0d0f0c"/>
+                  <circle cx="81" cy="57" r="2.6" fill="#0d0f0c"/>
+                </g>
+                <path d="M49 48 L66 53 M91 48 L74 53" stroke="#0d0f0c" stroke-width="3.5" stroke-linecap="round"/>
+                <g class="char-eyelids">
+                  <rect x="50" y="50" width="16" height="14" fill="#c2936f" stroke="#0d0f0c" stroke-width="2"/>
+                  <rect x="74" y="50" width="16" height="14" fill="#c2936f" stroke="#0d0f0c" stroke-width="2"/>
+                </g>
+              </g>
+              <!-- Jagged Scowl Mouth -->
+              <path class="char-mouth-closed" d="M56 79 L65 75 L75 78 L84 74" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+              <path class="char-mouth-laugh" opacity="0" d="M55 73 L85 73 L82 86 L58 86 Z" fill="#2b1212" stroke="#0d0f0c" stroke-width="2.4"/>
+            </g>
+          </svg>`,
+
+        anam: `
+          <svg class="char-svg" viewBox="0 0 140 175" aria-hidden="true">
+            <g class="char-torso">
+              <!-- Mustard-Sulfur Oversized Tee -->
+              <path d="M38 96 L102 96 L108 162 L32 162 Z" fill="#b88c28" stroke="#0d0f0c" stroke-width="3"/>
+              <path d="M56 96 Q70 108 84 96" fill="none" stroke="#0d0f0c" stroke-width="2.5"/>
+            </g>
+            <g class="char-arm-l" style="transform-origin:38px 102px">
+              <path d="M38 102 L24 136" fill="none" stroke="#b88c28" stroke-width="11" stroke-linecap="round"/>
+              <path d="M38 102 L24 136" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-arm-r" style="transform-origin:102px 102px">
+              <path d="M102 102 L116 136" fill="none" stroke="#b88c28" stroke-width="11" stroke-linecap="round"/>
+              <path d="M102 102 L116 136" fill="none" stroke="#0d0f0c" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="char-head">
+              <ellipse cx="70" cy="60" rx="25" ry="29" fill="#d1a682" stroke="#0d0f0c" stroke-width="3"/>
+              <!-- Tousled Fringe Hair -->
+              <path d="M44 50 Q46 22 72 22 Q96 24 96 50 L84 38 L70 44 L56 37 Z" fill="#171614" stroke="#0d0f0c" stroke-width="2.5"/>
+              <!-- Mischievous Squint Eyes -->
+              <g class="char-eyes">
+                <ellipse cx="59" cy="57" rx="6" ry="5.5" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <ellipse cx="81" cy="57" rx="6" ry="5.5" fill="#f2eee2" stroke="#0d0f0c" stroke-width="2"/>
+                <g class="char-pupils">
+                  <circle cx="60" cy="57" r="2.5" fill="#0d0f0c"/>
+                  <circle cx="82" cy="57" r="2.5" fill="#0d0f0c"/>
+                </g>
+                <path d="M51 50 Q59 46 66 51 M74 51 Q81 46 89 50" fill="none" stroke="#0d0f0c" stroke-width="2.4"/>
+                <g class="char-eyelids">
+                  <rect x="51" y="50" width="16" height="14" fill="#d1a682" stroke="#0d0f0c" stroke-width="2"/>
+                  <rect x="73" y="50" width="16" height="14" fill="#d1a682" stroke="#0d0f0c" stroke-width="2"/>
+                </g>
+              </g>
+              <!-- Wheeze Smirk & Laugh -->
+              <path class="char-mouth-closed" d="M58 75 Q70 84 82 73" fill="none" stroke="#0d0f0c" stroke-width="2.8" stroke-linecap="round"/>
+              <path class="char-mouth-laugh" opacity="0" d="M56 71 Q70 74 84 70 Q80 87 70 87 Q60 87 56 71 Z" fill="#2b1212" stroke="#0d0f0c" stroke-width="2.2"/>
+            </g>
+          </svg>`
+      };
+
+      return rigs[memberId] || rigs.ragib;
+    }
+
+    /* ==========================================================================
+       CENTRALIZED AUDIO MANAGER
+       - Plays real MP3s when placed in assets/sounds/ and assets/music/.
+       - Automatically synthesizes unique Web Audio effects & dark ambient drone
+         when MP3 files are not yet uploaded, preventing errors or silence.
+       ========================================================================== */
+    class CommitteeAudioManager {
+      constructor() {
+        this.ctx = null;
+        this.masterGain = null;
+        this.isMuted = false;
+        this.musicEnabled = true;
+        this.volume = COMMITTEE_CONFIG.settings.defaultVolume;
+        this.activeSfxAudio = null;
+        this.bgmAudio = null;
+        this.droneNodes = null;
+        this.unlocked = false;
+      }
+
+      unlock(startWithSound = true) {
+        this.isMuted = !startWithSound;
+        this.musicEnabled = startWithSound;
+
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) {
+            this.ctx = new AudioCtx();
+            this.masterGain = this.ctx.createGain();
+            this.masterGain.gain.value = this.isMuted ? 0 : this.volume;
+            this.masterGain.connect(this.ctx.destination);
+          }
+        }
+
+        if (this.ctx && this.ctx.state === "suspended") {
+          this.ctx.resume();
+        }
+
+        this.unlocked = true;
+        this.updateControlsUI();
+
+        if (this.musicEnabled && !this.isMuted) {
+          this.startMusic();
+        }
+      }
+
+      setVolume(val) {
+        this.volume = Math.max(0, Math.min(1, parseFloat(val)));
+        if (this.masterGain && this.ctx) {
+          this.masterGain.gain.setTargetAtTime(this.isMuted ? 0 : this.volume, this.ctx.currentTime, 0.03);
+        }
+        if (this.bgmAudio) {
+          this.bgmAudio.volume = this.isMuted ? 0 : this.volume * 0.35;
+        }
+        if (this.activeSfxAudio) {
+          this.activeSfxAudio.volume = this.isMuted ? 0 : this.volume;
+        }
+      }
+
+      toggleMute() {
+        this.isMuted = !this.isMuted;
+        this.setVolume(this.volume);
+        if (this.isMuted) {
+          this.stopAllSfx();
+        }
+        this.updateControlsUI();
+      }
+
+      toggleMusic() {
+        this.musicEnabled = !this.musicEnabled;
+        if (this.musicEnabled && !this.isMuted) {
+          this.startMusic();
+        } else {
+          this.stopMusic();
+        }
+        this.updateControlsUI();
+      }
+
+      updateControlsUI() {
+        const muteBtn = document.getElementById("toggle-mute-btn");
+        const musicBtn = document.getElementById("toggle-music-btn");
+        if (muteBtn) {
+          muteBtn.textContent = this.isMuted ? "SFX: MUTED" : "SFX: ON";
+          muteBtn.classList.toggle("is-muted", this.isMuted);
+        }
+        if (musicBtn) {
+          musicBtn.textContent = this.musicEnabled ? "BGM: ON" : "BGM: OFF";
+          musicBtn.classList.toggle("is-stopped", !this.musicEnabled);
+        }
+      }
+
+      startMusic() {
+        if (this.isMuted || !this.musicEnabled) return;
+
+        // Try loading user-provided background.mp3 first
+        if (!this.bgmAudio) {
+          const audio = new Audio(COMMITTEE_CONFIG.settings.backgroundMusicPath);
+          audio.loop = true;
+          audio.volume = this.volume * 0.35;
+          audio.addEventListener("error", () => {
+            // File not uploaded yet -> start procedural dark compound ambient drone
+            this.bgmAudio = null;
+            this.startAmbientDrone();
+          }, { once: true });
+
+          audio.play().then(() => {
+            this.bgmAudio = audio;
+          }).catch(() => {
+            this.bgmAudio = null;
+            this.startAmbientDrone();
+          });
+        } else {
+          this.bgmAudio.play().catch(() => {});
+        }
+      }
+
+      stopMusic() {
+        if (this.bgmAudio) {
+          this.bgmAudio.pause();
+        }
+        this.stopAmbientDrone();
+      }
+
+      startAmbientDrone() {
+        if (!this.ctx || this.droneNodes || this.isMuted || !this.musicEnabled) return;
+        const now = this.ctx.currentTime;
+        const osc1 = this.ctx.createOscillator();
+        const osc2 = this.ctx.createOscillator();
+        const filter = this.ctx.createBiquadFilter();
+        const droneGain = this.ctx.createGain();
+
+        osc1.type = "sawtooth";
+        osc1.frequency.setValueAtTime(55, now); // Low A1
+        osc2.type = "triangle";
+        osc2.frequency.setValueAtTime(82.41, now); // E2
+
+        filter.type = "lowpass";
+        filter.frequency.setValueAtTime(165, now);
+
+        droneGain.gain.setValueAtTime(0.06, now);
+
+        osc1.connect(filter);
+        osc2.connect(filter);
+        filter.connect(droneGain);
+        droneGain.connect(this.masterGain);
+
+        osc1.start();
+        osc2.start();
+        this.droneNodes = { osc1, osc2, droneGain };
+      }
+
+      stopAmbientDrone() {
+        if (this.droneNodes) {
+          try {
+            this.droneNodes.osc1.stop();
+            this.droneNodes.osc2.stop();
+          } catch (_) {}
+          this.droneNodes = null;
+        }
+      }
+
+      stopAllSfx() {
+        if (this.activeSfxAudio) {
+          try {
+            this.activeSfxAudio.pause();
+            this.activeSfxAudio.currentTime = 0;
+          } catch (_) {}
+          this.activeSfxAudio = null;
+        }
+      }
+
+      playMemberSound(member, onEnded) {
+        if (this.isMuted) {
+          if (onEnded) setTimeout(onEnded, 550);
+          return;
+        }
+        if (!this.unlocked) this.unlock(true);
+
+        // Prevent unwanted overlapping SFX
+        this.stopAllSfx();
+
+        const audio = new Audio(member.soundPath);
+        audio.volume = this.volume;
+        this.activeSfxAudio = audio;
+
+        let settled = false;
+        const finish = () => {
+          if (settled) return;
+          settled = true;
+          if (this.activeSfxAudio === audio) this.activeSfxAudio = null;
+          if (onEnded) onEnded();
+        };
+
+        audio.addEventListener("ended", finish, { once: true });
+        audio.addEventListener("error", () => {
+          // Fallback to synthesized signature sound if MP3 not uploaded
+          this.activeSfxAudio = null;
+          this.playSynthSignature(member.synthType);
+          setTimeout(finish, 600);
+        }, { once: true });
+
+        audio.play().catch(() => {
+          this.activeSfxAudio = null;
+          this.playSynthSignature(member.synthType);
+          setTimeout(finish, 600);
+        });
+      }
+
+      playSynthSignature(type) {
+        if (!this.ctx || this.isMuted) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+
+        switch (type) {
+          case "dreamyTremolo":
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(340, now);
+            osc.frequency.linearRampToValueAtTime(510, now + 0.25);
+            osc.frequency.linearRampToValueAtTime(420, now + 0.5);
+            gain.gain.setValueAtTime(0.22, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+            osc.start(now);
+            osc.stop(now + 0.56);
+            break;
+
+          case "shadySlide":
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(220, now);
+            osc.frequency.exponentialRampToValueAtTime(490, now + 0.18);
+            osc.frequency.exponentialRampToValueAtTime(190, now + 0.42);
+            gain.gain.setValueAtTime(0.25, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+            osc.start(now);
+            osc.stop(now + 0.46);
+            break;
+
+          case "barrelBass":
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(145, now);
+            osc.frequency.exponentialRampToValueAtTime(46, now + 0.48);
+            gain.gain.setValueAtTime(0.38, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.52);
+            osc.start(now);
+            osc.stop(now + 0.53);
+            break;
+
+          case "verdictHorn":
+            osc.type = "sawtooth";
+            osc.frequency.setValueAtTime(196, now);
+            osc.frequency.setValueAtTime(164.8, now + 0.2);
+            gain.gain.setValueAtTime(0.22, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.48);
+            osc.start(now);
+            osc.stop(now + 0.5);
+            break;
+
+          case "deadpanBlip":
+            osc.type = "square";
+            osc.frequency.setValueAtTime(260, now);
+            osc.frequency.setValueAtTime(260, now + 0.22);
+            gain.gain.setValueAtTime(0.14, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.34);
+            osc.start(now);
+            osc.stop(now + 0.35);
+            break;
+
+          case "marketChirp":
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(390, now);
+            osc.frequency.setValueAtTime(520, now + 0.12);
+            osc.frequency.setValueAtTime(660, now + 0.24);
+            gain.gain.setValueAtTime(0.24, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+            osc.start(now);
+            osc.stop(now + 0.44);
+            break;
+
+          case "cackleStaccato":
+            osc.type = "sawtooth";
+            osc.frequency.setValueAtTime(320, now);
+            osc.frequency.setValueAtTime(260, now + 0.1);
+            osc.frequency.setValueAtTime(340, now + 0.2);
+            osc.frequency.setValueAtTime(240, now + 0.3);
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+            osc.start(now);
+            osc.stop(now + 0.46);
+            break;
+
+          case "grumpGrowl":
+            osc.type = "sawtooth";
+            osc.frequency.setValueAtTime(115, now);
+            osc.frequency.linearRampToValueAtTime(82, now + 0.42);
+            gain.gain.setValueAtTime(0.26, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+            osc.start(now);
+            osc.stop(now + 0.46);
+            break;
+
+          case "wheezeHigh":
+          default:
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(620, now);
+            osc.frequency.exponentialRampToValueAtTime(890, now + 0.2);
+            osc.frequency.exponentialRampToValueAtTime(540, now + 0.45);
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.48);
+            osc.start(now);
+            osc.stop(now + 0.5);
+            break;
+        }
+      }
+
+      playEventAlert(kind = "chaos") {
+        if (!this.ctx || this.isMuted) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+
+        if (kind === "emergency") {
+          osc.type = "sawtooth";
+          osc.frequency.setValueAtTime(520, now);
+          osc.frequency.setValueAtTime(380, now + 0.18);
+          osc.frequency.setValueAtTime(520, now + 0.36);
+          gain.gain.setValueAtTime(0.24, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+          osc.start(now);
+          osc.stop(now + 0.62);
+        } else {
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(180, now);
+          osc.frequency.exponentialRampToValueAtTime(640, now + 0.35);
+          gain.gain.setValueAtTime(0.22, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+          osc.start(now);
+          osc.stop(now + 0.42);
+        }
+      }
+    }
+
+    const audioManager = new CommitteeAudioManager();
+
+    /* ==========================================================================
+       APPLICATION STATE & INTERACTION ENGINE
+       ========================================================================== */
+    const state = {
+      activeMemberId: null,
+      clickStreak: { id: null, count: 0, lastTime: 0 },
+      cooldowns: {},
+      dialogueTimers: {},
+      titleClicks: 0,
+      secretBuffer: "",
+      activeModalMember: null,
+      memoryCategory: "ALL"
+    };
+
+    const activityFeed = document.getElementById("activity-feed");
+    function logActivity(text) {
+      if (activityFeed) activityFeed.textContent = text;
+    }
+
+    /* Helper: Creates avatar element (tries custom PNG first, falls back to SVG) */
+    function createAvatarVisual(member) {
+      const wrapper = document.createElement("div");
+      wrapper.style.width = "100%";
+      wrapper.style.height = "100%";
+      wrapper.innerHTML = buildCharacterSVG(member.id);
+
+      const probe = new Image();
+      probe.src = member.imagePath;
+      probe.alt = member.name;
+      probe.className = "custom-char-img";
+      probe.onload = () => {
+        wrapper.innerHTML = "";
+        wrapper.appendChild(probe);
+      };
+      return wrapper;
+    }
+
+    /* ==========================================================================
+       RENDER MAIN COMPOUND SCENE & 9 CHARACTERS
+       ========================================================================== */
+    function renderMainScene() {
+      const layer = document.getElementById("characters-layer");
+      layer.innerHTML = "";
+
+      COMMITTEE_CONFIG.members.forEach((member) => {
+        const actor = document.createElement("div");
+        actor.className = `character-actor ${member.idleAnim}`;
+        actor.id = `actor-${member.id}`;
+        actor.dataset.memberId = member.id;
+        actor.style.left = `${member.position.x}%`;
+        actor.style.top = `${member.position.y}%`;
+        actor.style.zIndex = member.zIndex;
+        actor.setAttribute("role", "button");
+        actor.setAttribute("tabindex", "0");
+        actor.setAttribute("aria-label", `${member.name}: ${member.dialogue}`);
+
+        if (member.position.x <= 20) actor.classList.add("edge-left");
+        if (member.position.x >= 82) actor.classList.add("edge-right");
+
+        // Speech Bubble
+        const bubble = document.createElement("div");
+        bubble.className = "speech-bubble";
+        bubble.id = `bubble-${member.id}`;
+        bubble.textContent = member.dialogue;
+
+        // Avatar Stage
+        const stage = document.createElement("div");
+        stage.className = "avatar-stage";
+        stage.appendChild(createAvatarVisual(member));
+
+        // Shadow
+        const shadow = document.createElement("div");
+        shadow.className = "char-shadow";
+
+        // Name & Dossier Badge
+        const tagBar = document.createElement("div");
+        tagBar.className = "char-tag-bar";
+
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "char-name-label";
+        nameSpan.textContent = member.name;
+
+        const infoBtn = document.createElement("button");
+        infoBtn.type = "button";
+        infoBtn.className = "char-info-btn";
+        infoBtn.textContent = "ID";
+        infoBtn.setAttribute("aria-label", `Open ${member.name} dossier`);
+        infoBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          openDossier(member.id);
+        });
+
+        tagBar.appendChild(nameSpan);
+        tagBar.appendChild(infoBtn);
+
+        actor.appendChild(bubble);
+        actor.appendChild(stage);
+        actor.appendChild(shadow);
+        actor.appendChild(tagBar);
+
+        // Main Character Click & Keyboard Interaction
+        actor.addEventListener("click", () => triggerCharacter(member.id));
+        actor.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            triggerCharacter(member.id);
+          }
+        });
+
+        layer.appendChild(actor);
+      });
+    }
+
+    function triggerCharacter(memberId, options = {}) {
+      const member = COMMITTEE_CONFIG.members.find((m) => m.id === memberId);
+      const actor = document.getElementById(`actor-${memberId}`);
+      const bubble = document.getElementById(`bubble-${memberId}`);
+      if (!member || !actor || !bubble) return;
+
+      const now = Date.now();
+      if (!options.bypassCooldown && state.cooldowns[memberId] && now - state.cooldowns[memberId] < 380) {
+        return;
+      }
+      state.cooldowns[memberId] = now;
+
+      // Track rapid clicks on same character for Easter Egg Overload
+      if (state.clickStreak.id === memberId && now - state.clickStreak.lastTime < 1400) {
+        state.clickStreak.count += 1;
+      } else {
+        state.clickStreak = { id: memberId, count: 1, lastTime: now };
+      }
+
+      const isOverload = state.clickStreak.count >= 4;
+      if (isOverload) state.clickStreak.count = 0;
+
+      // Hide other bubbles unless multi-bubble chaos is active
+      if (!options.keepOtherBubbles) {
+        document.querySelectorAll(".speech-bubble.visible").forEach((el) => {
+          if (el !== bubble) el.classList.remove("visible");
+        });
+      }
+
+      // Reset & apply reaction animation
+      actor.classList.remove(member.clickAnim, "react-overload");
+      void actor.offsetWidth; // Force reflow for clean re-trigger
+      actor.classList.add(isOverload ? "react-overload" : member.clickAnim);
+
+      clearTimeout(actor._animTimer);
+      actor._animTimer = setTimeout(() => {
+        actor.classList.remove(member.clickAnim, "react-overload");
+      }, 980);
+
+      // Show exact verbatim signature dialogue
+      bubble.textContent = member.dialogue;
+      bubble.classList.add("visible");
+
+      clearTimeout(state.dialogueTimers[memberId]);
+      state.dialogueTimers[memberId] = setTimeout(() => {
+        bubble.classList.remove("visible");
+      }, COMMITTEE_CONFIG.settings.dialogueDurationMs);
+
+      if (!options.silent) {
+        audioManager.playMemberSound(member);
+      }
+
+      if (!options.quietLog) {
+        logActivity(`${member.name.toUpperCase()}: "${member.dialogue}"`);
+      }
+    }
+
+    /* ==========================================================================
+       REALISTIC PERIODIC BLINKING LOOP FOR ALL 9 CHARACTERS
+       ========================================================================== */
+    function startBlinkingLoop() {
+      COMMITTEE_CONFIG.members.forEach((member) => {
+        const scheduleBlink = () => {
+          const delay = 2200 + Math.random() * 4400;
+          setTimeout(() => {
+            const actor = document.getElementById(`actor-${member.id}`);
+            if (actor) {
+              actor.classList.add("is-blinking");
+              setTimeout(() => {
+                actor.classList.remove("is-blinking");
+              }, 135);
+            }
+            scheduleBlink();
+          }, delay);
+        };
+        scheduleBlink();
+      });
+    }
+
+    /* ==========================================================================
+       AUTONOMOUS AMBIENT COMPOUND INTERACTIONS
+       ========================================================================== */
+    function startAutonomousLife() {
+      setInterval(() => {
+        // Pause autonomous nudges if modal is open or user is on another tab
+        const sceneActive = document.getElementById("scene-view").classList.contains("active");
+        const modalOpen = document.getElementById("dossier-backdrop").classList.contains("open");
+        if (!sceneActive || modalOpen || document.hidden) return;
+
+        const members = COMMITTEE_CONFIG.members;
+        const idxA = Math.floor(Math.random() * members.length);
+        const idxB = (idxA + 1 + Math.floor(Math.random() * (members.length - 1))) % members.length;
+        const mA = members[idxA];
+        const mB = members[idxB];
+
+        const actorA = document.getElementById(`actor-${mA.id}`);
+        const actorB = document.getElementById(`actor-${mB.id}`);
+        if (!actorA || !actorB) return;
+
+        // Subtle shift & silent two-member reaction exchange
+        const jitterX = (Math.random() - 0.5) * 4;
+        const clampedX = Math.max(10, Math.min(92, mA.position.x + jitterX));
+        actorA.style.left = `${clampedX}%`;
+
+        triggerCharacter(mA.id, { silent: true, keepOtherBubbles: true, quietLog: true });
+        setTimeout(() => {
+          triggerCharacter(mB.id, { silent: true, keepOtherBubbles: true, quietLog: true });
+        }, 650);
+
+        setTimeout(() => {
+          actorA.style.left = `${mA.position.x}%`;
+        }, 3800);
+      }, COMMITTEE_CONFIG.settings.autonomousIntervalMs);
+    }
+
+    /* ==========================================================================
+       CHAOS & RANDOM EVENT CONTROLS (ACTUAL MULTI-MEMBER ACTIONS)
+       ========================================================================== */
+    function triggerUnleashChaos() {
+      audioManager.playEventAlert("chaos");
+      logActivity("CHAOS SEQUENCE ACTIVE // MULTIPLE MEMBERS REACTING");
+
+      const viewport = document.getElementById("compound-viewport");
+      viewport.classList.add("event-quake");
+      setTimeout(() => viewport.classList.remove("event-quake"), 1400);
+
+      const shuffled = [...COMMITTEE_CONFIG.members].sort(() => Math.random() - 0.5);
+      const selected = shuffled.slice(0, 5);
+
+      selected.forEach((member, idx) => {
+        const actor = document.getElementById(`actor-${member.id}`);
+        if (!actor) return;
+
+        // Temporarily scramble positions
+        const tempX = 14 + Math.random() * 74;
+        const tempY = 74 + Math.random() * 19;
+        actor.style.left = `${tempX}%`;
+        actor.style.top = `${tempY}%`;
+
+        setTimeout(() => {
+          triggerCharacter(member.id, {
+            silent: idx !== 0,
+            keepOtherBubbles: true,
+            bypassCooldown: true,
+            quietLog: true
+          });
+        }, idx * 240);
+
+        setTimeout(() => {
+          actor.style.left = `${member.position.x}%`;
+          actor.style.top = `${member.position.y}%`;
+        }, 3400);
+      });
+    }
+
+    function triggerEmergencyMeeting() {
+      audioManager.playEventAlert("emergency");
+      const banner = document.getElementById("emergency-banner");
+      banner.classList.add("active");
+      logActivity("EMERGENCY MEETING CALLED // ALL 9 MEMBERS SUMMONED");
+
+      // Arrange all 9 members into a tight semicircle huddle in the yard
+      const huddleCoords = [
+        { x: 18, y: 80 }, { x: 26, y: 85 }, { x: 34, y: 89 },
+        { x: 42, y: 91 }, { x: 50, y: 92 }, { x: 58, y: 91 },
+        { x: 66, y: 89 }, { x: 74, y: 85 }, { x: 82, y: 80 }
+      ];
+
+      COMMITTEE_CONFIG.members.forEach((member, idx) => {
+        const actor = document.getElementById(`actor-${member.id}`);
+        if (!actor) return;
+        actor.style.left = `${huddleCoords[idx].x}%`;
+        actor.style.top = `${huddleCoords[idx].y}%`;
+
+        setTimeout(() => {
+          triggerCharacter(member.id, {
+            silent: true,
+            keepOtherBubbles: true,
+            bypassCooldown: true,
+            quietLog: true
+          });
+        }, idx * 140);
+      });
+
+      setTimeout(() => {
+        banner.classList.remove("active");
+        COMMITTEE_CONFIG.members.forEach((member) => {
+          const actor = document.getElementById(`actor-${member.id}`);
+          if (actor) {
+            actor.style.left = `${member.position.x}%`;
+            actor.style.top = `${member.position.y}%`;
+          }
+        });
+      }, 4500);
+    }
+
+    function triggerRandomMember() {
+      document.querySelectorAll(".character-actor.is-highlighted").forEach((el) => {
+        el.classList.remove("is-highlighted");
+      });
+
+      const randomMember = COMMITTEE_CONFIG.members[Math.floor(Math.random() * COMMITTEE_CONFIG.members.length)];
+      const actor = document.getElementById(`actor-${randomMember.id}`);
+      if (actor) {
+        actor.classList.add("is-highlighted");
+        actor.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+        setTimeout(() => actor.classList.remove("is-highlighted"), 4200);
+      }
+      triggerCharacter(randomMember.id, { bypassCooldown: true });
+    }
+
+    let eventCycleIndex = 0;
+    function triggerRandomEvent() {
+      const viewport = document.getElementById("compound-viewport");
+      viewport.classList.remove("event-blackout", "event-quake", "event-drizzle");
+
+      const events = [
+        {
+          name: "EVENT: COMPOUND POWER BROWNOUT",
+          run: () => {
+            viewport.classList.add("event-blackout");
+            audioManager.playEventAlert("emergency");
+            triggerCharacter("ali", { bypassCooldown: true, quietLog: true });
+            setTimeout(() => viewport.classList.remove("event-blackout"), 3800);
+          }
+        },
+        {
+          name: "EVENT: ACID DRIZZLE OVER SECTOR 09",
+          run: () => {
+            viewport.classList.add("event-drizzle");
+            audioManager.playEventAlert("chaos");
+            triggerCharacter("bipu", { bypassCooldown: true, quietLog: true });
+            setTimeout(() => viewport.classList.remove("event-drizzle"), 4200);
+          }
+        },
+        {
+          name: "EVENT: STRUCTURAL TREMOR",
+          run: () => {
+            viewport.classList.add("event-quake");
+            audioManager.playEventAlert("chaos");
+            triggerCharacter("jahid", { bypassCooldown: true, quietLog: true });
+            setTimeout(() => viewport.classList.remove("event-quake"), 1600);
+          }
+        }
+      ];
+
+      const chosen = events[eventCycleIndex % events.length];
+      eventCycleIndex += 1;
+      logActivity(chosen.name);
+      chosen.run();
+    }
+
+    /* ==========================================================================
+       EASTER EGGS & BACKGROUND PROP INTERACTIONS
+       ========================================================================== */
+    function initEasterEggs() {
+      // 1. Click COMMITTEE title 5 times -> Protocol 09 Inversion
+      const brandTitle = document.getElementById("brand-title");
+      brandTitle.addEventListener("click", () => {
+        state.titleClicks += 1;
+        if (state.titleClicks >= 5) {
+          state.titleClicks = 0;
+          document.body.classList.toggle("protocol-nine");
+          audioManager.playEventAlert("emergency");
+          logActivity("SECRET TRIGGERED: PROTOCOL 09 VISUAL OVERRIDE");
+          COMMITTEE_CONFIG.members.forEach((m, i) => {
+            setTimeout(() => triggerCharacter(m.id, { silent: true, keepOtherBubbles: true, bypassCooldown: true, quietLog: true }), i * 90);
+          });
+        }
+      });
+
+      // 2. Clickable Streetlamp -> Phosphor Night-Vision Mode
+      const propLamp = document.getElementById("prop-lamp");
+      if (propLamp) {
+        propLamp.addEventListener("click", () => {
+          propLamp.classList.add("prop-triggered");
+          setTimeout(() => propLamp.classList.remove("prop-triggered"), 450);
+          document.body.classList.toggle("phosphor-mode");
+          audioManager.playSynthSignature("deadpanBlip");
+          logActivity("HIDDEN PROP: STREETLAMP PHOSPHOR MODE TOGGLED");
+        });
+      }
+
+      // 3. Clickable Rusted Barrel -> Bipu reaction
+      const propBarrel = document.getElementById("prop-barrel");
+      if (propBarrel) {
+        propBarrel.addEventListener("click", () => {
+          propBarrel.classList.add("prop-triggered");
+          setTimeout(() => propBarrel.classList.remove("prop-triggered"), 450);
+          triggerCharacter("bipu", { bypassCooldown: true });
+        });
+      }
+
+      // 4. Clickable Fish Crate -> Sayzid reaction
+      const propCrate = document.getElementById("prop-crate");
+      if (propCrate) {
+        propCrate.addEventListener("click", () => {
+          propCrate.classList.add("prop-triggered");
+          setTimeout(() => propCrate.classList.remove("prop-triggered"), 450);
+          triggerCharacter("sayzid", { bypassCooldown: true });
+        });
+      }
+
+      // 5. Clickable Roof Antenna -> Random transmission
+      const propAntenna = document.getElementById("prop-antenna");
+      if (propAntenna) {
+        propAntenna.addEventListener("click", () => {
+          propAntenna.classList.add("prop-triggered");
+          setTimeout(() => propAntenna.classList.remove("prop-triggered"), 450);
+          audioManager.playEventAlert("chaos");
+          triggerRandomMember();
+        });
+      }
+
+      // 6. Secret Keyboard Sequence: type "999" anywhere
+      document.addEventListener("keydown", (e) => {
+        if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+        state.secretBuffer = (state.secretBuffer + e.key.toLowerCase()).slice(-6);
+        if (state.secretBuffer.endsWith("999")) {
+          state.secretBuffer = "";
+          triggerUnleashChaos();
+          logActivity("KEYCODE 999 ACCEPTED // COMPOUND OVERRIDE");
+        }
+      });
+    }
+
+    /* ==========================================================================
+       RENDER MEMBERS ROSTER, SOUND ROOM, MEMORY WALL & ABOUT
+       ========================================================================== */
+    function renderMembersRoster() {
+      const grid = document.getElementById("roster-grid");
+      grid.innerHTML = "";
+
+      COMMITTEE_CONFIG.members.forEach((member, index) => {
+        const card = document.createElement("article");
+        card.className = "roster-card";
+
+        const top = document.createElement("div");
+        top.className = "roster-card-top";
+
+        const avatarBox = document.createElement("div");
+        avatarBox.className = "roster-avatar-box";
+        avatarBox.appendChild(createAvatarVisual(member));
+
+        const meta = document.createElement("div");
+        meta.className = "roster-meta";
+        meta.innerHTML = `
+          <div class="roster-nick">UNIT 0${index + 1} // ${member.nickname}</div>
+          <h3>${member.name}</h3>
+        `;
+
+        top.appendChild(avatarBox);
+        top.appendChild(meta);
+
+        const quote = document.createElement("div");
+        quote.className = "roster-dialogue";
+        quote.textContent = `"${member.dialogue}"`;
+
+        const actions = document.createElement("div");
+        actions.className = "roster-actions";
+
+        const speakBtn = document.createElement("button");
+        speakBtn.type = "button";
+        speakBtn.textContent = "Play Dialogue";
+        speakBtn.addEventListener("click", () => {
+          audioManager.playMemberSound(member);
+          logActivity(`${member.name.toUpperCase()}: "${member.dialogue}"`);
+        });
+
+        const dossierBtn = document.createElement("button");
+        dossierBtn.type = "button";
+        dossierBtn.textContent = "Open Dossier";
+        dossierBtn.addEventListener("click", () => openDossier(member.id));
+
+        actions.appendChild(speakBtn);
+        actions.appendChild(dossierBtn);
+
+        card.appendChild(top);
+        card.appendChild(quote);
+        card.appendChild(actions);
+        grid.appendChild(card);
+      });
+    }
+
+    function renderSoundRoom() {
+      const grid = document.getElementById("soundboard-grid");
+      grid.innerHTML = "";
+
+      COMMITTEE_CONFIG.members.forEach((member, idx) => {
+        const pad = document.createElement("button");
+        pad.type = "button";
+        pad.className = "sound-pad";
+        pad.innerHTML = `
+          <div class="sound-pad-header">
+            <span class="sound-pad-index">CH 0${idx + 1}</span>
+            <div class="sound-bars" aria-hidden="true"><span></span><span></span><span></span></div>
+          </div>
+          <div class="sound-pad-name">${member.name}</div>
+          <div class="sound-pad-quote">"${member.dialogue}"</div>
+        `;
+
+        pad.addEventListener("click", () => {
+          document.querySelectorAll(".sound-pad.is-playing").forEach((el) => el.classList.remove("is-playing"));
+          pad.classList.add("is-playing");
+          audioManager.playMemberSound(member, () => {
+            pad.classList.remove("is-playing");
+          });
+        });
+
+        grid.appendChild(pad);
+      });
+    }
+
+    function renderMemoryWall() {
+      const filterBar = document.getElementById("memory-filters");
+      const grid = document.getElementById("memory-grid");
+      const categories = ["ALL", ...new Set(COMMITTEE_CONFIG.memories.map((m) => m.category))];
+
+      filterBar.innerHTML = "";
+      categories.forEach((cat) => {
+        const chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = `filter-chip ${state.memoryCategory === cat ? "active" : ""}`;
+        chip.textContent = cat;
+        chip.addEventListener("click", () => {
+          state.memoryCategory = cat;
+          renderMemoryWall();
+        });
+        filterBar.appendChild(chip);
+      });
+
+      grid.innerHTML = "";
+      const filtered = state.memoryCategory === "ALL"
+        ? COMMITTEE_CONFIG.memories
+        : COMMITTEE_CONFIG.memories.filter((m) => m.category === state.memoryCategory);
+
+      filtered.forEach((item) => {
+        const card = document.createElement("article");
+        card.className = "memory-card";
+
+        const mediaBox = document.createElement("div");
+        mediaBox.className = "memory-media";
+
+        if (item.mediaType === "image") {
+          const img = document.createElement("img");
+          img.src = item.mediaPath;
+          img.alt = item.title;
+          img.onerror = () => {
+            mediaBox.innerHTML = `<div class="memory-placeholder-label">MISSING FILE: ${item.mediaPath}</div>`;
+          };
+          mediaBox.appendChild(img);
+        } else if (item.mediaType === "video") {
+          const vid = document.createElement("video");
+          vid.src = item.mediaPath;
+          vid.controls = true;
+          mediaBox.appendChild(vid);
+        } else {
+          mediaBox.innerHTML = `<div class="memory-placeholder-label">PLACEHOLDER SLOT<br>${item.mediaPath}</div>`;
+        }
+
+        card.appendChild(mediaBox);
+        card.innerHTML += `
+          <div class="memory-meta">
+            <span>${item.category}</span>
+            <span>${item.date}</span>
+          </div>
+          <div class="memory-caption">${item.title}</div>
+          <div class="memory-desc">${item.caption}</div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function renderAboutSection() {
+      const container = document.getElementById("about-content");
+      container.innerHTML = "";
+      COMMITTEE_CONFIG.about.paragraphs.forEach((text) => {
+        const p = document.createElement("p");
+        p.textContent = text;
+        container.appendChild(p);
+      });
+      const note = document.createElement("div");
+      note.className = "about-note";
+      note.textContent = COMMITTEE_CONFIG.about.placeholderNotice;
+      container.appendChild(note);
+    }
+
+    /* ==========================================================================
+       CHARACTER PROFILE DOSSIER MODAL
+       ========================================================================== */
+    function openDossier(memberId) {
+      const idx = COMMITTEE_CONFIG.members.findIndex((m) => m.id === memberId);
+      const member = COMMITTEE_CONFIG.members[idx];
+      if (!member) return;
+
+      state.activeModalMember = member;
+
+      document.getElementById("dossier-code").textContent = `FILE // 0${idx + 1}`;
+      document.getElementById("dossier-name").textContent = member.name;
+      document.getElementById("dossier-dialogue").textContent = `"${member.dialogue}"`;
+      document.getElementById("dossier-nickname").textContent = member.nickname;
+      document.getElementById("dossier-desc").textContent = member.description;
+      document.getElementById("dossier-personality").textContent = member.personality;
+      document.getElementById("dossier-ability").textContent = member.ability;
+
+      const avatarSlot = document.getElementById("dossier-avatar-slot");
+      avatarSlot.innerHTML = "";
+      avatarSlot.appendChild(createAvatarVisual(member));
+
+      const statsContainer = document.getElementById("dossier-stats");
+      statsContainer.innerHTML = "";
+      member.stats.forEach((st) => {
+        const row = document.createElement("div");
+        row.className = "stat-row";
+        row.innerHTML = `
+          <div class="stat-row-head">
+            <span>${st.label}</span>
+            <span>${st.value}%</span>
+          </div>
+          <div class="stat-track">
+            <div class="stat-fill" style="width:${Math.max(0, Math.min(100, st.value))}%"></div>
+          </div>
+        `;
+        statsContainer.appendChild(row);
+      });
+
+      const backdrop = document.getElementById("dossier-backdrop");
+      backdrop.classList.add("open");
+      document.getElementById("dossier-close-btn").focus();
+    }
+
+    function closeDossier() {
+      document.getElementById("dossier-backdrop").classList.remove("open");
+      state.activeModalMember = null;
+    }
+
+    /* ==========================================================================
+       NAVIGATION & INITIALIZATION
+       ========================================================================== */
+    function initNavigation() {
+      const tabs = document.querySelectorAll(".nav-tab");
+      const sections = document.querySelectorAll(".view-section");
+
+      tabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          const targetId = tab.dataset.target;
+          tabs.forEach((t) => t.classList.remove("active"));
+          tab.classList.add("active");
+
+          sections.forEach((sec) => {
+            sec.classList.toggle("active", sec.id === targetId);
+          });
+        });
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Entry Gate Controls
+      const gate = document.getElementById("entry-gate");
+      document.getElementById("enter-with-sound").addEventListener("click", () => {
+        audioManager.unlock(true);
+        gate.classList.add("hidden");
+      });
+      document.getElementById("enter-muted").addEventListener("click", () => {
+        audioManager.unlock(false);
+        gate.classList.add("hidden");
+      });
+
+      // Top Audio Controls
+      document.getElementById("toggle-mute-btn").addEventListener("click", () => audioManager.toggleMute());
+      document.getElementById("toggle-music-btn").addEventListener("click", () => audioManager.toggleMusic());
+      document.getElementById("volume-control").addEventListener("input", (e) => audioManager.setVolume(e.target.value));
+
+      // Chaos Controls
+      document.getElementById("btn-unleash-chaos").addEventListener("click", triggerUnleashChaos);
+      document.getElementById("btn-emergency").addEventListener("click", triggerEmergencyMeeting);
+      document.getElementById("btn-random-member").addEventListener("click", triggerRandomMember);
+      document.getElementById("btn-random-event").addEventListener("click", triggerRandomEvent);
+
+      // Modal Controls
+      document.getElementById("dossier-close-btn").addEventListener("click", closeDossier);
+      document.getElementById("dossier-backdrop").addEventListener("click", (e) => {
+        if (e.target.id === "dossier-backdrop") closeDossier();
+      });
+      document.getElementById("dossier-sound-btn").addEventListener("click", () => {
+        if (state.activeModalMember) audioManager.playMemberSound(state.activeModalMember);
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeDossier();
+      });
+
+      // Render All Views
+      initNavigation();
+      renderMainScene();
+      renderMembersRoster();
+      renderSoundRoom();
+      renderMemoryWall();
+      renderAboutSection();
+      initEasterEggs();
+      startBlinkingLoop();
+      startAutonomousLife();
     });
-    grid.appendChild(btn);
-  });
-}
-
-/* ===================== CHAOS EVENTS ===================== */
-document.getElementById("btn-chaos").addEventListener("click", () => {
-  const shuffled = [...MEMBERS].sort(() => Math.random() - 0.5).slice(0, 4 + Math.floor(Math.random()*3));
-  shuffled.forEach((m, i) => {
-    setTimeout(() => interact(m.id), i * 280);
-  });
-});
-
-document.getElementById("btn-meeting").addEventListener("click", () => {
-  MEMBERS.forEach((m, i) => {
-    setTimeout(() => {
-      const el = document.getElementById(`char-${m.id}`);
-      el.classList.add("react");
-      setTimeout(() => el.classList.remove("react"), 400);
-    }, i * 120);
-  });
-  // brief global flash
-  const scene = document.getElementById("main-scene");
-  scene.style.boxShadow = "inset 0 0 60px rgba(166,90,58,0.35)";
-  setTimeout(() => scene.style.boxShadow = "", 800);
-});
-
-document.getElementById("btn-random").addEventListener("click", () => {
-  const m = MEMBERS[Math.floor(Math.random() * MEMBERS.length)];
-  interact(m.id);
-  setTimeout(() => openProfile(m.id), 600);
-});
-
-document.getElementById("btn-event").addEventListener("click", () => {
-  const scene = document.getElementById("main-scene");
-  const flash = document.createElement("div");
-  flash.style.cssText = "position:absolute;inset:0;background:rgba(166,90,58,0.15);pointer-events:none;z-index:5;";
-  scene.appendChild(flash);
-  setTimeout(() => flash.remove(), 600);
-  // random one or two react
-  const picks = [...MEMBERS].sort(() => Math.random()-0.5).slice(0,2);
-  picks.forEach(m => interact(m.id));
-});
-
-/* ===================== AUDIO UI ===================== */
-document.getElementById("mute-btn").addEventListener("click", () => {
-  const muted = AudioMgr.toggleMute();
-  document.getElementById("mute-btn").textContent = muted ? "UNMUTE" : "MUTE";
-});
-document.getElementById("vol").addEventListener("input", e => {
-  AudioMgr.setVol(parseFloat(e.target.value));
-});
-
-/* ===================== EASTER (title click) ===================== */
-let titleClicks = 0;
-document.getElementById("enter-screen").querySelector("h1").addEventListener("click", e => {
-  e.stopPropagation();
-  titleClicks++;
-  if (titleClicks >= 5) {
-    titleClicks = 0;
-    document.getElementById("enter-screen").style.background = "#2a1810";
-    setTimeout(() => {
-      document.getElementById("enter-screen").style.background = "";
-    }, 400);
-  }
-});
-
-/* ===================== INIT ===================== */
-document.getElementById("enter-screen").addEventListener("click", () => {
-  AudioMgr.unlock();
-  document.getElementById("enter-screen").classList.add("hidden");
-  document.getElementById("app").classList.add("active");
-  document.body.classList.remove("locked");
-});
-
-buildScene();
-buildMembersList();
-buildMemory();
-buildSoundRoom();
-</script>
+  </script>
 </body>
 </html>

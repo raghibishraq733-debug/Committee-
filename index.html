@@ -883,12 +883,20 @@
     .chaos-btn--roast { background: #483526; color: var(--cream-dirty); }
 
     /* ==========================================================================
-       7. GAMES TAB
+       7. GAMES TAB & EXPANDED IN-PAGE MODE
        ========================================================================== */
     .games-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
       gap: 1.15rem;
+    }
+
+    .games-grid.has-expanded-game {
+      grid-template-columns: 1fr;
+    }
+
+    .game-card.is-hidden-by-expand {
+      display: none;
     }
 
     .game-card {
@@ -901,10 +909,52 @@
       gap: 0.8rem;
     }
 
+    .game-card.is-expanded-game {
+      min-height: calc(100vh - 145px);
+      border-color: var(--amber-sulfur);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.75);
+      padding: 1.35rem;
+    }
+
+    .game-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+    }
+
     .game-card h2 {
       font-family: var(--font-display);
       font-size: 1.22rem;
       color: var(--amber-sulfur);
+    }
+
+    .game-card.is-expanded-game h2 {
+      font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+    }
+
+    .game-exit-expand-btn {
+      display: none;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.38rem 0.72rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--amber-sulfur);
+      color: var(--amber-sulfur);
+      border-radius: var(--radius-sm);
+    }
+
+    .game-exit-expand-btn:hover {
+      background: var(--amber-sulfur);
+      color: var(--ink-dark);
+    }
+
+    .game-card.is-expanded-game .game-exit-expand-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
     }
 
     .game-desc {
@@ -920,6 +970,12 @@
       border: 2px solid var(--border-grime);
       overflow: hidden;
       user-select: none;
+      transition: height 0.2s ease;
+    }
+
+    .game-card.is-expanded-game .game-arena {
+      height: clamp(440px, 60vh, 620px);
+      flex: 1 1 auto;
     }
 
     .game-hud {
@@ -952,6 +1008,11 @@
       box-shadow: 2px 2px 0 #070807;
     }
 
+    .game-card.is-expanded-game .rui-emoji-item {
+      font-size: 1.55rem;
+      padding: 0.28rem 0.45rem;
+    }
+
     .rui-thrown-face {
       position: absolute;
       z-index: 22;
@@ -969,10 +1030,20 @@
       overflow: hidden;
     }
 
+    .game-card.is-expanded-game .rui-thrown-face {
+      width: 48px;
+      height: 58px;
+    }
+
     .rui-face-av {
       width: 30px;
       height: 32px;
       pointer-events: none;
+    }
+
+    .game-card.is-expanded-game .rui-face-av {
+      width: 38px;
+      height: 40px;
     }
 
     .rui-face-name {
@@ -1016,6 +1087,11 @@
       border: 1px dashed var(--border-grime);
     }
 
+    .game-card.is-expanded-game .rabbit-hole {
+      max-width: 165px;
+      height: 148px;
+    }
+
     .hole-pit {
       width: 84%;
       height: 22px;
@@ -1037,6 +1113,12 @@
       flex-direction: column;
       align-items: center;
       cursor: pointer;
+    }
+
+    .game-card.is-expanded-game .hole-mole {
+      width: 92px;
+      height: 100px;
+      transform: translateY(115px);
     }
 
     .hole-mole.popped {
@@ -1086,6 +1168,10 @@
       justify-content: flex-end;
     }
 
+    .game-card.is-expanded-game .barrel-station {
+      height: 245px;
+    }
+
     .barrel-peeker {
       position: relative;
       z-index: 2;
@@ -1098,6 +1184,11 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+    }
+
+    .game-card.is-expanded-game .barrel-peeker {
+      width: 98px;
+      height: 112px;
     }
 
     .barrel-peeker.exposed {
@@ -1129,6 +1220,10 @@
       padding-top: 4px;
     }
 
+    .game-card.is-expanded-game .barrel-pig-emoji {
+      font-size: 3.2rem;
+    }
+
     .drum-cover {
       position: relative;
       z-index: 5;
@@ -1153,6 +1248,12 @@
       color: var(--cream-dirty);
       text-align: center;
       pointer-events: none;
+    }
+
+    .game-card.is-expanded-game .drum-cover {
+      width: 114px;
+      height: 104px;
+      font-size: 0.78rem;
     }
 
     .muzzle-flash {
@@ -1219,6 +1320,11 @@
       justify-content: center;
     }
 
+    .game-card.is-expanded-game .work-wheel {
+      width: 280px;
+      height: 280px;
+    }
+
     .wheel-slot-label {
       position: absolute;
       left: 50%;
@@ -1257,6 +1363,10 @@
       max-width: 95%;
     }
 
+    .game-card.is-expanded-game .wheel-task-line {
+      font-size: 0.95rem;
+    }
+
     /* Game 5: "goa mara dite geche k ?" Missing Member Game */
     .missing-stage {
       position: relative;
@@ -1280,6 +1390,11 @@
       border-radius: var(--radius-sm);
     }
 
+    .game-card.is-expanded-game .missing-prompt {
+      font-size: 0.95rem;
+      padding: 0.5rem 0.75rem;
+    }
+
     .missing-eight-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -1300,10 +1415,19 @@
       gap: 0.15rem;
     }
 
+    .game-card.is-expanded-game .missing-member-tile {
+      padding: 0.55rem;
+    }
+
     .missing-member-av {
       width: 40px;
       height: 46px;
       pointer-events: none;
+    }
+
+    .game-card.is-expanded-game .missing-member-av {
+      width: 68px;
+      height: 78px;
     }
 
     .missing-member-name {
@@ -1316,6 +1440,10 @@
       overflow: hidden;
       text-overflow: ellipsis;
       max-width: 100%;
+    }
+
+    .game-card.is-expanded-game .missing-member-name {
+      font-size: 0.85rem;
     }
 
     .missing-choices-grid {
@@ -1336,6 +1464,11 @@
       padding: 0.45rem 0.35rem;
       text-align: center;
       transition: background 0.14s ease, border-color 0.14s ease, transform 0.1s ease;
+    }
+
+    .game-card.is-expanded-game .missing-choice-btn {
+      font-size: 0.92rem;
+      padding: 0.75rem 0.5rem;
     }
 
     .missing-choice-btn:hover:not(:disabled) {
@@ -1614,7 +1747,7 @@
       <div class="gate-stamp">SECTOR 09 // UNHINGED EDITION</div>
       <h1 id="gate-heading" class="gate-title">COMMITTEE</h1>
       <p class="gate-desc">
-        Drag &amp; fling 9 unhinged members, street brawls &amp; riots, Rui Mach Catch (30s), Rabbit Hole (20s), Behind The Barrel (20s), Work Wheel, and goa mara dite geche k ?
+        Expanded game view, bouncy groove BGM, funny cartoon SFX, 9 drag-and-fling members, street brawls, and 5 arcade games.
       </p>
       <div class="gate-actions">
         <button id="enter-with-sound" class="btn-primary" type="button">Enter With Audio</button>
@@ -1789,13 +1922,16 @@
     <section id="games-view" class="view-section" aria-label="Mini Games">
       <div class="section-header">
         <h2 class="section-title">GAMES // SECTOR 09 ARCADE</h2>
-        <p class="section-subtitle">Timed rounds: Rui Mach Catch (30s), Rabbit Hole (20s), Behind The Barrel (20s), plus Work Wheel and goa mara dite geche k ?</p>
+        <p class="section-subtitle">Starting any game expands it into a bigger screen; timed rounds automatically return to grid when finished.</p>
       </div>
 
-      <div class="games-grid">
+      <div id="games-grid" class="games-grid">
         <!-- GAME 1: PARABOLIC RUI MACH GAME (30 SECOND TIMER) -->
-        <article class="game-card">
-          <h2>Rui Mach Catch (30s)</h2>
+        <article id="game-card-rui" class="game-card">
+          <div class="game-card-head">
+            <h2>Rui Mach Catch (30s)</h2>
+            <button class="game-exit-expand-btn" type="button" data-exit-expand>Exit Bigger View</button>
+          </div>
           <p class="game-desc">
             <strong>30s</strong> timer! Hit <strong>150 PTS</strong> before time runs out. Catch fish, dodge 🐷/🌿/🛢️/🐘, and NEVER touch a member face (instant Game Over).
           </p>
@@ -1811,8 +1947,11 @@
         </article>
 
         <!-- GAME 2: 5-HOLE RABBIT HOLE GAME (20 SECOND TIMER) -->
-        <article class="game-card">
-          <h2>Rabbit Hole (20s)</h2>
+        <article id="game-card-hole" class="game-card">
+          <div class="game-card-head">
+            <h2>Rabbit Hole (20s)</h2>
+            <button class="game-exit-expand-btn" type="button" data-exit-expand>Exit Bigger View</button>
+          </div>
           <p class="game-desc">
             <strong>20s</strong> timer! Nail all 9 members before time ends. Fast pop-ups &amp; red DECOY fakes—hitting a DECOY removes a kill!
           </p>
@@ -1829,8 +1968,11 @@
         </article>
 
         <!-- GAME 3: BEHIND THE BARREL SHOOTER (20 SECOND TIMER) -->
-        <article class="game-card">
-          <h2>Behind The Barrel (20s)</h2>
+        <article id="game-card-barrel" class="game-card">
+          <div class="game-card-head">
+            <h2>Behind The Barrel (20s)</h2>
+            <button class="game-exit-expand-btn" type="button" data-exit-expand>Exit Bigger View</button>
+          </div>
           <p class="game-desc">
             <strong>20s</strong> timer! Hit <strong>15</strong> peeking members before time ends. DO NOT shoot peeking Pigs (🐷 -1 hit, -15 pts).
           </p>
@@ -1847,8 +1989,11 @@
         </article>
 
         <!-- GAME 4: WHO WILL DO THE WORK (SPINNING WHEEL) -->
-        <article class="game-card">
-          <h2>Who Will Do The Work</h2>
+        <article id="game-card-wheel" class="game-card">
+          <div class="game-card-head">
+            <h2>Who Will Do The Work</h2>
+            <button class="game-exit-expand-btn" type="button" data-exit-expand>Exit Bigger View</button>
+          </div>
           <p class="game-desc">
             Spin the 9-member wheel. Members shuffle &amp; spin before landing on who gets stuck with the chore.
           </p>
@@ -1871,8 +2016,11 @@
         </article>
 
         <!-- GAME 5: GOA MARA DITE GECHE K ? (MISSING MEMBER MEMORY GAME) -->
-        <article class="game-card">
-          <h2>goa mara dite geche k ?</h2>
+        <article id="game-card-missing" class="game-card">
+          <div class="game-card-head">
+            <h2>goa mara dite geche k ?</h2>
+            <button class="game-exit-expand-btn" type="button" data-exit-expand>Exit Bigger View</button>
+          </div>
           <p class="game-desc">
             8 of the 9 members appear in a shuffled layout for 3000 ms (3 seconds), then vanish. Pick who was missing from all 9 names!
           </p>
@@ -1916,11 +2064,13 @@
     <section id="sound-view" class="view-section" aria-label="Sound Room">
       <div class="section-header">
         <h2 class="section-title">SOUND ROOM</h2>
-        <p class="section-subtitle">9-channel audio board + chaos FX triggers.</p>
+        <p class="section-subtitle">9-channel audio board + funny comedy &amp; chaos FX triggers.</p>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem;">
         <button id="sfx-airhorn-btn" class="btn-primary" type="button">Airhorn Blast</button>
-        <button id="sfx-hitmarker-btn" class="btn-secondary" type="button">Hitmarker / Gunshot</button>
+        <button id="sfx-boing-btn" class="btn-secondary" type="button">Funny Boing</button>
+        <button id="sfx-bonk-btn" class="btn-secondary" type="button">Cartoon Bonk</button>
+        <button id="sfx-wahwah-btn" class="btn-secondary" type="button">Sad Wah-Wah</button>
         <button id="sfx-riot-btn" class="btn-secondary" type="button">Riot Siren</button>
       </div>
       <div id="soundboard-grid" class="soundboard-grid"></div>
@@ -1970,7 +2120,6 @@
        ========================================================================== */
     const COMMITTEE_CONFIG = {
       settings: {
-        backgroundMusicPath: "assets/music/background.mp3",
         defaultVolume: 0.75,
         autonomousIntervalMs: 14000,
         dialogueDurationMs: 4200
@@ -1995,7 +2144,7 @@
           position: { x: 16, y: 82 },
           zIndex: 24,
           clickAnim: "react-laugh-float",
-          synthType: "dreamyTremolo",
+          synthType: "boing",
           nickname: "[EDITABLE PLACEHOLDER] Nickname",
           description: "[EDITABLE PLACEHOLDER] Add Ragib's short dossier note here.",
           personality: "[EDITABLE PLACEHOLDER] Unfazed, locked onto a single fixation.",
@@ -2016,7 +2165,7 @@
           position: { x: 28, y: 76 },
           zIndex: 22,
           clickAnim: "react-shady-lean",
-          synthType: "shadySlide",
+          synthType: "slideWhistle",
           nickname: "[EDITABLE PLACEHOLDER] Nickname",
           description: "[EDITABLE PLACEHOLDER] Add Ali's short dossier note here.",
           personality: "[EDITABLE PLACEHOLDER] Always negotiating an angle nobody asked for.",
@@ -2037,7 +2186,7 @@
           position: { x: 38, y: 89 },
           zIndex: 28,
           clickAnim: "react-barrel-swell",
-          synthType: "barrelBass",
+          synthType: "bonk",
           nickname: "[EDITABLE PLACEHOLDER] Nickname",
           description: "[EDITABLE PLACEHOLDER] Add Bipu's short dossier note here.",
           personality: "[EDITABLE PLACEHOLDER] Heavy gravity, zero urgency, barrel-shaped ambition.",
@@ -2058,7 +2207,7 @@
           position: { x: 48, y: 78 },
           zIndex: 23,
           clickAnim: "react-lunge",
-          synthType: "verdictHorn",
+          synthType: "sproing",
           nickname: "[EDITABLE PLACEHOLDER] Nickname",
           description: "[EDITABLE PLACEHOLDER] Add Nafi's short dossier note here.",
           personality: "[EDITABLE PLACEHOLDER] Self-appointed magistrate of everyone else's bad choices.",
@@ -2079,7 +2228,7 @@
           position: { x: 58, y: 91 },
           zIndex: 29,
           clickAnim: "react-tilt",
-          synthType: "deadpanBlip",
+          synthType: "squeak",
           nickname: "[EDITABLE PLACEHOLDER] Nickname",
           description: "[EDITABLE PLACEHOLDER] Add Vaste's short dossier note here.",
           personality: "[EDITABLE PLACEHOLDER] Cold arithmetic, zero romance, severe posture.",
@@ -2100,7 +2249,7 @@
           position: { x: 68, y: 77 },
           zIndex: 22,
           clickAnim: "react-hawker-jump",
-          synthType: "marketChirp",
+          synthType: "pop",
           nickname: "[EDITABLE PLACEHOLDER] Nickname",
           description: "[EDITABLE PLACEHOLDER] Add Sayzid's short dossier note here.",
           personality: "[EDITABLE PLACEHOLDER] Treats every quiet room like a wet-market auction.",
@@ -2121,7 +2270,7 @@
           position: { x: 78, y: 88 },
           zIndex: 27,
           clickAnim: "react-cackle",
-          synthType: "cackleStaccato",
+          synthType: "boing",
           nickname: "[EDITABLE PLACEHOLDER] Nickname",
           description: "[EDITABLE PLACEHOLDER] Add Jahid's short dossier note here.",
           personality: "[EDITABLE PLACEHOLDER] Observational menace with zero filter.",
@@ -2142,7 +2291,7 @@
           position: { x: 87, y: 79 },
           zIndex: 24,
           clickAnim: "react-bristle",
-          synthType: "grumpGrowl",
+          synthType: "bonk",
           nickname: "[EDITABLE PLACEHOLDER] Nickname",
           description: "[EDITABLE PLACEHOLDER] Add Billal's short dossier note here.",
           personality: "[EDITABLE PLACEHOLDER] Perpetually unimpressed by the other eight.",
@@ -2163,7 +2312,7 @@
           position: { x: 93, y: 92 },
           zIndex: 30,
           clickAnim: "react-wheeze",
-          synthType: "wheezeHigh",
+          synthType: "squeak",
           nickname: "[EDITABLE PLACEHOLDER] Nickname",
           description: "[EDITABLE PLACEHOLDER] Add Anam's short dossier note here.",
           personality: "[EDITABLE PLACEHOLDER] High-pitched chaos commentary from the corner.",
@@ -2507,7 +2656,7 @@
     }
 
     /* ==========================================================================
-       AUDIO MANAGER
+       AUDIO MANAGER (SATISFYING GROOVE BGM + FUNNY CARTOON SFX)
        ========================================================================== */
     class CommitteeAudioManager {
       constructor() {
@@ -2517,8 +2666,8 @@
         this.musicEnabled = true;
         this.volume = COMMITTEE_CONFIG.settings.defaultVolume;
         this.activeSfxAudio = null;
-        this.bgmAudio = null;
-        this.droneNodes = null;
+        this.bgmInterval = null;
+        this.bgmStep = 0;
         this.unlocked = false;
       }
 
@@ -2545,14 +2694,18 @@
         if (this.masterGain && this.ctx) {
           this.masterGain.gain.setTargetAtTime(this.isMuted ? 0 : this.volume, this.ctx.currentTime, 0.03);
         }
-        if (this.bgmAudio) this.bgmAudio.volume = this.isMuted ? 0 : this.volume * 0.35;
         if (this.activeSfxAudio) this.activeSfxAudio.volume = this.isMuted ? 0 : this.volume;
       }
 
       toggleMute() {
         this.isMuted = !this.isMuted;
         this.setVolume(this.volume);
-        if (this.isMuted) this.stopAllSfx();
+        if (this.isMuted) {
+          this.stopAllSfx();
+          this.stopMusic();
+        } else if (this.musicEnabled) {
+          this.startMusic();
+        }
         this.updateControlsUI();
       }
 
@@ -2577,57 +2730,74 @@
       }
 
       startMusic() {
-        if (this.isMuted || !this.musicEnabled) return;
-        if (!this.bgmAudio) {
-          const audio = new Audio(COMMITTEE_CONFIG.settings.backgroundMusicPath);
-          audio.loop = true;
-          audio.volume = this.volume * 0.35;
-          audio.addEventListener("error", () => {
-            this.bgmAudio = null;
-            this.startAmbientDrone();
-          }, { once: true });
-          audio.play().then(() => { this.bgmAudio = audio; }).catch(() => {
-            this.bgmAudio = null;
-            this.startAmbientDrone();
-          });
-        } else {
-          this.bgmAudio.play().catch(() => {});
-        }
+        if (!this.ctx || this.isMuted || !this.musicEnabled) return;
+        if (this.ctx.state === "suspended") this.ctx.resume();
+        if (this.bgmInterval) return;
+
+        // Warm, groovy 16-step arcade marimba + bass + soft percussion loop (118 BPM ~ 127ms per 16th)
+        const bassPattern = [
+          110, 0, 110, 130.81, 146.83, 0, 130.81, 0,
+          98, 0, 98, 123.47, 130.81, 0, 146.83, 164.81
+        ];
+        const leadPattern = [
+          440, 0, 523.25, 0, 587.33, 659.25, 587.33, 523.25,
+          392, 0, 493.88, 0, 523.25, 0, 587.33, 0
+        ];
+
+        this.bgmInterval = setInterval(() => {
+          if (!this.ctx || this.isMuted || !this.musicEnabled || document.hidden) return;
+          const now = this.ctx.currentTime;
+          const step = this.bgmStep % 16;
+
+          const bassFreq = bassPattern[step];
+          if (bassFreq > 0) {
+            const bOsc = this.ctx.createOscillator();
+            const bGain = this.ctx.createGain();
+            bOsc.type = "triangle";
+            bOsc.frequency.setValueAtTime(bassFreq, now);
+            bGain.gain.setValueAtTime(0.09, now);
+            bGain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+            bOsc.connect(bGain);
+            bGain.connect(this.masterGain);
+            bOsc.start(now);
+            bOsc.stop(now + 0.15);
+          }
+
+          const leadFreq = leadPattern[step];
+          if (leadFreq > 0) {
+            const lOsc = this.ctx.createOscillator();
+            const lGain = this.ctx.createGain();
+            lOsc.type = "sine";
+            lOsc.frequency.setValueAtTime(leadFreq, now);
+            lGain.gain.setValueAtTime(0.045, now);
+            lGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+            lOsc.connect(lGain);
+            lGain.connect(this.masterGain);
+            lOsc.start(now);
+            lOsc.stop(now + 0.13);
+          }
+
+          if (step % 4 === 0 || step % 4 === 2) {
+            const kOsc = this.ctx.createOscillator();
+            const kGain = this.ctx.createGain();
+            kOsc.type = "sine";
+            kOsc.frequency.setValueAtTime(step % 4 === 0 ? 135 : 95, now);
+            kOsc.frequency.exponentialRampToValueAtTime(38, now + 0.08);
+            kGain.gain.setValueAtTime(step % 4 === 0 ? 0.08 : 0.045, now);
+            kGain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+            kOsc.connect(kGain);
+            kGain.connect(this.masterGain);
+            kOsc.start(now);
+            kOsc.stop(now + 0.095);
+          }
+
+          this.bgmStep += 1;
+        }, 130);
       }
 
       stopMusic() {
-        if (this.bgmAudio) this.bgmAudio.pause();
-        this.stopAmbientDrone();
-      }
-
-      startAmbientDrone() {
-        if (!this.ctx || this.droneNodes || this.isMuted || !this.musicEnabled) return;
-        const now = this.ctx.currentTime;
-        const osc1 = this.ctx.createOscillator();
-        const osc2 = this.ctx.createOscillator();
-        const filter = this.ctx.createBiquadFilter();
-        const droneGain = this.ctx.createGain();
-        osc1.type = "sawtooth";
-        osc1.frequency.setValueAtTime(55, now);
-        osc2.type = "triangle";
-        osc2.frequency.setValueAtTime(82.41, now);
-        filter.type = "lowpass";
-        filter.frequency.setValueAtTime(165, now);
-        droneGain.gain.setValueAtTime(0.05, now);
-        osc1.connect(filter);
-        osc2.connect(filter);
-        filter.connect(droneGain);
-        droneGain.connect(this.masterGain);
-        osc1.start();
-        osc2.start();
-        this.droneNodes = { osc1, osc2, droneGain };
-      }
-
-      stopAmbientDrone() {
-        if (this.droneNodes) {
-          try { this.droneNodes.osc1.stop(); this.droneNodes.osc2.stop(); } catch (_) {}
-          this.droneNodes = null;
-        }
+        clearInterval(this.bgmInterval);
+        this.bgmInterval = null;
       }
 
       stopAllSfx() {
@@ -2660,50 +2830,194 @@
         audio.addEventListener("ended", finish, { once: true });
         audio.addEventListener("error", () => {
           this.activeSfxAudio = null;
-          this.playSynth(member.synthType);
+          this.playFunnySfx(member.synthType);
           setTimeout(finish, 450);
         }, { once: true });
 
         audio.play().catch(() => {
           this.activeSfxAudio = null;
-          this.playSynth(member.synthType);
+          this.playFunnySfx(member.synthType);
           setTimeout(finish, 450);
         });
       }
 
-      playSynth(type = "deadpanBlip") {
+      playFunnySfx(type = "boing") {
         if (!this.ctx || this.isMuted) return;
+        if (this.ctx.state === "suspended") this.ctx.resume();
         const now = this.ctx.currentTime;
+
+        if (type === "boing") {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(150, now);
+          osc.frequency.exponentialRampToValueAtTime(520, now + 0.11);
+          osc.frequency.exponentialRampToValueAtTime(210, now + 0.22);
+          osc.frequency.exponentialRampToValueAtTime(440, now + 0.34);
+          gain.gain.setValueAtTime(0.22, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.36);
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(now);
+          osc.stop(now + 0.37);
+          return;
+        }
+
+        if (type === "bonk") {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(310, now);
+          osc.frequency.exponentialRampToValueAtTime(68, now + 0.14);
+          gain.gain.setValueAtTime(0.28, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(now);
+          osc.stop(now + 0.16);
+          return;
+        }
+
+        if (type === "squeak") {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(780, now);
+          osc.frequency.exponentialRampToValueAtTime(1320, now + 0.09);
+          osc.frequency.exponentialRampToValueAtTime(640, now + 0.18);
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.19);
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(now);
+          osc.stop(now + 0.2);
+          return;
+        }
+
+        if (type === "slideWhistle") {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(340, now);
+          osc.frequency.exponentialRampToValueAtTime(1180, now + 0.24);
+          osc.frequency.exponentialRampToValueAtTime(520, now + 0.38);
+          gain.gain.setValueAtTime(0.17, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.39);
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(now);
+          osc.stop(now + 0.4);
+          return;
+        }
+
+        if (type === "sproing") {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "sawtooth";
+          osc.frequency.setValueAtTime(190, now);
+          osc.frequency.exponentialRampToValueAtTime(690, now + 0.2);
+          gain.gain.setValueAtTime(0.14, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(now);
+          osc.stop(now + 0.23);
+          return;
+        }
+
+        if (type === "pop") {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(280, now);
+          osc.frequency.exponentialRampToValueAtTime(760, now + 0.07);
+          gain.gain.setValueAtTime(0.22, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(now);
+          osc.stop(now + 0.09);
+          return;
+        }
+
+        if (type === "wahWah") {
+          const notes = [311.13, 293.66, 277.18, 261.63];
+          notes.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = "sawtooth";
+            const t0 = now + idx * 0.13;
+            osc.frequency.setValueAtTime(freq, t0);
+            osc.frequency.linearRampToValueAtTime(freq * 0.92, t0 + 0.12);
+            gain.gain.setValueAtTime(0.11, t0);
+            gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.125);
+            osc.connect(gain);
+            gain.connect(this.masterGain);
+            osc.start(t0);
+            osc.stop(t0 + 0.13);
+          });
+          return;
+        }
+
+        if (type === "airhorn") {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "sawtooth";
+          osc.frequency.setValueAtTime(587.33, now);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.48);
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(now);
+          osc.stop(now + 0.5);
+          return;
+        }
+
+        // Default funny blip
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(420, now);
+        osc.frequency.exponentialRampToValueAtTime(640, now + 0.1);
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
         osc.connect(gain);
         gain.connect(this.masterGain);
-
-        const map = {
-          dreamyTremolo: ["sine", 340, 520, 0.45],
-          shadySlide: ["triangle", 220, 490, 0.4],
-          barrelBass: ["sine", 145, 48, 0.5],
-          verdictHorn: ["sawtooth", 196, 150, 0.45],
-          deadpanBlip: ["square", 260, 260, 0.3],
-          marketChirp: ["triangle", 390, 660, 0.38],
-          cackleStaccato: ["sawtooth", 330, 230, 0.42],
-          grumpGrowl: ["sawtooth", 120, 78, 0.45],
-          wheezeHigh: ["sine", 620, 900, 0.42],
-          airhorn: ["sawtooth", 587, 587, 0.55],
-          gunshot: ["square", 190, 42, 0.16]
-        };
-        const [wave, f1, f2, dur] = map[type] || map.deadpanBlip;
-        osc.type = wave;
-        osc.frequency.setValueAtTime(f1, now);
-        osc.frequency.exponentialRampToValueAtTime(Math.max(25, f2), now + dur);
-        gain.gain.setValueAtTime(0.22, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
         osc.start(now);
-        osc.stop(now + dur + 0.02);
+        osc.stop(now + 0.13);
       }
     }
 
     const audioManager = new CommitteeAudioManager();
+
+    /* ==========================================================================
+       EXPANDED IN-PAGE GAME VIEW CONTROLLER
+       ========================================================================== */
+    function expandGameCard(cardId) {
+      const grid = document.getElementById("games-grid");
+      const targetCard = document.getElementById(cardId);
+      if (!grid || !targetCard) return;
+
+      grid.classList.add("has-expanded-game");
+      document.querySelectorAll(".game-card").forEach((card) => {
+        if (card === targetCard) {
+          card.classList.remove("is-hidden-by-expand");
+          card.classList.add("is-expanded-game");
+        } else {
+          card.classList.add("is-hidden-by-expand");
+          card.classList.remove("is-expanded-game");
+        }
+      });
+      targetCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function collapseExpandedGame() {
+      const grid = document.getElementById("games-grid");
+      if (grid) grid.classList.remove("has-expanded-game");
+      document.querySelectorAll(".game-card").forEach((card) => {
+        card.classList.remove("is-hidden-by-expand", "is-expanded-game");
+      });
+    }
 
     /* ==========================================================================
        APP STATE & SCENE INTERACTIONS
@@ -2832,7 +3146,7 @@
         actor.classList.remove("react-yeet");
         void actor.offsetWidth;
         actor.classList.add("react-yeet");
-        audioManager.playSynth("shadySlide");
+        audioManager.playFunnySfx("slideWhistle");
         spawnHitSpark(layer, rect.width * (flingX / 100), rect.height * ((flingY - 10) / 100), "FLUNG!");
         logActivity(`FLUNG ${member.name.toUpperCase()} across Sector 09!`);
 
@@ -3011,7 +3325,7 @@
 
         actorA.style.left = `${centerX - (aAttacks ? 1 : 6)}%`;
         actorB.style.left = `${centerX + (aAttacks ? 6 : 1)}%`;
-        audioManager.playSynth(aAttacks ? "cackleStaccato" : "grumpGrowl");
+        audioManager.playFunnySfx(aAttacks ? "bonk" : "sproing");
 
         const rect = layer.getBoundingClientRect();
         spawnHitSpark(layer, rect.width * (centerX / 100), rect.height * ((centerY - 12) / 100), aAttacks ? "WHAM!" : "BONK!");
@@ -3042,7 +3356,7 @@
         banner.classList.add("active");
       }
       vp.classList.add("quake-burst");
-      audioManager.playSynth("airhorn");
+      audioManager.playFunnySfx("airhorn");
       logActivity("9-PERSON RIOT ACTIVE — EVERYONE IS SWINGING!");
 
       clearInterval(state.brawlTimer);
@@ -3063,7 +3377,7 @@
 
         const rect = layer.getBoundingClientRect();
         spawnHitSpark(layer, rect.width * (0.25 + Math.random() * 0.5), rect.height * (0.65 + Math.random() * 0.2), "RIOT!");
-        audioManager.playSynth(ticks % 2 === 0 ? "cackleStaccato" : "grumpGrowl");
+        audioManager.playFunnySfx(ticks % 2 === 0 ? "bonk" : "squeak");
 
         if (ticks >= 10) {
           clearInterval(state.brawlTimer);
@@ -3086,7 +3400,7 @@
     function triggerYeetAll() {
       switchTab("scene-view");
       bumpChaos(28);
-      audioManager.playSynth("airhorn");
+      audioManager.playFunnySfx("slideWhistle");
       logActivity("YEET ALL — ALL 9 MEMBERS LAUNCHED INTO ORBIT!");
       const layer = document.getElementById("characters-layer");
       const rect = layer.getBoundingClientRect();
@@ -3114,7 +3428,7 @@
       document.body.classList.toggle("roast-mode", state.roastMode);
       const btn = document.getElementById("btn-roast-mode");
       if (btn) btn.textContent = state.roastMode ? "Roast Mode: ON" : "Roast Mode";
-      audioManager.playSynth("cackleStaccato");
+      audioManager.playFunnySfx("boing");
       logActivity(state.roastMode ? "ROAST MODE ON — SAVAGE LINES ACTIVE!" : "ROAST MODE OFF — CLASSIC LINES RESTORED.");
       const target = COMMITTEE_CONFIG.members[Math.floor(Math.random() * COMMITTEE_CONFIG.members.length)];
       triggerCharacter(target.id, { bypassCooldown: true, quietLog: true });
@@ -3122,7 +3436,7 @@
 
     function triggerUnleashChaos() {
       bumpChaos(25);
-      audioManager.playSynth("cackleStaccato");
+      audioManager.playFunnySfx("airhorn");
       logActivity("CHAOS UNLEASHED // ALL 9 MEMBERS REACTING");
       const vp = document.getElementById("compound-viewport");
       vp.classList.add("quake-burst");
@@ -3235,6 +3549,7 @@
       ruiGame.running = false;
       stopRuiTimers();
       clearRuiArena();
+      collapseExpandedGame();
       const msStr = `${remMs} ms`;
       document.getElementById("rui-time").textContent = msStr;
       document.getElementById("rui-status").textContent = won ? "WIN!" : "TIME UP / OVER";
@@ -3286,7 +3601,7 @@
         e.stopPropagation();
         if (!ruiGame.running) return;
         const rem = getRemainingMs(ruiGame.endPerf);
-        audioManager.playSynth("grumpGrowl");
+        audioManager.playFunnySfx("wahWah");
         endRuiGame(false, `GAME OVER! You touched ${member.name}'s face!`, rem);
       });
 
@@ -3330,12 +3645,13 @@
         if (!ruiGame.running) return;
         ruiGame.score = Math.max(0, ruiGame.score + obj.pts);
         document.getElementById("rui-score").textContent = `${ruiGame.score}/${ruiGame.targetScore}`;
-        audioManager.playSynth(obj.pts > 0 ? "marketChirp" : "grumpGrowl");
+        audioManager.playFunnySfx(obj.pts > 0 ? "pop" : "wahWah");
         spawnHitSpark(arena, obj.x + 14, obj.y, obj.pts > 0 ? `+${obj.pts}` : `${obj.pts}`);
         el.remove();
         ruiGame.items = ruiGame.items.filter((x) => x !== obj);
 
         if (ruiGame.score >= ruiGame.targetScore) {
+          audioManager.playFunnySfx("boing");
           const rem = getRemainingMs(ruiGame.endPerf);
           endRuiGame(true, "", rem);
         }
@@ -3348,6 +3664,7 @@
     function startRuiGame() {
       stopRuiTimers();
       clearRuiArena();
+      expandGameCard("game-card-rui");
 
       ruiGame.running = true;
       ruiGame.score = 0;
@@ -3357,7 +3674,7 @@
       document.getElementById("rui-time").textContent = `${RUI_DURATION_MS} ms`;
       document.getElementById("rui-status").textContent = "LIVE (30s)";
       document.getElementById("rui-outcome").textContent = `30s timer running! Reach ${ruiGame.targetScore} pts and avoid member faces.`;
-      audioManager.playSynth("marketChirp");
+      audioManager.playFunnySfx("sproing");
 
       launchParabolicItem();
       launchParabolicMemberFace();
@@ -3367,6 +3684,7 @@
         const rem = getRemainingMs(ruiGame.endPerf);
         document.getElementById("rui-time").textContent = `${rem} ms`;
         if (rem <= 0) {
+          audioManager.playFunnySfx("wahWah");
           endRuiGame(false, "30s timer ended!", 0);
         }
       }, 37);
@@ -3479,7 +3797,7 @@
 
           const arena = document.getElementById("hole-arena");
           if (wasDecoy) {
-            audioManager.playSynth("grumpGrowl");
+            audioManager.playFunnySfx("wahWah");
             if (holeGame.killedIds.size > 0) {
               const firstId = holeGame.killedIds.values().next().value;
               holeGame.killedIds.delete(firstId);
@@ -3489,7 +3807,7 @@
             return;
           }
 
-          audioManager.playSynth("gunshot");
+          audioManager.playFunnySfx("bonk");
           if (!holeGame.killedIds.has(m.id)) {
             holeGame.killedIds.add(m.id);
             document.getElementById("hole-kills").textContent = `${holeGame.killedIds.size}/9`;
@@ -3497,6 +3815,7 @@
           }
 
           if (holeGame.killedIds.size >= 9) {
+            audioManager.playFunnySfx("boing");
             finishHoleGame(true, getRemainingMs(holeGame.endPerf));
           }
         });
@@ -3518,6 +3837,7 @@
         h.moleEl.classList.remove("popped");
         clearTimeout(h.hideTimeout);
       });
+      collapseExpandedGame();
       const msStr = `${remMs} ms`;
       const count = holeGame.killedIds.size;
       document.getElementById("hole-time").textContent = msStr;
@@ -3532,6 +3852,7 @@
       buildFiveHoles();
       clearInterval(holeGame.popTimer);
       clearInterval(holeGame.clockTimer);
+      expandGameCard("game-card-hole");
 
       holeGame.running = true;
       holeGame.killedIds = new Set();
@@ -3541,13 +3862,14 @@
       document.getElementById("hole-time").textContent = `${HOLE_DURATION_MS} ms`;
       document.getElementById("hole-status").textContent = "HUNT (20s)";
       document.getElementById("hole-outcome").textContent = "20s timer running! Avoid red DECOY fakes and hit all 9 members!";
-      audioManager.playSynth("cackleStaccato");
+      audioManager.playFunnySfx("sproing");
 
       holeGame.clockTimer = setInterval(() => {
         if (!holeGame.running) return;
         const rem = getRemainingMs(holeGame.endPerf);
         document.getElementById("hole-time").textContent = `${rem} ms`;
         if (rem <= 0) {
+          audioManager.playFunnySfx("wahWah");
           finishHoleGame(false, 0);
         }
       }, 37);
@@ -3649,7 +3971,7 @@
             barrelGame.hits = Math.max(0, barrelGame.hits - 1);
             document.getElementById("barrel-hits").textContent = `${barrelGame.hits}/${barrelGame.targetHits}`;
             document.getElementById("barrel-score").textContent = String(barrelGame.score);
-            audioManager.playSynth("grumpGrowl");
+            audioManager.playFunnySfx("squeak");
             spawnHitSpark(arena, 85 + i * 115, 165, "PIG -1 HIT!");
             return;
           }
@@ -3659,10 +3981,11 @@
           barrelGame.score += 15;
           document.getElementById("barrel-hits").textContent = `${barrelGame.hits}/${barrelGame.targetHits}`;
           document.getElementById("barrel-score").textContent = String(barrelGame.score);
-          audioManager.playSynth("gunshot");
+          audioManager.playFunnySfx("bonk");
           spawnHitSpark(arena, 85 + i * 115, 165, `HIT ${m.name}!`);
 
           if (barrelGame.hits >= barrelGame.targetHits) {
+            audioManager.playFunnySfx("boing");
             finishBarrelGame(true, getRemainingMs(barrelGame.endPerf));
           }
         });
@@ -3684,6 +4007,7 @@
         s.peeker.classList.remove("exposed");
         clearTimeout(s.hideTimer);
       });
+      collapseExpandedGame();
       const msStr = `${remMs} ms`;
       document.getElementById("barrel-time").textContent = msStr;
       document.getElementById("barrel-outcome").textContent = won
@@ -3696,6 +4020,7 @@
       buildBarrelStations();
       clearInterval(barrelGame.peekTimer);
       clearInterval(barrelGame.clockTimer);
+      expandGameCard("game-card-barrel");
 
       barrelGame.running = true;
       barrelGame.hits = 0;
@@ -3706,7 +4031,7 @@
       document.getElementById("barrel-score").textContent = "0";
       document.getElementById("barrel-time").textContent = `${BARREL_DURATION_MS} ms`;
       document.getElementById("barrel-outcome").textContent = "20s timer running! Hit 15 members and DO NOT shoot Pigs (🐷)!";
-      audioManager.playSynth("gunshot");
+      audioManager.playFunnySfx("sproing");
 
       const arena = document.getElementById("barrel-arena");
       if (!arena._shootBound) {
@@ -3720,7 +4045,7 @@
           flash.style.top = `${e.clientY - rect.top}px`;
           arena.appendChild(flash);
           setTimeout(() => flash.remove(), 240);
-          audioManager.playSynth("gunshot");
+          audioManager.playFunnySfx("pop");
         });
       }
 
@@ -3729,6 +4054,7 @@
         const rem = getRemainingMs(barrelGame.endPerf);
         document.getElementById("barrel-time").textContent = `${rem} ms`;
         if (rem <= 0) {
+          audioManager.playFunnySfx("wahWah");
           finishBarrelGame(false, 0);
         }
       }, 37);
@@ -3789,12 +4115,14 @@
       const wheel = document.getElementById("work-wheel");
       wheel.querySelectorAll(".wheel-slot-label").forEach((el) => el.remove());
 
+      const isExpanded = wheel.closest(".game-card")?.classList.contains("is-expanded-game");
       const count = workWheelGame.wheelOrder.length;
       const step = 360 / count;
+      const r = isExpanded ? 94 : 64;
+
       workWheelGame.wheelOrder.forEach((m, idx) => {
         const midAngle = idx * step + step / 2 - 90;
         const rad = (midAngle * Math.PI) / 180;
-        const r = 64;
         const x = Math.cos(rad) * r;
         const y = Math.sin(rad) * r;
 
@@ -3817,6 +4145,7 @@
 
     function spinWorkWheel() {
       if (workWheelGame.spinning) return;
+      expandGameCard("game-card-wheel");
       workWheelGame.spinning = true;
       workWheelGame.spins += 1;
 
@@ -3826,7 +4155,7 @@
       document.getElementById("wheel-spins").textContent = String(workWheelGame.spins);
       document.getElementById("wheel-status").textContent = "SPINNING";
       document.getElementById("wheel-task").textContent = "Shuffling members & spinning...";
-      audioManager.playSynth("marketChirp");
+      audioManager.playFunnySfx("slideWhistle");
 
       const sliceDeg = 360 / workWheelGame.wheelOrder.length;
       const targetIndex = Math.floor(Math.random() * workWheelGame.wheelOrder.length);
@@ -3847,7 +4176,7 @@
         document.getElementById("wheel-status").textContent = "DONE";
         document.getElementById("wheel-task").textContent = `${chosen.name} must ${task}!`;
         document.getElementById("wheel-outcome").textContent = `Stuck with the work: ${chosen.name} — "${chosen.dialogue}"`;
-        audioManager.playMemberSound(chosen);
+        audioManager.playFunnySfx("boing");
         logActivity(`WORK WHEEL: ${chosen.name} got stuck to ${task}!`);
         workWheelGame.spinning = false;
       }, 2250);
@@ -3866,6 +4195,7 @@
 
     function startMissingMemberRound() {
       clearTimeout(missingGame.previewTimeout);
+      expandGameCard("game-card-missing");
       missingGame.round += 1;
       missingGame.phase = "PREVIEW";
 
@@ -3902,7 +4232,7 @@
         grid.appendChild(tile);
       });
 
-      audioManager.playSynth("deadpanBlip");
+      audioManager.playFunnySfx("pop");
 
       missingGame.previewTimeout = setTimeout(() => {
         if (missingGame.phase !== "PREVIEW") return;
@@ -3912,6 +4242,7 @@
 
     function showMissingMemberChoices() {
       missingGame.phase = "GUESS";
+      audioManager.playFunnySfx("sproing");
       document.getElementById("missing-phase").textContent = "PICK ONE";
       document.getElementById("missing-prompt").textContent = "goa mara dite geche k ? — Who was missing?";
       document.getElementById("missing-outcome").textContent = "Select one of the 9 member names below.";
@@ -3951,7 +4282,7 @@
         document.getElementById("missing-prompt").textContent = "তুমি ব্রাহ্মণ";
         document.getElementById("missing-outcome").textContent =
           `তুমি ব্রাহ্মণ — Missing member was ${missingGame.missingMember.name}.`;
-        audioManager.playSynth("marketChirp");
+        audioManager.playFunnySfx("boing");
         logActivity(`GOA MARA DITE GECHE K ?: তুমি ব্রাহ্মণ (Missing: ${missingGame.missingMember.name})`);
       } else {
         clickedBtn.classList.add("choice-fail");
@@ -3959,7 +4290,7 @@
         document.getElementById("missing-prompt").textContent = "তুমি শুয়োর ছানা";
         document.getElementById("missing-outcome").textContent =
           `তুমি শুয়োর ছানা — Wrong pick (${selectedMember.name}). Missing member was ${missingGame.missingMember.name}.`;
-        audioManager.playSynth("grumpGrowl");
+        audioManager.playFunnySfx("wahWah");
         logActivity(`GOA MARA DITE GECHE K ?: তুমি শুয়োর ছানা (Actual missing: ${missingGame.missingMember.name})`);
       }
     }
@@ -4155,6 +4486,7 @@
     }
 
     function switchTab(targetId) {
+      if (targetId !== "games-view") collapseExpandedGame();
       document.querySelectorAll(".nav-tab").forEach((t) => {
         t.classList.toggle("active", t.dataset.target === targetId);
       });
@@ -4170,7 +4502,7 @@
         if (state.titleClicks >= 5) {
           state.titleClicks = 0;
           document.body.classList.toggle("protocol-nine");
-          audioManager.playSynth("verdictHorn");
+          audioManager.playFunnySfx("sproing");
           logActivity("SECRET TRIGGERED: PROTOCOL 09 INVERSION");
         }
       });
@@ -4187,7 +4519,7 @@
 
       bindProp("prop-lamp", () => {
         document.body.classList.toggle("phosphor-mode");
-        audioManager.playSynth("deadpanBlip");
+        audioManager.playFunnySfx("pop");
         logActivity("LAMP CLICKED: PHOSPHOR MODE TOGGLED");
       });
 
@@ -4205,32 +4537,32 @@
 
       bindProp("prop-moon", () => {
         bumpChaos(12);
-        audioManager.playSynth("dreamyTremolo");
+        audioManager.playFunnySfx("boing");
         triggerCharacter("ragib", { bypassCooldown: true });
         logActivity("MOON CLICKED: Ragib stares into the night sky...");
       });
 
       bindProp("prop-door", () => {
         bumpChaos(10);
-        audioManager.playSynth("verdictHorn");
+        audioManager.playFunnySfx("bonk");
         triggerCharacter("nafi", { bypassCooldown: true });
         logActivity("HQ DOOR BANGED: Nafi opens with a verdict!");
       });
 
       bindProp("prop-grass", () => {
         bumpChaos(8);
-        audioManager.playSynth("wheezeHigh");
+        audioManager.playFunnySfx("squeak");
         triggerCharacter("anam", { bypassCooldown: true });
         logActivity("WEEDS RUSTLED: Anam wheezes from the grass!");
       });
 
       bindProp("prop-clouds-1", () => {
-        audioManager.playSynth("shadySlide");
+        audioManager.playFunnySfx("slideWhistle");
         triggerCharacter("ali", { bypassCooldown: true });
       });
 
       bindProp("prop-clouds-2", () => {
-        audioManager.playSynth("cackleStaccato");
+        audioManager.playFunnySfx("boing");
         triggerCharacter("jahid", { bypassCooldown: true });
       });
 
@@ -4263,6 +4595,14 @@
         tab.addEventListener("click", () => switchTab(tab.dataset.target));
       });
 
+      document.querySelectorAll("[data-exit-expand]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          audioManager.playFunnySfx("pop");
+          collapseExpandedGame();
+          renderWheelLabels();
+        });
+      });
+
       document.getElementById("btn-unleash-chaos").addEventListener("click", triggerUnleashChaos);
       document.getElementById("btn-brawl-pair").addEventListener("click", () => startCharacterFight());
       document.getElementById("btn-full-riot").addEventListener("click", startNinePersonRiot);
@@ -4277,12 +4617,20 @@
       document.getElementById("missing-start-btn").addEventListener("click", startMissingMemberRound);
 
       document.getElementById("sfx-airhorn-btn").addEventListener("click", () => {
-        audioManager.playSynth("airhorn");
+        audioManager.playFunnySfx("airhorn");
         bumpChaos(10);
       });
-      document.getElementById("sfx-hitmarker-btn").addEventListener("click", () => {
-        audioManager.playSynth("gunshot");
-        bumpChaos(5);
+      document.getElementById("sfx-boing-btn").addEventListener("click", () => {
+        audioManager.playFunnySfx("boing");
+        bumpChaos(6);
+      });
+      document.getElementById("sfx-bonk-btn").addEventListener("click", () => {
+        audioManager.playFunnySfx("bonk");
+        bumpChaos(6);
+      });
+      document.getElementById("sfx-wahwah-btn").addEventListener("click", () => {
+        audioManager.playFunnySfx("wahWah");
+        bumpChaos(4);
       });
       document.getElementById("sfx-riot-btn").addEventListener("click", startNinePersonRiot);
 

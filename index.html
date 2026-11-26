@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COMMITTEE</title>
+<style>
+  :root {
+    --bg: #1a1814;
+    --surface: #24201b;
+    --cream: #d8d0c0;
+    --olive: #4a5c3a;
+    --muted: #6b5e4e;
+    --rust: #a65a3a;
+    --dark: #0f0e0c;
+    --text: #e8e0d4;
+    --dim: #9a9080;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, sans-serif;
+    overflow-x: hidden;
+  }
+  body.locked { overflow: hidden; }
+
+  /* ENTER SCREEN */
+  #enter-screen {
+    position: fixed; inset: 0; z-index: 9999;
+    background: var(--dark);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 1.5rem;
+    cursor: pointer;
+  }
+  #enter-screen h1 {
+    font-size: clamp(2.5rem, 8vw, 4.5rem);
+    letter-spacing: 0.3em;
+    color: var(--cream);
+    text-shadow: 0 0 30px rgba(166,90,58,0.4);
+  }
+  #enter-screen p { color: var(--dim); font-size: 0.95rem; }
+  #enter-screen.hidden { display: none; }
+
+  /* LAYOUT */
+  .app { display: none; min-height: 100vh; flex-direction: column; }
+  .app.active { display: flex; }
+
+  /* NAV */
+  nav {
+    display: flex; flex-wrap: wrap; gap: 0.4rem;
+    padding: 0.6rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid #3a342c;
+    position: sticky; top: 0; z-index: 100;
+  }
+  nav button {
+    background: transparent;
+    border: 1px solid #4a4338;
+    color: var(--cream);
+    padding: 0.4rem 0.9rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: 0.15s;
+  }
+  nav button:hover, nav button.active {
+    background: var(--olive);
+    border-color: var(--olive);
+  }
+  .audio-controls {
+    margin-left: auto;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .audio-controls button, .audio-controls input {
+    background: #2e2a24;
+    border: 1px solid #4a4338;
+    color: var(--cream);
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+  }
+  .audio-controls input[type=range] { width: 70px; }
+
+  /* SECTIONS */
+  .section { display: none; flex: 1; padding: 1rem; }
+  .section.active { display: block; }
+
+  /* MAIN SCENE */
+  #main-scene {
+    position: relative;
+    min-height: 70vh;
+    background: linear-gradient(180deg, #1c1a16 0%, #2a261f 40%, #1e1c18 100%);
+    border: 1px solid #3a342c;
+    overflow: hidden;
+    border-radius: 4px;
+  }
+  .scene-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 80%, rgba(74,92,58,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 30%, rgba(166,90,58,0.08) 0%, transparent 40%);
+  }
+  .ground {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 28%;
+    background: linear-gradient(180deg, transparent, #1a1814 30%, #12100e);
+  }
+  .tree, .building, .lamp {
+    position: absolute;
+    pointer-events: none;
+    opacity: 0.7;
+  }
+  .tree {
+    width: 40px; height: 90px;
+    background: #2a3220;
+    border-radius: 50% 50% 10% 10%;
+    bottom: 22%;
+  }
+  .building {
+    width: 70px; height: 110px;
+    background: #2c2822;
+    bottom: 20%;
+    border: 1px solid #3a342c;
+  }
+  .lamp {
+    width: 6px; height: 55px;
+    background: #3a342c;
+    bottom: 24%;
+  }
+  .lamp::after {
+    content: "";
+    position: absolute; top: -8px; left: -8px;
+    width: 22px; height: 14px;
+    background: rgba(200,160,80,0.25);
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(200,160,80,0.3);
+  }
+
+  /* CHARACTERS */
+  .char {
+    position: absolute;
+    width: 70px; height: 90px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    z-index: 10;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .char:hover { transform: scale(1.08); z-index: 20; }
+  .char-body {
+    width: 58px; height: 70px;
+    background: var(--muted);
+    border-radius: 12px 12px 6px 6px;
+    position: relative;
+    border: 2px solid #4a4338;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem;
+    color: var(--cream);
+    user-select: none;
+  }
+  .char-name {
+    font-size: 0.65rem;
+    margin-top: 3px;
+    color: var(--dim);
+    text-align: center;
+    letter-spacing: 0.03em;
+  }
+  .char.react .char-body {
+    animation: bounce 0.4s ease;
+  }
+  @keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    40% { transform: translateY(-12px); }
+    70% { transform: translateY(-4px); }
+  }
+  .char.idle-look .char-body { animation: look 4s ease-in-out infinite; }
+  .char.idle-breathe .char-body { animation: breathe 3s ease-in-out infinite; }
+  .char.idle-sway .char-body { animation: sway 5s ease-in-out infinite; }
+  @keyframes look {
+    0%,100% { transform: rotate(0deg); }
+    30% { transform: rotate(-6deg); }
+    70% { transform: rotate(5deg); }
+  }
+  @keyframes breathe {
+    0%,100% { transform: scaleY(1); }
+    50% { transform: scaleY(1.04); }
+  }
+  @keyframes sway {
+    0%,100% { transform: translateX(0); }
+    50% { transform: translateX(4px); }
+  }
+
+  /* SPEECH BUBBLE */
+  .bubble {
+    position: absolute;
+    bottom: 105%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--cream);
+    color: #1a1814;
+    padding: 0.45rem 0.7rem;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    white-space: nowrap;
+    max-width: 180px;
+    white-space: normal;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 30;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  }
+  .bubble::after {
+    content: "";
+    position: absolute;
+    top: 100%; left: 50%;
+    margin-left: -6px;
+    border: 6px solid transparent;
+    border-top-color: var(--cream);
+  }
+  .bubble.show { opacity: 1; }
+
+  /* CHAOS BAR */
+  .chaos-bar {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    margin-top: 1rem; justify-content: center;
+  }
+  .chaos-bar button {
+    background: var(--rust);
+    border: none;
+    color: #fff;
+    padding: 0.55rem 1.1rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    border-radius: 3px;
+  }
+  .chaos-bar button:hover { filter: brightness(1.15); }
+
+  /* PROFILE MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 500;
+    background: rgba(0,0,0,0.75);
+    display: none; align-items: center; justify-content: center;
+    padding: 1rem;
+  }
+  .modal-overlay.open { display: flex; }
+  .profile-card {
+    background: var(--surface);
+    border: 1px solid #4a4338;
+    max-width: 360px; width: 100%;
+    padding: 1.4rem;
+    position: relative;
+    animation: pop 0.25s ease;
+  }
+  @keyframes pop {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .profile-card .close {
+    position: absolute; top: 0.6rem; right: 0.8rem;
+    background: none; border: none; color: var(--dim);
+    font-size: 1.4rem; cursor: pointer;
+  }
+  .profile-card h2 {
+    font-size: 1.4rem; margin-bottom: 0.3rem;
+    color: var(--cream);
+  }
+  .profile-card .dialogue {
+    font-style: italic; color: var(--rust);
+    margin: 0.6rem 0; font-size: 0.9rem;
+  }
+  .profile-card .meta {
+    font-size: 0.8rem; color: var(--dim);
+    line-height: 1.5; margin-top: 0.8rem;
+  }
+  .profile-card .stats {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0.3rem; margin-top: 0.8rem; font-size: 0.75rem;
+  }
+  .profile-card button.sound-btn {
+    margin-top: 1rem;
+    background: var(--olive);
+    border: none; color: #fff;
+    padding: 0.45rem 1rem; cursor: pointer;
+  }
+
+  /* MEMORY WALL */
+  .memory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+  }
+  .memory-card {
+    background: var(--surface);
+    border: 1px solid #3a342c;
+    padding: 0.8rem;
+    font-size: 0.8rem;
+  }
+  .memory-card .ph {
+    height: 100px;
+    background: #2e2a24;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--dim); margin-bottom: 0.5rem;
+  }
+
+  /* SOUND ROOM */
+  .sound-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.8rem;
+  }
+  .sound-btn {
+    background: var(--surface);
+    border: 1px solid #4a4338;
+    color: var(--cream);
+    padding: 1rem 0.5rem;
+    text-align: center;
+    cursor: pointer;
+    font-size: 0.85rem;
+  }
+  .sound-btn:hover { background: var(--olive); }
+
+  /* ABOUT */
+  .about-box {
+    max-width: 560px;
+    background: var(--surface);
+    border: 1px solid #3a342c;
+    padding: 1.5rem;
+    line-height: 1.6;
+    font-size: 0.9rem;
+    color: var(--dim);
+  }
+
+  /* MEMBERS LIST (simple) */
+  .members-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 0.8rem;
+  }
+  .member-tile {
+    background: var(--surface);
+    border: 1px solid #3a342c;
+    padding: 1rem 0.5rem;
+    text-align: center;
+    cursor: pointer;
+  }
+  .member-tile:hover { border-color: var(--rust); }
+
+  /* MOBILE */
+  @media (max-width: 700px) {
+    .char { width: 56px; height: 75px; }
+    .char-body { width: 48px; height: 58px; font-size: 1.3rem; }
+    .char-name { font-size: 0.58rem; }
+    #main-scene { min-height: 55vh; }
+    .chaos-bar button { font-size: 0.72rem; padding: 0.45rem 0.7rem; }
+  }
+</style>
+</head>
+<body class="locked">
+
+<!-- ENTER -->
+<div id="enter-screen">
+  <h1>COMMITTEE</h1>
+  <p>Click to enter</p>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <nav>
+    <button data-section="main" class="active">MAIN SCENE</button>
+    <button data-section="members">MEMBERS</button>
+    <button data-section="memory">MEMORY WALL</button>
+    <button data-section="soundroom">SOUND ROOM</button>
+    <button data-section="about">ABOUT</button>
+    <div class="audio-controls">
+      <button id="mute-btn">MUTE</button>
+      <input type="range" id="vol" min="0" max="1" step="0.05" value="0.6">
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="section active" id="section-main">
+    <div id="main-scene">
+      <div class="scene-bg"></div>
+      <div class="ground"></div>
+      <!-- decorative elements -->
+      <div class="tree" style="left:8%;"></div>
+      <div class="tree" style="left:78%; height:70px;"></div>
+      <div class="building" style="left:18%;"></div>
+      <div class="building" style="right:12%; height:90px; width:55px;"></div>
+      <div class="lamp" style="left:42%;"></div>
+      <div class="lamp" style="right:28%;"></div>
+      <!-- characters injected by JS -->
+    </div>
+    <div class="chaos-bar">
+      <button id="btn-chaos">UNLEASH CHAOS</button>
+      <button id="btn-meeting">EMERGENCY MEETING</button>
+      <button id="btn-random">RANDOM MEMBER</button>
+      <button id="btn-event">RANDOM EVENT</button>
+    </div>
+  </div>
+
+  <!-- MEMBERS -->
+  <div class="section" id="section-members">
+    <h2 style="margin-bottom:1rem;color:var(--cream);">MEMBERS</h2>
+    <div class="members-list" id="members-list"></div>
+  </div>
+
+  <!-- MEMORY -->
+  <div class="section" id="section-memory">
+    <h2 style="margin-bottom:1rem;color:var(--cream);">MEMORY WALL</h2>
+    <div class="memory-grid" id="memory-grid"></div>
+  </div>
+
+  <!-- SOUND ROOM -->
+  <div class="section" id="section-soundroom">
+    <h2 style="margin-bottom:1rem;color:var(--cream);">SOUND ROOM</h2>
+    <div class="sound-grid" id="sound-grid"></div>
+  </div>
+
+  <!-- ABOUT -->
+  <div class="section" id="section-about">
+    <h2 style="margin-bottom:1rem;color:var(--cream);">ABOUT</h2>
+    <div class="about-box">
+      <p>[EDITABLE] COMMITTEE is a private digital space for nine people.</p>
+      <p style="margin-top:0.8rem;">No founding story. No rules. No slogans.</p>
+      <p style="margin-top:0.8rem;">The rest is left blank on purpose.</p>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE MODAL -->
+<div class="modal-overlay" id="profile-modal">
+  <div class="profile-card" id="profile-content"></div>
+</div>
+
+<script>
+/* ===================== CONFIG ===================== */
+const MEMBERS = [
+  {
+    id: "ragib",
+    name: "Ragib",
+    dialogue: "I love Mamuni",
+    nickname: "[EDITABLE]",
+    description: "[EDITABLE] Short description goes here.",
+    personality: "[EDITABLE]",
+    ability: "[EDITABLE]",
+    stats: { chaos: 7, patience: 3, volume: 8 },
+    color: "#5a4a3a",
+    idle: "idle-look",
+    pos: { left: "8%", bottom: "26%" }
+  },
+  {
+    id: "ali",
+    name: "Ali",
+    dialogue: "kanta thake poshchim para, amar shobhab dalali kora",
+    nickname: "[EDITABLE]",
+    description: "[EDITABLE] Short description goes here.",
+    personality: "[EDITABLE]",
+    ability: "[EDITABLE]",
+    stats: { chaos: 6, patience: 4, volume: 7 },
+    color: "#3a4a3a",
+    idle: "idle-breathe",
+    pos: { left: "20%", bottom: "22%" }
+  },
+  {
+    id: "bipu",
+    name: "Bipu",
+    dialogue: "Ganja khamu, barrel homu",
+    nickname: "[EDITABLE]",
+    description: "[EDITABLE] Short description goes here.",
+    personality: "[EDITABLE]",
+    ability: "[EDITABLE]",
+    stats: { chaos: 9, patience: 2, volume: 9 },
+    color: "#4a3a4a",
+    idle: "idle-sway",
+    pos: { left: "32%", bottom: "28%" }
+  },
+  {
+    id: "nafi",
+    name: "Nafi",
+    dialogue: "Prem korsu tuk biye korai lagbi boxod.",
+    nickname: "[EDITABLE]",
+    description: "[EDITABLE] Short description goes here.",
+    personality: "[EDITABLE]",
+    ability: "[EDITABLE]",
+    stats: { chaos: 5, patience: 6, volume: 5 },
+    color: "#3a3a4a",
+    idle: "idle-look",
+    pos: { left: "44%", bottom: "24%" }
+  },
+  {
+    id: "vaste",
+    name: "Vaste",
+    dialogue: "16 inchi hol, prem korai vul.",
+    nickname: "[EDITABLE]",
+    description: "[EDITABLE] Short description goes here.",
+    personality: "[EDITABLE]",
+    ability: "[EDITABLE]",
+    stats: { chaos: 8, patience: 3, volume: 6 },
+    color: "#4a4a3a",
+    idle: "idle-breathe",
+    pos: { left: "56%", bottom: "27%" }
+  },
+  {
+    id: "sayzid",
+    name: "Sayzid",
+    dialogue: "Dada rui mach hobe rui mach?",
+    nickname: "[EDITABLE]",
+    description: "[EDITABLE] Short description goes here.",
+    personality: "[EDITABLE]",
+    ability: "[EDITABLE]",
+    stats: { chaos: 4, patience: 7, volume: 4 },
+    color: "#3a4a4a",
+    idle: "idle-sway",
+    pos: { left: "68%", bottom: "23%" }
+  },
+  {
+    id: "jahid",
+    name: "Jahid",
+    dialogue: "kire! Hatir hol hoya gesu tui?",
+    nickname: "[EDITABLE]",
+    description: "[EDITABLE] Short description goes here.",
+    personality: "[EDITABLE]",
+    ability: "[EDITABLE]",
+    stats: { chaos: 8, patience: 2, volume: 8 },
+    color: "#4a3a3a",
+    idle: "idle-look",
+    pos: { left: "80%", bottom: "26%" }
+  },
+  {
+    id: "billal",
+    name: "Billal",
+    dialogue: "kire shuworer bacchara.",
+    nickname: "[EDITABLE]",
+    description: "[EDITABLE] Short description goes here.",
+    personality: "[EDITABLE]",
+    ability: "[EDITABLE]",
+    stats: { chaos: 9, patience: 1, volume: 9 },
+    color: "#3a3a3a",
+    idle: "idle-breathe",
+    pos: { left: "14%", bottom: "18%" }
+  },
+  {
+    id: "anam",
+    name: "Anam",
+    dialogue: "eeeee vaiii. Ekdom kochi mal re.",
+    nickname: "[EDITABLE]",
+    description: "[EDITABLE] Short description goes here.",
+    personality: "[EDITABLE]",
+    ability: "[EDITABLE]",
+    stats: { chaos: 7, patience: 4, volume: 7 },
+    color: "#4a4a4a",
+    idle: "idle-sway",
+    pos: { left: "74%", bottom: "19%" }
+  }
+];
+
+const MEMORIES = [
+  { id: 1, caption: "[EDITABLE] Placeholder memory", date: "—", category: "general" },
+  { id: 2, caption: "[EDITABLE] Another placeholder", date: "—", category: "general" },
+  { id: 3, caption: "[EDITABLE] Add real photos later", date: "—", category: "general" }
+];
+
+/* ===================== AUDIO ===================== */
+const AudioMgr = {
+  muted: false,
+  volume: 0.6,
+  sounds: {},
+  unlock() {
+    // create silent context so later plays work
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      if (ctx.state === "suspended") ctx.resume();
+    } catch(e) {}
+  },
+  play(id) {
+    if (this.muted) return;
+    // try real file first, fallback to beep
+    const path = `assets/sounds/${id}.mp3`;
+    let a = this.sounds[id];
+    if (!a) {
+      a = new Audio(path);
+      a.volume = this.volume;
+      a.onerror = () => { this.beep(); };
+      this.sounds[id] = a;
+    }
+    a.currentTime = 0;
+    a.volume = this.volume;
+    a.play().catch(() => this.beep());
+  },
+  beep() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = 180 + Math.random()*120;
+      g.gain.value = this.volume * 0.15;
+      o.start();
+      setTimeout(() => { o.stop(); ctx.close(); }, 180);
+    } catch(e) {}
+  },
+  setVol(v) {
+    this.volume = v;
+    Object.values(this.sounds).forEach(a => a.volume = v);
+  },
+  toggleMute() {
+    this.muted = !this.muted;
+    return this.muted;
+  }
+};
+
+/* ===================== STATE ===================== */
+let currentMember = null;
+const coolDown = new Map();
+
+/* ===================== BUILD SCENE ===================== */
+function buildScene() {
+  const scene = document.getElementById("main-scene");
+  MEMBERS.forEach(m => {
+    const el = document.createElement("div");
+    el.className = `char ${m.idle}`;
+    el.id = `char-${m.id}`;
+    el.style.left = m.pos.left;
+    el.style.bottom = m.pos.bottom;
+    el.innerHTML = `
+      <div class="bubble" id="bubble-${m.id}"></div>
+      <div class="char-body" style="background:\( {m.color}"> \){m.name[0]}</div>
+      <div class="char-name">${m.name}</div>
+    `;
+    el.addEventListener("click", () => interact(m.id));
+    scene.appendChild(el);
+  });
+}
+
+function interact(id) {
+  if (coolDown.get(id)) return;
+  coolDown.set(id, true);
+  setTimeout(() => coolDown.set(id, false), 900);
+
+  const m = MEMBERS.find(x => x.id === id);
+  const el = document.getElementById(`char-${id}`);
+  const bubble = document.getElementById(`bubble-${id}`);
+
+  el.classList.add("react");
+  setTimeout(() => el.classList.remove("react"), 450);
+
+  bubble.textContent = m.dialogue;
+  bubble.classList.add("show");
+  setTimeout(() => bubble.classList.remove("show"), 2800);
+
+  AudioMgr.play(id);
+}
+
+/* ===================== PROFILE ===================== */
+function openProfile(id) {
+  const m = MEMBERS.find(x => x.id === id);
+  const content = document.getElementById("profile-content");
+  content.innerHTML = `
+    <button class="close" onclick="closeProfile()">×</button>
+    <h2>${m.name}</h2>
+    <div class="dialogue">"${m.dialogue}"</div>
+    <div class="meta">
+      Nickname: ${m.nickname}<br>
+      ${m.description}<br>
+      Personality: ${m.personality}<br>
+      Ability: ${m.ability}
+    </div>
+    <div class="stats">
+      <span>Chaos: ${m.stats.chaos}/10</span>
+      <span>Patience: ${m.stats.patience}/10</span>
+      <span>Volume: ${m.stats.volume}/10</span>
+    </div>
+    <button class="sound-btn" onclick="AudioMgr.play('${m.id}')">Play Sound</button>
+  `;
+  document.getElementById("profile-modal").classList.add("open");
+}
+function closeProfile() {
+  document.getElementById("profile-modal").classList.remove("open");
+}
+document.getElementById("profile-modal").addEventListener("click", e => {
+  if (e.target.id === "profile-modal") closeProfile();
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") closeProfile();
+});
+
+/* ===================== NAV ===================== */
+document.querySelectorAll("nav [data-section]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("nav [data-section]").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+    document.getElementById("section-" + btn.dataset.section).classList.add("active");
+  });
+});
+
+/* ===================== MEMBERS LIST ===================== */
+function buildMembersList() {
+  const list = document.getElementById("members-list");
+  MEMBERS.forEach(m => {
+    const tile = document.createElement("div");
+    tile.className = "member-tile";
+    tile.innerHTML = `<div style="font-size:1.8rem;margin-bottom:0.3rem">\( {m.name[0]}</div> \){m.name}`;
+    tile.addEventListener("click", () => openProfile(m.id));
+    list.appendChild(tile);
+  });
+}
+
+/* ===================== MEMORY ===================== */
+function buildMemory() {
+  const grid = document.getElementById("memory-grid");
+  MEMORIES.forEach(mem => {
+    const card = document.createElement("div");
+    card.className = "memory-card";
+    card.innerHTML = `
+      <div class="ph">photo</div>
+      <div>${mem.caption}</div>
+      <div style="color:var(--dim);font-size:0.7rem;margin-top:0.3rem">${mem.date}</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+/* ===================== SOUND ROOM ===================== */
+function buildSoundRoom() {
+  const grid = document.getElementById("sound-grid");
+  MEMBERS.forEach(m => {
+    const btn = document.createElement("button");
+    btn.className = "sound-btn";
+    btn.textContent = m.name;
+    btn.addEventListener("click", () => {
+      AudioMgr.play(m.id);
+      // also show dialogue briefly via alert-style bubble if needed
+      const temp = document.createElement("div");
+      temp.style.cssText = "position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--cream);color:#111;padding:0.6rem 1rem;border-radius:4px;z-index:900;font-size:0.85rem;max-width:90%;text-align:center;";
+      temp.textContent = m.dialogue;
+      document.body.appendChild(temp);
+      setTimeout(() => temp.remove(), 2500);
+    });
+    grid.appendChild(btn);
+  });
+}
+
+/* ===================== CHAOS EVENTS ===================== */
+document.getElementById("btn-chaos").addEventListener("click", () => {
+  const shuffled = [...MEMBERS].sort(() => Math.random() - 0.5).slice(0, 4 + Math.floor(Math.random()*3));
+  shuffled.forEach((m, i) => {
+    setTimeout(() => interact(m.id), i * 280);
+  });
+});
+
+document.getElementById("btn-meeting").addEventListener("click", () => {
+  MEMBERS.forEach((m, i) => {
+    setTimeout(() => {
+      const el = document.getElementById(`char-${m.id}`);
+      el.classList.add("react");
+      setTimeout(() => el.classList.remove("react"), 400);
+    }, i * 120);
+  });
+  // brief global flash
+  const scene = document.getElementById("main-scene");
+  scene.style.boxShadow = "inset 0 0 60px rgba(166,90,58,0.35)";
+  setTimeout(() => scene.style.boxShadow = "", 800);
+});
+
+document.getElementById("btn-random").addEventListener("click", () => {
+  const m = MEMBERS[Math.floor(Math.random() * MEMBERS.length)];
+  interact(m.id);
+  setTimeout(() => openProfile(m.id), 600);
+});
+
+document.getElementById("btn-event").addEventListener("click", () => {
+  const scene = document.getElementById("main-scene");
+  const flash = document.createElement("div");
+  flash.style.cssText = "position:absolute;inset:0;background:rgba(166,90,58,0.15);pointer-events:none;z-index:5;";
+  scene.appendChild(flash);
+  setTimeout(() => flash.remove(), 600);
+  // random one or two react
+  const picks = [...MEMBERS].sort(() => Math.random()-0.5).slice(0,2);
+  picks.forEach(m => interact(m.id));
+});
+
+/* ===================== AUDIO UI ===================== */
+document.getElementById("mute-btn").addEventListener("click", () => {
+  const muted = AudioMgr.toggleMute();
+  document.getElementById("mute-btn").textContent = muted ? "UNMUTE" : "MUTE";
+});
+document.getElementById("vol").addEventListener("input", e => {
+  AudioMgr.setVol(parseFloat(e.target.value));
+});
+
+/* ===================== EASTER (title click) ===================== */
+let titleClicks = 0;
+document.getElementById("enter-screen").querySelector("h1").addEventListener("click", e => {
+  e.stopPropagation();
+  titleClicks++;
+  if (titleClicks >= 5) {
+    titleClicks = 0;
+    document.getElementById("enter-screen").style.background = "#2a1810";
+    setTimeout(() => {
+      document.getElementById("enter-screen").style.background = "";
+    }, 400);
+  }
+});
+
+/* ===================== INIT ===================== */
+document.getElementById("enter-screen").addEventListener("click", () => {
+  AudioMgr.unlock();
+  document.getElementById("enter-screen").classList.add("hidden");
+  document.getElementById("app").classList.add("active");
+  document.body.classList.remove("locked");
+});
+
+buildScene();
+buildMembersList();
+buildMemory();
+buildSoundRoom();
+</script>
+</body>
+</html>

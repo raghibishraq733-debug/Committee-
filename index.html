@@ -1078,6 +1078,34 @@
       max-width: 540px;
     }
 
+    .killer-card {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: var(--bg-panel);
+      border: 2px solid var(--danger-red);
+      border-radius: 6px;
+      padding: 0.35rem 0.7rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: #ffd6d6;
+    }
+
+    .killer-card-av {
+      width: 34px;
+      height: 38px;
+      overflow: hidden;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .killer-card-av img.custom-char-img,
+    .killer-card-av .char-svg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
     .overlay-actions-row {
       display: flex;
       flex-wrap: wrap;
@@ -1136,12 +1164,15 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
+      border-radius: 4px;
     }
 
     .rui-face-av .char-svg,
     .rui-face-av img.custom-char-img {
       width: 100%;
       height: 100%;
+      object-fit: cover;
     }
 
     .game-card.is-expanded-game .rui-face-av {
@@ -1239,12 +1270,15 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
+      border-radius: 6px;
     }
 
     .hole-avatar-wrap .char-svg,
     .hole-avatar-wrap img.custom-char-img {
       width: 100%;
       height: 100%;
+      object-fit: cover;
     }
 
     .game-card.is-expanded-game .hole-avatar-wrap {
@@ -1293,6 +1327,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: flex-end;
+      overflow: hidden;
     }
 
     .game-card.is-expanded-game .barrel-station {
@@ -1302,38 +1337,40 @@
     .barrel-peeker {
       position: relative;
       z-index: 2;
-      width: 72px;
-      height: 84px;
-      transform: translateY(58px);
+      width: 68px;
+      height: 78px;
+      transform: translateY(56px);
       opacity: 0;
       transition: transform 0.09s ease-out, opacity 0.08s ease;
       cursor: crosshair;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: flex-end;
     }
 
     .game-card.is-expanded-game .barrel-peeker {
-      width: 98px;
-      height: 112px;
+      width: 88px;
+      height: 98px;
     }
 
     .barrel-peeker.exposed {
-      transform: translateY(12px);
+      transform: translateY(10px);
       opacity: 1;
     }
 
     .barrel-peeker-tag {
       font-family: var(--font-mono);
-      font-size: 0.64rem;
+      font-size: 0.62rem;
       font-weight: 700;
       background: var(--rust-orange);
       color: #100d0a;
       padding: 1px 5px;
       border-radius: 3px;
       border: 1px solid #090a08;
-      margin-bottom: -4px;
+      margin-bottom: 2px;
       z-index: 4;
+      white-space: nowrap;
     }
 
     .barrel-peeker-tag.pig-tag {
@@ -1341,14 +1378,38 @@
       color: #14070a;
     }
 
+    .barrel-target-box {
+      width: 52px;
+      height: 54px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 2px solid #0c0e0b;
+      background: #1b2019;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .game-card.is-expanded-game .barrel-target-box {
+      width: 68px;
+      height: 70px;
+    }
+
+    .barrel-target-box img.custom-char-img,
+    .barrel-target-box .char-svg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
     .barrel-pig-emoji {
-      font-size: 2.35rem;
+      font-size: 1.85rem;
       line-height: 1;
-      padding-top: 4px;
     }
 
     .game-card.is-expanded-game .barrel-pig-emoji {
-      font-size: 3.2rem;
+      font-size: 2.35rem;
     }
 
     .drum-cover {
@@ -1525,7 +1586,7 @@
     .missing-eight-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 0.4rem;
+      gap: 0.45rem;
       flex: 1;
       align-content: center;
     }
@@ -1534,27 +1595,39 @@
       background: var(--bg-panel);
       border: 1px solid var(--border-grime);
       border-radius: var(--radius-sm);
-      padding: 0.25rem;
+      padding: 0.3rem;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 0.15rem;
+      gap: 0.2rem;
     }
 
     .game-card.is-expanded-game .missing-member-tile {
-      padding: 0.55rem;
+      padding: 0.5rem;
     }
 
     .missing-member-av {
-      width: 38px;
-      height: 44px;
+      width: 42px;
+      height: 42px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid #0b0d0a;
+      background: #141713;
       pointer-events: none;
+      flex-shrink: 0;
+    }
+
+    .missing-member-av img.custom-char-img,
+    .missing-member-av .char-svg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .game-card.is-expanded-game .missing-member-av {
-      width: 64px;
-      height: 74px;
+      width: 58px;
+      height: 58px;
     }
 
     .missing-member-name {
@@ -1686,6 +1759,7 @@
     .roster-avatar .char-svg {
       width: 100%;
       height: 100%;
+      object-fit: cover;
     }
 
     .roster-dialogue {
@@ -1843,6 +1917,7 @@
     #dossier-avatar-slot .char-svg {
       width: 100%;
       height: 100%;
+      object-fit: cover;
     }
 
     .stat-row { margin-bottom: 0.45rem; }
@@ -2084,7 +2159,7 @@
             <button class="game-exit-expand-btn" type="button" data-exit-expand>Exit Expanded View</button>
           </div>
           <p class="game-desc">
-            <strong>30s</strong> timer! Catch fish for points, dodge 🐷/🌿/🛢️/🐘, and NEVER touch a member face (instant Game Over).
+            <strong>30s</strong> high-arc round (+10% speed)! Catch fish for points, dodge 🐷/🌿/🛢️/🐘, and NEVER touch a member face (instant Game Over).
           </p>
           <div id="rui-arena" class="game-arena">
             <div class="game-hud">
@@ -2099,6 +2174,7 @@
             <div id="rui-score-overlay" class="arena-score-overlay">
               <div id="rui-big-score" class="big-score-value">0 PTS</div>
               <div id="rui-big-rank" class="big-rank-msg">তুই শুয়োরছানা</div>
+              <div id="rui-killer-box" class="killer-card" style="display:none;"></div>
               <div id="rui-big-detail" class="big-score-detail"></div>
               <div class="overlay-actions-row">
                 <button id="rui-replay-btn" class="btn-primary" type="button">Play Again</button>
@@ -2110,19 +2186,19 @@
           <button id="rui-start-btn" class="btn-primary" type="button">Start মৎসলোভি সাইজিদ (30s)</button>
         </article>
 
-        <!-- GAME 2: আলির গুহা (20 SECOND TIMER) -->
+        <!-- GAME 2: আলির গুহা (10 SECOND TIMER) -->
         <article id="game-card-hole" class="game-card">
           <div class="game-card-head">
-            <h2>আলির গুহা (20s)</h2>
+            <h2>আলির গুহা (10s)</h2>
             <button class="game-exit-expand-btn" type="button" data-exit-expand>Exit Expanded View</button>
           </div>
           <p class="game-desc">
-            <strong>20s</strong> timer! Hit popping members for points; red DECOY fakes cost points!
+            <strong>10s</strong> sprint! Hit popping members for points; red DECOY fakes cost points!
           </p>
           <div id="hole-arena" class="game-arena">
             <div class="game-hud">
               <span>SCORE: <strong id="hole-kills">0</strong></span>
-              <span>TIME LEFT: <strong id="hole-time">20000 ms</strong></span>
+              <span>TIME LEFT: <strong id="hole-time">10000 ms</strong></span>
               <span id="hole-status">READY</span>
             </div>
             <div id="holes-grid" class="holes-grid"></div>
@@ -2140,24 +2216,24 @@
               </div>
             </div>
           </div>
-          <div id="hole-outcome" class="outcome-box">20s round. Score tiers: আপনি ব্রাহ্মণ, তুমি ক্ষত্রিয়, তুমি শুদ্র, তুই শুয়োরছানা.</div>
-          <button id="hole-start-btn" class="btn-primary" type="button">Start আলির গুহা (20s)</button>
+          <div id="hole-outcome" class="outcome-box">10s round. Score tiers: আপনি ব্রাহ্মণ, তুমি ক্ষত্রিয়, তুমি শুদ্র, তুই শুয়োরছানা.</div>
+          <button id="hole-start-btn" class="btn-primary" type="button">Start আলির গুহা (10s)</button>
         </article>
 
-        <!-- GAME 3: ব্যারেল মাগিকে মারো (20 SECOND TIMER) -->
+        <!-- GAME 3: ব্যারেল মাগিকে মারো (10 SECOND TIMER) -->
         <article id="game-card-barrel" class="game-card">
           <div class="game-card-head">
-            <h2>ব্যারেল মাগিকে মারো (20s)</h2>
+            <h2>ব্যারেল মাগিকে মারো (10s)</h2>
             <button class="game-exit-expand-btn" type="button" data-exit-expand>Exit Expanded View</button>
           </div>
           <p class="game-desc">
-            <strong>20s</strong> timer! Shoot peeking targets for points. DO NOT shoot peeking Pigs (🐷 -20 pts).
+            <strong>10s</strong> sprint! Shoot peeking targets for points. DO NOT shoot peeking Pigs (🐷 -20 pts).
           </p>
           <div id="barrel-arena" class="game-arena barrel-arena">
             <div class="game-hud">
               <span>HITS: <strong id="barrel-hits">0</strong></span>
               <span>SCORE: <strong id="barrel-score">0</strong></span>
-              <span>TIME LEFT: <strong id="barrel-time">20000 ms</strong></span>
+              <span>TIME LEFT: <strong id="barrel-time">10000 ms</strong></span>
             </div>
             <div id="barrel-lanes" class="barrel-lanes"></div>
             <div id="barrel-countdown" class="arena-countdown-overlay" aria-live="polite">
@@ -2174,8 +2250,8 @@
               </div>
             </div>
           </div>
-          <div id="barrel-outcome" class="outcome-box">20s round. Score tiers: আপনি ব্রাহ্মণ, তুমি ক্ষত্রিয়, তুমি শুদ্র, তুই শুয়োরছানা.</div>
-          <button id="barrel-start-btn" class="btn-primary" type="button">Start ব্যারেল মাগিকে মারো (20s)</button>
+          <div id="barrel-outcome" class="outcome-box">10s round. Score tiers: আপনি ব্রাহ্মণ, তুমি ক্ষত্রিয়, তুমি শুদ্র, তুই শুয়োরছানা.</div>
+          <button id="barrel-start-btn" class="btn-primary" type="button">Start ব্যারেল মাগিকে মারো (10s)</button>
         </article>
 
         <!-- GAME 4: অভাগা শুয়োর (SPINNING WHEEL) -->
@@ -2557,7 +2633,7 @@
     /* ==========================================================================
        4-TIER SCORE RANKING FOR মৎসলোভি সাইজিদ, ব্যারেল মাগিকে মারো & আলির গুহা
        ========================================================================== */
-    function getScoreTierMessage(score, thresholds = { brahmin: 150, kshatriya: 80, shudra: 35 }) {
+    function getScoreTierMessage(score, thresholds = { brahmin: 180, kshatriya: 100, shudra: 40 }) {
       if (score >= thresholds.brahmin) return "আপনি ব্রাহ্মণ";
       if (score >= thresholds.kshatriya) return "তুমি ক্ষত্রিয়";
       if (score >= thresholds.shudra) return "তুমি শুদ্র";
@@ -2864,7 +2940,7 @@
     }
 
     /* ==========================================================================
-       AUDIO MANAGER (RELAXING AMBIENT BGM + FUNNY CARTOON SFX)
+       AUDIO MANAGER (RELAXING AMBIENT BGM + FUNNY CARTOON & GUNSHOT SFX)
        ========================================================================== */
     class CommitteeAudioManager {
       constructor() {
@@ -3040,6 +3116,47 @@
         if (!this.ctx || this.isMuted) return;
         if (this.ctx.state === "suspended") this.ctx.resume();
         const now = this.ctx.currentTime;
+
+        if (type === "gunshot") {
+          // Punchy low-end thump + filtered noise blast
+          const punchOsc = this.ctx.createOscillator();
+          const punchGain = this.ctx.createGain();
+          punchOsc.type = "triangle";
+          punchOsc.frequency.setValueAtTime(195, now);
+          punchOsc.frequency.exponentialRampToValueAtTime(36, now + 0.14);
+          punchGain.gain.setValueAtTime(0.45, now);
+          punchGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+          punchOsc.connect(punchGain);
+          punchGain.connect(this.masterGain);
+          punchOsc.start(now);
+          punchOsc.stop(now + 0.16);
+
+          const bufferSize = Math.floor(this.ctx.sampleRate * 0.16);
+          const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const data = noiseBuffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i += 1) {
+            data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.28));
+          }
+
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = noiseBuffer;
+
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = "bandpass";
+          filter.frequency.setValueAtTime(1350, now);
+          filter.Q.setValueAtTime(0.85, now);
+
+          const noiseGain = this.ctx.createGain();
+          noiseGain.gain.setValueAtTime(0.42, now);
+          noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+
+          noise.connect(filter);
+          filter.connect(noiseGain);
+          noiseGain.connect(this.masterGain);
+          noise.start(now);
+          noise.stop(now + 0.165);
+          return;
+        }
 
         if (type === "boing") {
           const osc = this.ctx.createOscillator();
@@ -3310,7 +3427,7 @@
       wrap.style.width = "100%";
       wrap.style.height = "100%";
       wrap.style.display = "flex";
-      wrap.style.alignItems = "flex-end";
+      wrap.style.alignItems = "center";
       wrap.style.justifyContent = "center";
 
       const img = document.createElement("img");
@@ -3752,7 +3869,7 @@
     }
 
     /* ==========================================================================
-       GAME 1: মৎসলোভি সাইজিদ (30 SECOND TIMER, RANDOM YELLOW/WHITE/BLACK FRAME)
+       GAME 1: মৎসলোভি সাইজিদ (30s, HIGHER ARC, +10% SPEED, KILLER ON SCOREBOARD)
        ========================================================================== */
     const RUI_DURATION_MS = 30000;
     const ruiGame = {
@@ -3799,24 +3916,47 @@
       clearInterval(ruiGame.clockTimer);
     }
 
-    function endRuiGame(reasonText, remMs, touchedFace = false) {
+    function endRuiGame(reasonText, remMs, touchedMember = null) {
       ruiGame.running = false;
       stopRuiTimers();
       clearRuiArena();
 
+      const touchedFace = Boolean(touchedMember);
       const finalScore = touchedFace ? 0 : ruiGame.score;
       const rankMsg = touchedFace
         ? "তুই শুয়োরছানা"
-        : getScoreTierMessage(finalScore, { brahmin: 180, kshatriya: 100, shudra: 45 });
+        : getScoreTierMessage(finalScore, { brahmin: 180, kshatriya: 100, shudra: 40 });
       const msStr = `${remMs} ms`;
+
+      const killerBox = document.getElementById("rui-killer-box");
+      if (killerBox) {
+        if (touchedMember) {
+          killerBox.style.display = "inline-flex";
+          killerBox.innerHTML = "";
+          const av = document.createElement("div");
+          av.className = "killer-card-av";
+          av.appendChild(createAvatarVisual(touchedMember));
+          const txt = document.createElement("span");
+          txt.textContent = `ELIMINATED BY: ${touchedMember.name.toUpperCase()}`;
+          killerBox.appendChild(av);
+          killerBox.appendChild(txt);
+        } else {
+          killerBox.style.display = "none";
+          killerBox.innerHTML = "";
+        }
+      }
 
       document.getElementById("rui-time").textContent = msStr;
       document.getElementById("rui-status").textContent = "FINISHED";
       document.getElementById("rui-big-score").textContent = `${finalScore} PTS`;
       document.getElementById("rui-big-rank").textContent = rankMsg;
-      document.getElementById("rui-big-detail").textContent = `${reasonText} | Time Left: ${msStr}`;
+      document.getElementById("rui-big-detail").textContent = touchedMember
+        ? `Touched ${touchedMember.name}! | Time Left: ${msStr}`
+        : `${reasonText} | Time Left: ${msStr}`;
       document.getElementById("rui-score-overlay").classList.add("active");
-      document.getElementById("rui-outcome").textContent = `${rankMsg} — Score: ${finalScore} PTS (${reasonText})`;
+      document.getElementById("rui-outcome").textContent = touchedMember
+        ? `${rankMsg} — Touched ${touchedMember.name} (${finalScore} PTS)`
+        : `${rankMsg} — Score: ${finalScore} PTS (${reasonText})`;
       logActivity(`মৎসলোভি সাইজিদ: ${rankMsg} (${finalScore} PTS)`);
     }
 
@@ -3847,15 +3987,16 @@
       const w = Math.max(220, arena.clientWidth);
       const h = Math.max(220, arena.clientHeight);
       const startX = 20 + Math.random() * Math.max(40, w - 76);
-      const centerBias = (w * 0.5 - startX) * 0.011;
+      const centerBias = (w * 0.5 - startX) * 0.012;
 
+      // Higher throw + 10% faster motion
       const faceObj = {
         el,
         x: startX,
-        y: h - 18,
-        vx: centerBias + (Math.random() - 0.5) * 2.4,
-        vy: -(8.6 + Math.random() * 2.4),
-        gravity: 0.25
+        y: h - 14,
+        vx: (centerBias + (Math.random() - 0.5) * 2.6) * 1.1,
+        vy: -(11.2 + Math.random() * 2.8) * 1.1,
+        gravity: 0.255 * 1.1
       };
 
       el.style.left = `${faceObj.x}px`;
@@ -3866,7 +4007,7 @@
         if (!ruiGame.running) return;
         const rem = getRemainingMs(ruiGame.endPerf);
         audioManager.playFunnySfx("wahWah");
-        endRuiGame(`Touched ${member.name}'s face!`, rem, true);
+        endRuiGame(`Touched ${member.name}'s face!`, rem, member);
       });
 
       arena.appendChild(el);
@@ -3876,7 +4017,7 @@
     function launchParabolicItem() {
       if (!ruiGame.running) return;
       const arena = document.getElementById("rui-arena");
-      const isMinus = Math.random() < 0.36;
+      const isMinus = Math.random() < 0.38;
       const spec = isMinus
         ? RUI_MINUS_ITEMS[Math.floor(Math.random() * RUI_MINUS_ITEMS.length)]
         : RUI_PLUS_FISH[Math.floor(Math.random() * RUI_PLUS_FISH.length)];
@@ -3889,16 +4030,17 @@
       const w = Math.max(220, arena.clientWidth);
       const h = Math.max(220, arena.clientHeight);
       const startX = 18 + Math.random() * Math.max(40, w - 70);
-      const centerBias = (w * 0.5 - startX) * 0.011;
+      const centerBias = (w * 0.5 - startX) * 0.012;
 
+      // Thrown noticeably higher + 10% faster physics
       const obj = {
         el,
         pts: spec.pts,
         x: startX,
-        y: h - 16,
-        vx: centerBias + (Math.random() - 0.5) * 2.8,
-        vy: -(8.4 + Math.random() * 2.6),
-        gravity: 0.25
+        y: h - 12,
+        vx: (centerBias + (Math.random() - 0.5) * 3.0) * 1.1,
+        vy: -(11.0 + Math.random() * 3.0) * 1.1,
+        gravity: 0.255 * 1.1
       };
 
       el.style.left = `${obj.x}px`;
@@ -3924,10 +4066,16 @@
       ruiGame.score = 0;
       ruiGame.endPerf = performance.now() + RUI_DURATION_MS;
 
+      const killerBox = document.getElementById("rui-killer-box");
+      if (killerBox) {
+        killerBox.style.display = "none";
+        killerBox.innerHTML = "";
+      }
+
       document.getElementById("rui-score").textContent = "0";
       document.getElementById("rui-time").textContent = `${RUI_DURATION_MS} ms`;
       document.getElementById("rui-status").textContent = "LIVE (30s)";
-      document.getElementById("rui-outcome").textContent = "30s timer running! Catch fish and avoid member faces!";
+      document.getElementById("rui-outcome").textContent = "30s high-arc round (+10% speed)! Catch fish and avoid member faces!";
 
       launchParabolicItem();
       launchParabolicMemberFace();
@@ -3938,17 +4086,18 @@
         document.getElementById("rui-time").textContent = `${rem} ms`;
         if (rem <= 0) {
           audioManager.playFunnySfx("boing");
-          endRuiGame("30s timer complete!", 0, false);
+          endRuiGame("30s timer complete!", 0, null);
         }
       }, 37);
 
+      // ~10% faster spawn cadence (420ms -> 380ms)
       ruiGame.spawnTimer = setInterval(() => {
         if (!ruiGame.running) return;
         launchParabolicItem();
-        if (Math.random() < 0.45) {
+        if (Math.random() < 0.48) {
           launchParabolicMemberFace();
         }
-      }, 420);
+      }, 380);
 
       ruiGame.moveTimer = setInterval(() => {
         if (!ruiGame.running) return;
@@ -3965,7 +4114,7 @@
           it.el.style.left = `${it.x}px`;
           it.el.style.top = `${it.y}px`;
 
-          if (it.vy > 0 && it.y > h + 20) {
+          if (it.vy > 0 && it.y > h + 24) {
             it.el.remove();
             ruiGame.items.splice(i, 1);
           }
@@ -3980,12 +4129,12 @@
           f.el.style.left = `${f.x}px`;
           f.el.style.top = `${f.y}px`;
 
-          if (f.vy > 0 && f.y > h + 24) {
+          if (f.vy > 0 && f.y > h + 28) {
             f.el.remove();
             ruiGame.faces.splice(i, 1);
           }
         }
-      }, 24);
+      }, 22);
     }
 
     function startRuiGame() {
@@ -4004,9 +4153,9 @@
     }
 
     /* ==========================================================================
-       GAME 2: আলির গুহা (20 SECOND TIMER)
+       GAME 2: আলির গুহা (10 SECOND TIMER, SAME SCORE TIERS)
        ========================================================================== */
-    const HOLE_DURATION_MS = 20000;
+    const HOLE_DURATION_MS = 10000;
     const holeGame = {
       running: false,
       score: 0,
@@ -4103,7 +4252,7 @@
         slot.currentMember = null;
         slot.isDecoy = false;
         slot.moleEl.classList.remove("popped");
-      }, 720);
+      }, 650);
     }
 
     function finishHoleGame() {
@@ -4123,7 +4272,7 @@
       document.getElementById("hole-status").textContent = "FINISHED";
       document.getElementById("hole-big-score").textContent = `${finalScore} PTS`;
       document.getElementById("hole-big-rank").textContent = rankMsg;
-      document.getElementById("hole-big-detail").textContent = `আলির গুহা 20s round complete! Final Score: ${finalScore} PTS`;
+      document.getElementById("hole-big-detail").textContent = `আলির গুহা 10s round complete! Final Score: ${finalScore} PTS`;
       document.getElementById("hole-score-overlay").classList.add("active");
       document.getElementById("hole-outcome").textContent = `${rankMsg} — Score: ${finalScore} PTS`;
       logActivity(`আলির গুহা: ${rankMsg} (${finalScore} PTS)`);
@@ -4137,8 +4286,8 @@
 
       document.getElementById("hole-kills").textContent = "0";
       document.getElementById("hole-time").textContent = `${HOLE_DURATION_MS} ms`;
-      document.getElementById("hole-status").textContent = "HUNT (20s)";
-      document.getElementById("hole-outcome").textContent = "20s timer running! Hit popping members, avoid red DECOY fakes!";
+      document.getElementById("hole-status").textContent = "HUNT (10s)";
+      document.getElementById("hole-outcome").textContent = "10s timer running! Hit popping members, avoid red DECOY fakes!";
 
       popRandomHoleMember();
 
@@ -4155,7 +4304,7 @@
       holeGame.popTimer = setInterval(() => {
         if (!holeGame.running) return;
         popRandomHoleMember();
-      }, 420);
+      }, 390);
     }
 
     function startHoleGame() {
@@ -4175,9 +4324,9 @@
     }
 
     /* ==========================================================================
-       GAME 3: ব্যারেল মাগিকে মারো (20 SECOND TIMER)
+       GAME 3: ব্যারেল মাগিকে মারো (10s TIMER, GUNSHOT SFX, BOUNDED TARGETS)
        ========================================================================== */
-    const BARREL_DURATION_MS = 20000;
+    const BARREL_DURATION_MS = 10000;
     const barrelGame = {
       running: false,
       hits: 0,
@@ -4206,11 +4355,7 @@
         tag.textContent = "TARGET";
 
         const visualHolder = document.createElement("div");
-        visualHolder.style.width = "62px";
-        visualHolder.style.height = "72px";
-        visualHolder.style.display = "flex";
-        visualHolder.style.alignItems = "center";
-        visualHolder.style.justifyContent = "center";
+        visualHolder.className = "barrel-target-box";
 
         peeker.appendChild(tag);
         peeker.appendChild(visualHolder);
@@ -4232,6 +4377,17 @@
         peeker.addEventListener("pointerdown", (e) => {
           e.stopPropagation();
           if (!barrelGame.running) return;
+          audioManager.playFunnySfx("gunshot");
+
+          const arena = document.getElementById("barrel-arena");
+          const rect = arena.getBoundingClientRect();
+          const flash = document.createElement("div");
+          flash.className = "muzzle-flash";
+          flash.style.left = `${e.clientX - rect.left}px`;
+          flash.style.top = `${e.clientY - rect.top}px`;
+          arena.appendChild(flash);
+          setTimeout(() => flash.remove(), 240);
+
           const wasPig = stationObj.isPig;
           const m = stationObj.activeMember;
           stationObj.activeMember = null;
@@ -4239,13 +4395,11 @@
           peeker.classList.remove("exposed");
           clearTimeout(stationObj.hideTimer);
 
-          const arena = document.getElementById("barrel-arena");
           if (wasPig) {
             barrelGame.score = Math.max(0, barrelGame.score - 20);
             barrelGame.hits = Math.max(0, barrelGame.hits - 1);
             document.getElementById("barrel-hits").textContent = String(barrelGame.hits);
             document.getElementById("barrel-score").textContent = String(barrelGame.score);
-            audioManager.playFunnySfx("squeak");
             spawnHitSpark(arena, 85 + i * 115, 165, "PIG -20!");
             return;
           }
@@ -4255,7 +4409,6 @@
           barrelGame.score += 20;
           document.getElementById("barrel-hits").textContent = String(barrelGame.hits);
           document.getElementById("barrel-score").textContent = String(barrelGame.score);
-          audioManager.playFunnySfx("bonk");
           spawnHitSpark(arena, 85 + i * 115, 165, `+20 ${m.name}!`);
         });
 
@@ -4297,7 +4450,7 @@
       document.getElementById("barrel-hits").textContent = "0";
       document.getElementById("barrel-score").textContent = "0";
       document.getElementById("barrel-time").textContent = `${BARREL_DURATION_MS} ms`;
-      document.getElementById("barrel-outcome").textContent = "20s timer running! Shoot targets and DO NOT shoot Pigs (🐷)!";
+      document.getElementById("barrel-outcome").textContent = "10s timer running! Shoot targets and DO NOT shoot Pigs (🐷)!";
 
       barrelGame.clockTimer = setInterval(() => {
         if (!barrelGame.running) return;
@@ -4336,8 +4489,8 @@
           st.activeMember = null;
           st.isPig = false;
           st.peeker.classList.remove("exposed");
-        }, 460);
-      }, 390);
+        }, 440);
+      }, 370);
     }
 
     function startBarrelGame() {
@@ -4363,7 +4516,7 @@
           flash.style.top = `${e.clientY - rect.top}px`;
           arena.appendChild(flash);
           setTimeout(() => flash.remove(), 240);
-          audioManager.playFunnySfx("pop");
+          audioManager.playFunnySfx("gunshot");
         });
       }
 

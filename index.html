@@ -2605,7 +2605,7 @@
           title: "[EDITABLE PLACEHOLDER] Archive Entry 01",
           date: "[EDITABLE DATE]",
           category: "INCIDENTS",
-          mediaType: "placeholder",
+          mediaType: "image",
           mediaPath: "assets/memories/sample1.jpg",
           caption: "[EDITABLE PLACEHOLDER] Add real photo/video path in COMMITTEE_CONFIG.memories."
         },
@@ -2614,7 +2614,7 @@
           title: "[EDITABLE PLACEHOLDER] Archive Entry 02",
           date: "[EDITABLE DATE]",
           category: "GATHERINGS",
-          mediaType: "placeholder",
+          mediaType: "image",
           mediaPath: "assets/memories/sample2.jpg",
           caption: "[EDITABLE PLACEHOLDER] Replace with your actual group photo and date."
         },
@@ -2623,7 +2623,7 @@
           title: "[EDITABLE PLACEHOLDER] Archive Entry 03",
           date: "[EDITABLE DATE]",
           category: "EVIDENCE",
-          mediaType: "placeholder",
+          mediaType: "video",
           mediaPath: "assets/memories/sample3.mp4",
           caption: "[EDITABLE PLACEHOLDER] Supports .jpg, .png, .webp, or .mp4 files."
         }
@@ -3118,7 +3118,6 @@
         const now = this.ctx.currentTime;
 
         if (type === "gunshot") {
-          // Punchy low-end thump + filtered noise blast
           const punchOsc = this.ctx.createOscillator();
           const punchGain = this.ctx.createGain();
           punchOsc.type = "triangle";
@@ -3989,7 +3988,6 @@
       const startX = 20 + Math.random() * Math.max(40, w - 76);
       const centerBias = (w * 0.5 - startX) * 0.012;
 
-      // Higher throw + 10% faster motion
       const faceObj = {
         el,
         x: startX,
@@ -4032,7 +4030,6 @@
       const startX = 18 + Math.random() * Math.max(40, w - 70);
       const centerBias = (w * 0.5 - startX) * 0.012;
 
-      // Thrown noticeably higher + 10% faster physics
       const obj = {
         el,
         pts: spec.pts,
@@ -4090,7 +4087,6 @@
         }
       }, 37);
 
-      // ~10% faster spawn cadence (420ms -> 380ms)
       ruiGame.spawnTimer = setInterval(() => {
         if (!ruiGame.running) return;
         launchParabolicItem();

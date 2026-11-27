@@ -555,7 +555,9 @@
     .avatar-stage img.custom-char-img {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 2px solid #0d0f0c;
       pointer-events: none;
     }
 
@@ -995,7 +997,6 @@
       border-bottom: 1px solid var(--border-grime);
     }
 
-    /* Big 3-Second Countdown & Big Final Score Overlays */
     .arena-countdown-overlay {
       position: absolute;
       inset: 34px 0 0 0;
@@ -1137,7 +1138,8 @@
       justify-content: center;
     }
 
-    .rui-face-av .char-svg {
+    .rui-face-av .char-svg,
+    .rui-face-av img.custom-char-img {
       width: 100%;
       height: 100%;
     }
@@ -1239,7 +1241,8 @@
       justify-content: center;
     }
 
-    .hole-avatar-wrap .char-svg {
+    .hole-avatar-wrap .char-svg,
+    .hole-avatar-wrap img.custom-char-img {
       width: 100%;
       height: 100%;
     }
@@ -1679,6 +1682,12 @@
       flex-shrink: 0;
     }
 
+    .roster-avatar img.custom-char-img,
+    .roster-avatar .char-svg {
+      width: 100%;
+      height: 100%;
+    }
+
     .roster-dialogue {
       font-family: var(--font-mono);
       font-size: 0.82rem;
@@ -1828,6 +1837,12 @@
       display: grid;
       grid-template-columns: 165px 1fr;
       gap: 1.1rem;
+    }
+
+    #dossier-avatar-slot img.custom-char-img,
+    #dossier-avatar-slot .char-svg {
+      width: 100%;
+      height: 100%;
     }
 
     .stat-row { margin-bottom: 0.45rem; }
@@ -2313,7 +2328,7 @@
           "COMMITTEE is a closed-circuit digital compound built for nine specific people and nobody else.",
           "[EDITABLE PLACEHOLDER] Replace this text in COMMITTEE_CONFIG.about with your own dry summary of this group."
         ],
-        placeholderNotice: "ASSET & TEXT GUIDE: Drop transparent PNGs into assets/characters/<id>.png and MP3s into assets/sounds/<id>.mp3. Edit profiles, stats, and memories in COMMITTEE_CONFIG."
+        placeholderNotice: "ASSET & TEXT GUIDE: Put PNGs in assets/characters/<id>.png (ragib.png, ali.png, bipu.png, nafi.png, vaste.png, sayzid.png, jahid.png, billal.png, anam.png) and MP3s in assets/sounds/<id>.mp3."
       },
 
       members: [
@@ -2550,7 +2565,7 @@
     }
 
     /* ==========================================================================
-       SVG AVATAR RIGS FOR ALL 9 MEMBERS
+       SVG FALLBACK RIGS FOR ALL 9 MEMBERS
        ========================================================================== */
     function buildCharacterSVG(memberId) {
       const rigs = {
@@ -3294,16 +3309,19 @@
       const wrap = document.createElement("div");
       wrap.style.width = "100%";
       wrap.style.height = "100%";
-      wrap.innerHTML = buildCharacterSVG(member.id);
+      wrap.style.display = "flex";
+      wrap.style.alignItems = "flex-end";
+      wrap.style.justifyContent = "center";
 
-      const img = new Image();
+      const img = document.createElement("img");
       img.src = member.imagePath;
       img.alt = member.name;
       img.className = "custom-char-img";
-      img.onload = () => {
-        wrap.innerHTML = "";
-        wrap.appendChild(img);
+      img.onerror = () => {
+        wrap.innerHTML = buildCharacterSVG(member.id);
       };
+
+      wrap.appendChild(img);
       return wrap;
     }
 
@@ -3763,9 +3781,9 @@
     ];
 
     const RUI_FACE_FRAMES = [
-      { color: "#f5d142", text: "#111310" }, // yellow
-      { color: "#f5f2e8", text: "#111310" }, // white
-      { color: "#141613", text: "#f5f2e8" }  // black
+      { color: "#f5d142", text: "#111310" },
+      { color: "#f5f2e8", text: "#111310" },
+      { color: "#141613", text: "#f5f2e8" }
     ];
 
     function clearRuiArena() {
@@ -3986,7 +4004,7 @@
     }
 
     /* ==========================================================================
-       GAME 2: আলির গুহা (20 SECOND TIMER — FIXED POP-UP & CLICK HANDLING)
+       GAME 2: আলির গুহা (20 SECOND TIMER)
        ========================================================================== */
     const HOLE_DURATION_MS = 20000;
     const holeGame = {

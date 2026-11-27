@@ -2328,7 +2328,7 @@
     <section id="memory-view" class="view-section" aria-label="Memory Wall">
       <div class="section-header">
         <h2 class="section-title">MEMORY WALL</h2>
-        <p class="section-subtitle">Edit COMMITTEE_CONFIG.memories in the script to plug in real photos and videos.</p>
+        <p class="section-subtitle">24 archive slots ready — put photos/videos in assets/memories/ and update COMMITTEE_CONFIG.memories in the script.</p>
       </div>
       <div id="memory-filters" class="filter-bar"></div>
       <div id="memory-grid" class="memory-grid"></div>
@@ -2338,7 +2338,7 @@
     <section id="sound-view" class="view-section" aria-label="Sound Room">
       <div class="section-header">
         <h2 class="section-title">SOUND ROOM</h2>
-        <p class="section-subtitle">9-channel audio board + funny comedy &amp; chaos FX triggers.</p>
+        <p class="section-subtitle">9-channel audio board + custom touch SFX &amp; comedy FX triggers.</p>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem;">
         <button id="sfx-airhorn-btn" class="btn-primary" type="button">Airhorn Blast</button>
@@ -2374,6 +2374,7 @@
         <div style="display:flex;flex-direction:column;gap:0.65rem;">
           <div id="dossier-avatar-slot" style="width:140px;height:165px;background:var(--bg-panel);border:1px solid var(--border-grime);padding:6px;"></div>
           <button id="dossier-sound-btn" class="btn-primary" type="button">Play Audio</button>
+          <button id="dossier-touch-sound-btn" class="btn-secondary" type="button">Play Touch SFX</button>
           <button id="dossier-fight-btn" class="btn-secondary" type="button">Pick For Brawl</button>
         </div>
         <div style="display:flex;flex-direction:column;gap:0.75rem;">
@@ -2404,7 +2405,7 @@
           "COMMITTEE is a closed-circuit digital compound built for nine specific people and nobody else.",
           "[EDITABLE PLACEHOLDER] Replace this text in COMMITTEE_CONFIG.about with your own dry summary of this group."
         ],
-        placeholderNotice: "ASSET & TEXT GUIDE: Put PNGs in assets/characters/<id>.png (ragib.png, ali.png, bipu.png, nafi.png, vaste.png, sayzid.png, jahid.png, billal.png, anam.png) and MP3s in assets/sounds/<id>.mp3."
+        placeholderNotice: "ASSET & TEXT GUIDE: Put PNGs in assets/characters/<id>.png, dialogue audio in assets/sounds/<id>.mp3, custom touch SFX in assets/touch-sounds/<id>-touch.mp3, and photos/videos in assets/memories/."
       },
 
       members: [
@@ -2415,6 +2416,7 @@
           roast: "Mamuni still hasn't checked Ragib's status updates.",
           imagePath: "assets/characters/ragib.png",
           soundPath: "assets/sounds/ragib.mp3",
+          touchSoundPath: "assets/touch-sounds/ragib-touch.mp3",
           position: { x: 16, y: 82 },
           zIndex: 24,
           clickAnim: "react-laugh-float",
@@ -2436,6 +2438,7 @@
           roast: "Ali tried to broker a deal on a broken bicycle wheel.",
           imagePath: "assets/characters/ali.png",
           soundPath: "assets/sounds/ali.mp3",
+          touchSoundPath: "assets/touch-sounds/ali-touch.mp3",
           position: { x: 28, y: 76 },
           zIndex: 22,
           clickAnim: "react-shady-lean",
@@ -2457,6 +2460,7 @@
           roast: "Bipu has the aerodynamic profile of a dropped oil drum.",
           imagePath: "assets/characters/bipu.png",
           soundPath: "assets/sounds/bipu.mp3",
+          touchSoundPath: "assets/touch-sounds/bipu-touch.mp3",
           position: { x: 38, y: 89 },
           zIndex: 28,
           clickAnim: "react-barrel-swell",
@@ -2478,6 +2482,7 @@
           roast: "Nafi writes marriage subpoenas before anyone even says hello.",
           imagePath: "assets/characters/nafi.png",
           soundPath: "assets/sounds/nafi.mp3",
+          touchSoundPath: "assets/touch-sounds/nafi-touch.mp3",
           position: { x: 48, y: 78 },
           zIndex: 23,
           clickAnim: "react-lunge",
@@ -2499,6 +2504,7 @@
           roast: "Vaste brings a tape measure to emotional breakdowns.",
           imagePath: "assets/characters/vaste.png",
           soundPath: "assets/sounds/vaste.mp3",
+          touchSoundPath: "assets/touch-sounds/vaste-touch.mp3",
           position: { x: 58, y: 91 },
           zIndex: 29,
           clickAnim: "react-tilt",
@@ -2520,6 +2526,7 @@
           roast: "Sayzid yells about rui mach even inside a library.",
           imagePath: "assets/characters/sayzid.png",
           soundPath: "assets/sounds/sayzid.mp3",
+          touchSoundPath: "assets/touch-sounds/sayzid-touch.mp3",
           position: { x: 68, y: 77 },
           zIndex: 22,
           clickAnim: "react-hawker-jump",
@@ -2541,6 +2548,7 @@
           roast: "Jahid's commentary has zero brakes and zero filters.",
           imagePath: "assets/characters/jahid.png",
           soundPath: "assets/sounds/jahid.mp3",
+          touchSoundPath: "assets/touch-sounds/jahid-touch.mp3",
           position: { x: 78, y: 88 },
           zIndex: 27,
           clickAnim: "react-cackle",
@@ -2562,6 +2570,7 @@
           roast: "Billal wakes up already mad at Sector 09.",
           imagePath: "assets/characters/billal.png",
           soundPath: "assets/sounds/billal.mp3",
+          touchSoundPath: "assets/touch-sounds/billal-touch.mp3",
           position: { x: 87, y: 79 },
           zIndex: 24,
           clickAnim: "react-bristle",
@@ -2583,6 +2592,7 @@
           roast: "Anam's high-pitched wheeze can shatter cheap glassware.",
           imagePath: "assets/characters/anam.png",
           soundPath: "assets/sounds/anam.mp3",
+          touchSoundPath: "assets/touch-sounds/anam-touch.mp3",
           position: { x: 93, y: 92 },
           zIndex: 30,
           clickAnim: "react-wheeze",
@@ -2600,33 +2610,30 @@
       ],
 
       memories: [
-        {
-          id: "mem-01",
-          title: "[EDITABLE PLACEHOLDER] Archive Entry 01",
-          date: "[EDITABLE DATE]",
-          category: "INCIDENTS",
-          mediaType: "image",
-          mediaPath: "assets/memories/sample1.jpg",
-          caption: "[EDITABLE PLACEHOLDER] Add real photo/video path in COMMITTEE_CONFIG.memories."
-        },
-        {
-          id: "mem-02",
-          title: "[EDITABLE PLACEHOLDER] Archive Entry 02",
-          date: "[EDITABLE DATE]",
-          category: "GATHERINGS",
-          mediaType: "image",
-          mediaPath: "assets/memories/sample2.jpg",
-          caption: "[EDITABLE PLACEHOLDER] Replace with your actual group photo and date."
-        },
-        {
-          id: "mem-03",
-          title: "[EDITABLE PLACEHOLDER] Archive Entry 03",
-          date: "[EDITABLE DATE]",
-          category: "EVIDENCE",
-          mediaType: "video",
-          mediaPath: "assets/memories/sample3.mp4",
-          caption: "[EDITABLE PLACEHOLDER] Supports .jpg, .png, .webp, or .mp4 files."
-        }
+        { id: "mem-01", title: "Memory Slot 01", date: "[EDITABLE DATE]", category: "INCIDENTS", mediaType: "image", mediaPath: "assets/memories/mem-01.jpg", caption: "[EDITABLE PLACEHOLDER] Drop photo in assets/memories/mem-01.jpg" },
+        { id: "mem-02", title: "Memory Slot 02", date: "[EDITABLE DATE]", category: "GATHERINGS", mediaType: "image", mediaPath: "assets/memories/mem-02.jpg", caption: "[EDITABLE PLACEHOLDER] Drop photo in assets/memories/mem-02.jpg" },
+        { id: "mem-03", title: "Memory Slot 03", date: "[EDITABLE DATE]", category: "EVIDENCE", mediaType: "image", mediaPath: "assets/memories/mem-03.jpg", caption: "[EDITABLE PLACEHOLDER] Drop photo in assets/memories/mem-03.jpg" },
+        { id: "mem-04", title: "Memory Slot 04", date: "[EDITABLE DATE]", category: "CHAOS", mediaType: "image", mediaPath: "assets/memories/mem-04.jpg", caption: "[EDITABLE PLACEHOLDER] Drop photo in assets/memories/mem-04.jpg" },
+        { id: "mem-05", title: "Memory Slot 05", date: "[EDITABLE DATE]", category: "INCIDENTS", mediaType: "image", mediaPath: "assets/memories/mem-05.jpg", caption: "[EDITABLE PLACEHOLDER] Drop photo in assets/memories/mem-05.jpg" },
+        { id: "mem-06", title: "Memory Slot 06", date: "[EDITABLE DATE]", category: "GATHERINGS", mediaType: "image", mediaPath: "assets/memories/mem-06.jpg", caption: "[EDITABLE PLACEHOLDER] Drop photo in assets/memories/mem-06.jpg" },
+        { id: "mem-07", title: "Memory Slot 07", date: "[EDITABLE DATE]", category: "EVIDENCE", mediaType: "image", mediaPath: "assets/memories/mem-07.jpg", caption: "[EDITABLE PLACEHOLDER] Drop photo in assets/memories/mem-07.jpg" },
+        { id: "mem-08", title: "Memory Slot 08", date: "[EDITABLE DATE]", category: "CHAOS", mediaType: "image", mediaPath: "assets/memories/mem-08.jpg", caption: "[EDITABLE PLACEHOLDER] Drop photo in assets/memories/mem-08.jpg" },
+        { id: "mem-09", title: "Memory Slot 09", date: "[EDITABLE DATE]", category: "INCIDENTS", mediaType: "image", mediaPath: "assets/memories/mem-09.jpg", caption: "[EDITABLE PLACEHOLDER] Drop photo in assets/memories/mem-09.jpg" },
+        { id: "mem-10", title: "Memory Slot 10", date: "[EDITABLE DATE]", category: "GATHERINGS", mediaType: "image", mediaPath: "assets/memories/mem-10.jpg", caption: "[EDITABLE PLACEHOLDER] Drop photo in assets/memories/mem-10.jpg" },
+        { id: "mem-11", title: "Memory Slot 11", date: "[EDITABLE DATE]", category: "EVIDENCE", mediaType: "image", mediaPath: "assets/memories/mem-11.jpg", caption: "[EDITABLE PLACEHOLDER] Drop photo in assets/memories/mem-11.jpg" },
+        { id: "mem-12", title: "Memory Slot 12", date: "[EDITABLE DATE]", category: "CHAOS", mediaType: "image", mediaPath: "assets/memories/mem-12.jpg", caption: "[EDITABLE PLACEHOLDER] Drop photo in assets/memories/mem-12.jpg" },
+        { id: "mem-13", title: "Memory Slot 13", date: "[EDITABLE DATE]", category: "INCIDENTS", mediaType: "image", mediaPath: "assets/memories/mem-13.jpg", caption: "[EDITABLE PLACEHOLDER] Drop photo in assets/memories/mem-13.jpg" },
+        { id: "mem-14", title: "Memory Slot 14", date: "[EDITABLE DATE]", category: "GATHERINGS", mediaType: "image", mediaPath: "assets/memories/mem-14.jpg", caption: "[EDITABLE PLACEHOLDER] Drop photo in assets/memories/mem-14.jpg" },
+        { id: "mem-15", title: "Memory Slot 15", date: "[EDITABLE DATE]", category: "EVIDENCE", mediaType: "image", mediaPath: "assets/memories/mem-15.jpg", caption: "[EDITABLE PLACEHOLDER] Drop photo in assets/memories/mem-15.jpg" },
+        { id: "mem-16", title: "Memory Slot 16", date: "[EDITABLE DATE]", category: "CHAOS", mediaType: "image", mediaPath: "assets/memories/mem-16.jpg", caption: "[EDITABLE PLACEHOLDER] Drop photo in assets/memories/mem-16.jpg" },
+        { id: "mem-17", title: "Memory Slot 17", date: "[EDITABLE DATE]", category: "INCIDENTS", mediaType: "image", mediaPath: "assets/memories/mem-17.jpg", caption: "[EDITABLE PLACEHOLDER] Drop photo in assets/memories/mem-17.jpg" },
+        { id: "mem-18", title: "Memory Slot 18", date: "[EDITABLE DATE]", category: "GATHERINGS", mediaType: "image", mediaPath: "assets/memories/mem-18.jpg", caption: "[EDITABLE PLACEHOLDER] Drop photo in assets/memories/mem-18.jpg" },
+        { id: "mem-19", title: "Memory Slot 19", date: "[EDITABLE DATE]", category: "EVIDENCE", mediaType: "image", mediaPath: "assets/memories/mem-19.jpg", caption: "[EDITABLE PLACEHOLDER] Drop photo in assets/memories/mem-19.jpg" },
+        { id: "mem-20", title: "Memory Slot 20", date: "[EDITABLE DATE]", category: "CHAOS", mediaType: "image", mediaPath: "assets/memories/mem-20.jpg", caption: "[EDITABLE PLACEHOLDER] Drop photo in assets/memories/mem-20.jpg" },
+        { id: "mem-21", title: "Memory Slot 21", date: "[EDITABLE DATE]", category: "INCIDENTS", mediaType: "image", mediaPath: "assets/memories/mem-21.jpg", caption: "[EDITABLE PLACEHOLDER] Drop photo in assets/memories/mem-21.jpg" },
+        { id: "mem-22", title: "Memory Slot 22", date: "[EDITABLE DATE]", category: "GATHERINGS", mediaType: "image", mediaPath: "assets/memories/mem-22.jpg", caption: "[EDITABLE PLACEHOLDER] Drop photo in assets/memories/mem-22.jpg" },
+        { id: "mem-23", title: "Memory Slot 23", date: "[EDITABLE DATE]", category: "EVIDENCE", mediaType: "image", mediaPath: "assets/memories/mem-23.jpg", caption: "[EDITABLE PLACEHOLDER] Drop photo in assets/memories/mem-23.jpg" },
+        { id: "mem-24", title: "Memory Slot 24", date: "[EDITABLE DATE]", category: "CHAOS", mediaType: "image", mediaPath: "assets/memories/mem-24.jpg", caption: "[EDITABLE PLACEHOLDER] Drop photo in assets/memories/mem-24.jpg" }
       ]
     };
 
@@ -2940,7 +2947,7 @@
     }
 
     /* ==========================================================================
-       AUDIO MANAGER (RELAXING AMBIENT BGM + FUNNY CARTOON & GUNSHOT SFX)
+       AUDIO MANAGER (RELAXING AMBIENT BGM + CUSTOM TOUCH SFX + CARTOON SFX)
        ========================================================================== */
     class CommitteeAudioManager {
       constructor() {
@@ -3078,15 +3085,19 @@
         }
       }
 
-      playMemberSound(member, onEnded) {
+      playAudioFileWithFallback(filePath, fallbackSynth, onEnded) {
         if (this.isMuted) {
           if (onEnded) setTimeout(onEnded, 450);
           return;
         }
         if (!this.unlocked) this.unlock(true);
-        this.stopAllSfx();
+        if (!filePath) {
+          this.playFunnySfx(fallbackSynth);
+          if (onEnded) setTimeout(onEnded, 450);
+          return;
+        }
 
-        const audio = new Audio(member.soundPath);
+        const audio = new Audio(filePath);
         audio.volume = this.volume;
         this.activeSfxAudio = audio;
 
@@ -3101,15 +3112,24 @@
         audio.addEventListener("ended", finish, { once: true });
         audio.addEventListener("error", () => {
           this.activeSfxAudio = null;
-          this.playFunnySfx(member.synthType);
+          this.playFunnySfx(fallbackSynth);
           setTimeout(finish, 450);
         }, { once: true });
 
         audio.play().catch(() => {
           this.activeSfxAudio = null;
-          this.playFunnySfx(member.synthType);
+          this.playFunnySfx(fallbackSynth);
           setTimeout(finish, 450);
         });
+      }
+
+      playTouchSound(member, onEnded) {
+        this.playAudioFileWithFallback(member.touchSoundPath, member.synthType, onEnded);
+      }
+
+      playMemberSound(member, onEnded) {
+        this.stopAllSfx();
+        this.playAudioFileWithFallback(member.soundPath, member.synthType, onEnded);
       }
 
       playFunnySfx(type = "boing") {
@@ -3468,6 +3488,9 @@
         vy = 0;
         actor.setPointerCapture(e.pointerId);
         actor.classList.add("is-dragging");
+        if (!audioManager.isMuted) {
+          audioManager.playTouchSound(member);
+        }
       });
 
       actor.addEventListener("pointermove", (e) => {
@@ -3495,7 +3518,7 @@
 
         if (!moved) {
           bumpChaos(6);
-          triggerCharacter(member.id);
+          triggerCharacter(member.id, { skipAudio: true });
           return;
         }
 
@@ -3584,7 +3607,8 @@
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
             bumpChaos(6);
-            triggerCharacter(member.id);
+            audioManager.playTouchSound(member);
+            triggerCharacter(member.id, { skipAudio: true });
           }
         });
 
@@ -3634,7 +3658,7 @@
         bubble.classList.remove("visible");
       }, COMMITTEE_CONFIG.settings.dialogueDurationMs);
 
-      if (!options.silent) audioManager.playMemberSound(member);
+      if (!options.silent && !options.skipAudio) audioManager.playMemberSound(member);
       if (!options.quietLog) logActivity(`${member.name.toUpperCase()}: "${line}"`);
     }
 
@@ -4829,6 +4853,7 @@
           <div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--amber-sulfur);">CH 0${i + 1}</div>
           <div style="font-family:var(--font-display);font-size:1.2rem;font-weight:800;">${m.name}</div>
           <div style="font-family:var(--font-mono);font-size:0.8rem;color:var(--cream-muted);">"${m.dialogue}"</div>
+          <div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--olive-bright);">TOUCH SFX: ${m.touchSoundPath}</div>
         `;
         pad.addEventListener("click", () => {
           document.querySelectorAll(".sound-pad.is-playing").forEach((el) => el.classList.remove("is-playing"));
@@ -4874,7 +4899,7 @@
           img.src = item.mediaPath;
           img.alt = item.title;
           img.onerror = () => {
-            media.innerHTML = `<div class="memory-placeholder">MISSING FILE: ${item.mediaPath}</div>`;
+            media.innerHTML = `<div class="memory-placeholder">EMPTY SLOT<br>${item.mediaPath}</div>`;
           };
           media.appendChild(img);
         } else if (item.mediaType === "video") {
@@ -5012,66 +5037,68 @@
       });
 
       bindProp("prop-door", () => {
-        bumpChaos(10);
+        bumpChaos(14);
         audioManager.playFunnySfx("bonk");
-        triggerCharacter("nafi", { bypassCooldown: true });
-        logActivity("HQ DOOR BANGED: Nafi opens with a verdict!");
-      });
-
-      bindProp("prop-grass", () => {
-        bumpChaos(8);
-        audioManager.playFunnySfx("squeak");
-        triggerCharacter("anam", { bypassCooldown: true });
-        logActivity("WEEDS RUSTLED: Anam wheezes from the grass!");
+        startCharacterFight("billal", "nafi");
+        logActivity("HQ DOOR KICKED: Billal & Nafi storm out!");
       });
 
       bindProp("prop-clouds-1", () => {
+        bumpChaos(8);
+        audioManager.playFunnySfx("squeak");
+        triggerCharacter("anam", { bypassCooldown: true });
+      });
+
+      bindProp("prop-clouds-2", () => {
+        bumpChaos(8);
         audioManager.playFunnySfx("slideWhistle");
         triggerCharacter("ali", { bypassCooldown: true });
       });
 
-      bindProp("prop-clouds-2", () => {
-        audioManager.playFunnySfx("boing");
-        triggerCharacter("jahid", { bypassCooldown: true });
+      bindProp("prop-grass", () => {
+        bumpChaos(8);
+        audioManager.playFunnySfx("sproing");
+        triggerCharacter("vaste", { bypassCooldown: true });
       });
 
-      document.addEventListener("keydown", (e) => {
-        if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
-        state.secretBuffer = (state.secretBuffer + e.key.toLowerCase()).slice(-6);
-        if (state.secretBuffer.endsWith("999")) {
-          state.secretBuffer = "";
-          triggerUnleashChaos();
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeDossier();
+          return;
+        }
+        if (e.key.length === 1) {
+          state.secretBuffer = (state.secretBuffer + e.key.toLowerCase()).slice(-12);
+          if (state.secretBuffer.includes("committee")) {
+            state.secretBuffer = "";
+            triggerUnleashChaos();
+          } else if (state.secretBuffer.includes("fight")) {
+            state.secretBuffer = "";
+            startCharacterFight();
+          } else if (state.secretBuffer.includes("riot")) {
+            state.secretBuffer = "";
+            startNinePersonRiot();
+          }
         }
       });
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      const gate = document.getElementById("entry-gate");
+    function bindEvents() {
       document.getElementById("enter-with-sound").addEventListener("click", () => {
         audioManager.unlock(true);
-        gate.classList.add("hidden");
+        document.getElementById("entry-gate").classList.add("hidden");
       });
       document.getElementById("enter-muted").addEventListener("click", () => {
         audioManager.unlock(false);
-        gate.classList.add("hidden");
+        document.getElementById("entry-gate").classList.add("hidden");
       });
-
-      document.getElementById("toggle-mute-btn").addEventListener("click", () => audioManager.toggleMute());
-      document.getElementById("toggle-music-btn").addEventListener("click", () => audioManager.toggleMusic());
-      document.getElementById("volume-control").addEventListener("input", (e) => audioManager.setVolume(e.target.value));
 
       document.querySelectorAll(".nav-tab").forEach((tab) => {
         tab.addEventListener("click", () => switchTab(tab.dataset.target));
       });
 
-      document.querySelectorAll("[data-exit-expand]").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          audioManager.playFunnySfx("pop");
-          stopAllActiveGames();
-          collapseExpandedGame();
-          renderWheelLabels();
-        });
-      });
+      document.getElementById("toggle-mute-btn").addEventListener("click", () => audioManager.toggleMute());
+      document.getElementById("toggle-music-btn").addEventListener("click", () => audioManager.toggleMusic());
+      document.getElementById("volume-control").addEventListener("input", (e) => audioManager.setVolume(e.target.value));
 
       document.getElementById("btn-unleash-chaos").addEventListener("click", triggerUnleashChaos);
       document.getElementById("btn-brawl-pair").addEventListener("click", () => startCharacterFight());
@@ -5080,32 +5107,33 @@
       document.getElementById("btn-roast-mode").addEventListener("click", toggleRoastMode);
       document.getElementById("btn-random-member").addEventListener("click", triggerRandomMember);
 
+      document.querySelectorAll("[data-exit-expand]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          stopAllActiveGames();
+          collapseExpandedGame();
+        });
+      });
+
       document.getElementById("rui-start-btn").addEventListener("click", startRuiGame);
       document.getElementById("rui-replay-btn").addEventListener("click", startRuiGame);
+
       document.getElementById("hole-start-btn").addEventListener("click", startHoleGame);
       document.getElementById("hole-replay-btn").addEventListener("click", startHoleGame);
+
       document.getElementById("barrel-start-btn").addEventListener("click", startBarrelGame);
       document.getElementById("barrel-replay-btn").addEventListener("click", startBarrelGame);
+
       document.getElementById("wheel-spin-btn").addEventListener("click", spinWorkWheel);
       document.getElementById("missing-start-btn").addEventListener("click", startMissingMemberRound);
 
-      document.getElementById("sfx-airhorn-btn").addEventListener("click", () => {
+      document.getElementById("sfx-airhorn-btn").addEventListener("click", () => audioManager.playFunnySfx("airhorn"));
+      document.getElementById("sfx-boing-btn").addEventListener("click", () => audioManager.playFunnySfx("boing"));
+      document.getElementById("sfx-bonk-btn").addEventListener("click", () => audioManager.playFunnySfx("bonk"));
+      document.getElementById("sfx-wahwah-btn").addEventListener("click", () => audioManager.playFunnySfx("wahWah"));
+      document.getElementById("sfx-riot-btn").addEventListener("click", () => {
         audioManager.playFunnySfx("airhorn");
-        bumpChaos(10);
+        startNinePersonRiot();
       });
-      document.getElementById("sfx-boing-btn").addEventListener("click", () => {
-        audioManager.playFunnySfx("boing");
-        bumpChaos(6);
-      });
-      document.getElementById("sfx-bonk-btn").addEventListener("click", () => {
-        audioManager.playFunnySfx("bonk");
-        bumpChaos(6);
-      });
-      document.getElementById("sfx-wahwah-btn").addEventListener("click", () => {
-        audioManager.playFunnySfx("wahWah");
-        bumpChaos(4);
-      });
-      document.getElementById("sfx-riot-btn").addEventListener("click", startNinePersonRiot);
 
       document.getElementById("dossier-close-btn").addEventListener("click", closeDossier);
       document.getElementById("dossier-backdrop").addEventListener("click", (e) => {
@@ -5114,25 +5142,28 @@
       document.getElementById("dossier-sound-btn").addEventListener("click", () => {
         if (state.activeModalMember) audioManager.playMemberSound(state.activeModalMember);
       });
+      document.getElementById("dossier-touch-sound-btn").addEventListener("click", () => {
+        if (state.activeModalMember) audioManager.playTouchSound(state.activeModalMember);
+      });
       document.getElementById("dossier-fight-btn").addEventListener("click", () => {
         if (state.activeModalMember) {
-          const id = state.activeModalMember.id;
+          const chosenId = state.activeModalMember.id;
           closeDossier();
-          startCharacterFight(id);
+          startCharacterFight(chosenId);
         }
       });
-      document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") closeDossier();
-      });
+    }
 
+    document.addEventListener("DOMContentLoaded", () => {
       renderMainScene();
+      buildFiveHoles();
+      buildBarrelStations();
+      renderWheelLabels();
       renderMembersRoster();
       renderSoundRoom();
       renderMemoryWall();
       renderAboutSection();
-      buildFiveHoles();
-      buildBarrelStations();
-      renderWheelLabels();
+      bindEvents();
       initPropsAndEasterEggs();
       startBlinkingLoop();
       startAutonomousLife();
